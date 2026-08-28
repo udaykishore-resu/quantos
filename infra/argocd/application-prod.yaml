@@ -1,0 +1,67 @@
+# QuantOS prod.
+#
+# Two differences from dev, both deliberate.
+#
+# `automated` is absent: prod syncs only when something triggers it, and the
+# only thing that does is .github/workflows/cd.yml after a human approves the
+# `production` environment. An automated sync here would mean a merge to main
+# reaches prod without anyone deciding it should.
+#
+# `targetRevision` is a tag, not a branch. It is rewritten by the CD workflow to
+# the released tag, so what prod runs is a name that cannot move underneath it.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quantos-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/part-of: quantos
+    quantos.io/environment: prod
+  annotations:
+    # Sync waves: the topic Job (a PreSync hook) runs first, then everything
+    # else. See infra/kubernetes/base/topics-job.yaml.
+    argocd.argoproj.io/sync-options: PruneLast=true
+spec:
+  project: quantos
+
+  source:
+    repoURL: https://github.com/udaykishoreresu/quantos.git
+    # Rewritten by cd.yml. A branch here would mean prod moves on someone else's
+    # merge.
+    targetRevision: v0.1.0
+    path: infra/kubernetes/overlays/prod
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quantos
+
+  syncPolicy:
+    # No `automated` block. Sync is triggered by cd.yml after the production
+    # environment's approval gate, or by hand.
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+      # Refuse to sync a manifest set that fails server-side validation, rather
+      # than applying the half of it that parses.
+      - Validate=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
+
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data
+
+  revisionHistoryLimit: 20

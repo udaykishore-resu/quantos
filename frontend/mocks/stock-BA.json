@@ -1,0 +1,481 @@
+{
+ "data": {
+  "stock": {
+   "ticker": "BA",
+   "company": "The Boeing Company",
+   "sector": "Industrials",
+   "industry": "Aerospace",
+   "exchange": "NYSE",
+   "asset_class": "EQUITY",
+   "currency": "USD",
+   "market_cap": 110000000000,
+   "shares_outstanding": 628571428.5714285,
+   "avg_volume_30d": 8000000,
+   "reference_price": 175,
+   "avg_notional_30d": 1400000000,
+   "beta": 1.5,
+   "listed_at": "2010-01-01T00:00:00Z",
+   "tags": [
+    "fixture"
+   ]
+  },
+  "features": {
+   "ticker": "BA",
+   "as_of": "2026-08-28T02:45:00Z",
+   "interval": "1m",
+   "values": {
+    "adx_14": 48.52671243350062,
+    "atr_14": 0.3165162887791671,
+    "atr_pct": 0.0017736734769561355,
+    "bb_lower": 178.18877921544674,
+    "bb_percent_b": 0.2249781794382483,
+    "bb_upper": 179.36054078455317,
+    "bb_width": 0.006554405244604704,
+    "breakout_down": 0,
+    "breakout_up": 0,
+    "dist_resistance_bps": 4.163575272733447,
+    "dist_support_bps": 0.5379585816725383,
+    "ema_21": 178.62053204022655,
+    "ema_9": 178.7749590561603,
+    "gap_pct": -0.00014680790857559165,
+    "last": 178.4524,
+    "macd": 0.2763958752883582,
+    "macd_hist": -7.036448707794945,
+    "macd_signal": 0.40196299122664886,
+    "minus_di_14": 20.063381910935526,
+    "momentum_10": -0.0022130499496220146,
+    "momentum_60": 0.014945576443796904,
+    "plus_di_14": 26.81885182060008,
+    "realized_vol_20": 0.36363492685865084,
+    "rel_strength_20": 0.00012645554646277535,
+    "resistance": 178.5267,
+    "ret_log_1": -6.780289756308862e-05,
+    "ret_log_5": -0.004416622801616597,
+    "rsi_14": 49.62133002535918,
+    "sma_20": 178.77465999999995,
+    "sma_200": 176.89628000000002,
+    "sma_50": 177.68308000000013,
+    "support": 178.4428,
+    "trend_slope_20": 1.1812842389276332,
+    "vol_of_vol_20": 0.00013865224724421389,
+    "volume_ratio_20": 1.0011524956771471,
+    "volume_z_20": 0.15904337559329912,
+    "vwap": 176.89636151644154,
+    "vwap_dist_bps": 87.96328371139741,
+    "zscore_20": -1.1000872824211754
+   },
+   "warm": {
+    "adx_14": true,
+    "atr_14": true,
+    "atr_pct": true,
+    "bb_lower": true,
+    "bb_percent_b": true,
+    "bb_upper": true,
+    "bb_width": true,
+    "breakout_down": true,
+    "breakout_up": true,
+    "dist_resistance_bps": true,
+    "dist_support_bps": true,
+    "ema_21": true,
+    "ema_9": true,
+    "gap_pct": true,
+    "last": true,
+    "macd": true,
+    "macd_hist": true,
+    "macd_signal": true,
+    "minus_di_14": true,
+    "momentum_10": true,
+    "momentum_60": true,
+    "plus_di_14": true,
+    "realized_vol_20": true,
+    "rel_strength_20": true,
+    "resistance": true,
+    "ret_log_1": true,
+    "ret_log_5": true,
+    "rsi_14": true,
+    "sma_20": true,
+    "sma_200": false,
+    "sma_50": true,
+    "support": true,
+    "trend_slope_20": true,
+    "vol_of_vol_20": true,
+    "volume_ratio_20": true,
+    "volume_z_20": true,
+    "vwap": true,
+    "vwap_dist_bps": true,
+    "zscore_20": true
+   },
+   "last": 178.4524,
+   "bid": 0,
+   "ask": 0,
+   "volume": 314767,
+   "spread_bps": 0,
+   "stale": false,
+   "last_tick_at": "2026-08-28T02:45:00Z",
+   "schema_version": 1,
+   "hash": "c888d87869b0b11eb98ed76decb5f2171e843513e2c3dc85934fa12e62f47371"
+  },
+  "score": {
+   "ticker": "BA",
+   "created_at": "2026-08-28T01:55:00.325297436Z",
+   "fundamental_score": 79.1,
+   "growth_score": 76.4,
+   "quality_score": 78.8,
+   "valuation_score": 27.3,
+   "technical_score": 68.4,
+   "momentum_score": 48,
+   "sector_score": 59.3,
+   "market_regime_score": 37.3,
+   "risk_score": 81,
+   "event_risk_score": 100,
+   "final_score": 63.8,
+   "classification": "NEUTRAL",
+   "weights": {
+    "event_risk": 1,
+    "fundamental": 0.5,
+    "growth": 0.5,
+    "market_regime": 1.5,
+    "momentum": 2,
+    "quality": 0.5,
+    "risk": 1,
+    "sector": 0.75,
+    "technical": 2,
+    "valuation": 0.25
+   },
+   "strategy_id": "momentum",
+   "config_hash": "029e25cd01e9ede3",
+   "evidence": [
+    "gross margin of 40.1%",
+    "operating margin of 20.0%",
+    "return on equity of 46.6%",
+    "return on invested capital of 24.6%",
+    "accruals at -1.0% of assets",
+    "revenue growth of 17.2%",
+    "earnings growth of 13.8%",
+    "positive year-over-year earnings in 100% of comparable periods",
+    "debt-to-equity of 1.13",
+    "current ratio of 1.98",
+    "free-cash-flow margin of 15.3%",
+    "PEG of 4.24 against a policy maximum of 2.00; P/E of 58.3 against a policy maximum of 35; EV/EBITDA of 39.7 (D&A assumed at 4% of revenue); free-cash-flow yield of 1.5%",
+    "price 178.45 against 20-period 178.77 and 50-period 177.68",
+    "ADX at 48.5",
+    "88 bps from session VWAP",
+    "10-period momentum -0.22%",
+    "60-period momentum 1.49%",
+    "relative strength 0.01% against the benchmark",
+    "Industrials sector ranks 5 on relative strength",
+    "regime RANGE at confidence 0.68, not supporting the FLAT setup",
+    "risk warnings: model confidence of 0.04 is below the 0.30 minimum for a paper signal"
+   ],
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  "prediction": {
+   "id": "01a04613-d665-78a0-b4ec-4bef8d809737",
+   "ticker": "BA",
+   "created_at": "2026-08-28T01:55:00.325359106Z",
+   "scenarios": [
+    {
+     "horizon": "15m",
+     "distribution": {
+      "up": 0.32162496968150844,
+      "flat": 0.3567500606369831,
+      "down": 0.32162496968150844
+     },
+     "flat_band_bps": 15,
+     "expected_move_bps": 43.1,
+     "confidence": 0.0351,
+     "uncertainty": 0.9989
+    },
+    {
+     "horizon": "60m",
+     "distribution": {
+      "up": 0.37729873313560497,
+      "flat": 0.24540253372879015,
+      "down": 0.37729873313560497
+     },
+     "flat_band_bps": 15,
+     "expected_move_bps": 86.1,
+     "confidence": 0.0659,
+     "uncertainty": 0.9833
+    },
+    {
+     "horizon": "1d",
+     "distribution": {
+      "up": 0.4214620531492184,
+      "flat": 0.1570758937015632,
+      "down": 0.4214620531492184
+     },
+     "flat_band_bps": 15,
+     "expected_move_bps": 422,
+     "confidence": 0.1322,
+     "uncertainty": 0.9276
+    }
+   ],
+   "model_id": "direction-3class",
+   "model_version": "rules-fallback",
+   "source": "rules-fallback",
+   "feature_hash": "c888d87869b0b11eb98ed76decb5f2171e843513e2c3dc85934fa12e62f47371",
+   "feature_as_of": "2026-08-28T02:45:00Z",
+   "regime": "RANGE",
+   "regime_confidence": 0.6789996312169487,
+   "rule_prior": {
+    "up": 0.25833333333333336,
+    "flat": 0.48333333333333334,
+    "down": 0.25833333333333336
+   },
+   "model_output": {
+    "up": 0,
+    "flat": 0,
+    "down": 0
+   },
+   "blend_weight": 0,
+   "degraded": [
+    "model_unavailable"
+   ],
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  "risk": {
+   "id": "01a7c3d2-51aa-7f04-9d13-2e8b6c4a9f77",
+   "ticker": "BA",
+   "created_at": "2026-08-28T02:04:00Z",
+   "decision": "ALLOW_PAPER_SIGNAL",
+   "level": "MEDIUM",
+   "score": 41.0,
+   "checks": [
+    {
+     "name": "data_freshness",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 3.2,
+     "threshold": 30,
+     "reason": "market data is current (3.2s old)"
+    },
+    {
+     "name": "liquidity",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 4120000000,
+     "threshold": 20000000,
+     "reason": "average daily notional of $4120.0M"
+    },
+    {
+     "name": "spread",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 2.4,
+     "threshold": 25,
+     "reason": "quoted spread of 2.4 bps is inside the 25.0 bps limit"
+    },
+    {
+     "name": "volatility",
+     "status": "WARN",
+     "decision": "WATCH_ONLY",
+     "value": 0.4106,
+     "threshold": 0.45,
+     "reason": "annualised realised volatility of 41.1% is approaching the 45.0% limit"
+    },
+    {
+     "name": "event_proximity",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 19.0,
+     "threshold": 2,
+     "reason": "no confirmed corporate event within 2 days (next is 19 days out)"
+    },
+    {
+     "name": "model_confidence",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 0.4462,
+     "threshold": 0.25,
+     "reason": "model confidence of 0.45 clears the 0.25 floor"
+    },
+    {
+     "name": "model_health",
+     "status": "WARN",
+     "decision": "WATCH_ONLY",
+     "value": 0.004,
+     "threshold": 0.02,
+     "reason": "serving model is only 0.40 points of accuracy above its base rate, below the 2.00 point margin the charter expects"
+    },
+    {
+     "name": "market_regime",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 0.6798,
+     "threshold": 0.4,
+     "reason": "regime RANGE is classified with 0.68 confidence, above the 0.40 floor"
+    },
+    {
+     "name": "portfolio_concentration",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 0.035,
+     "threshold": 0.15,
+     "reason": "resulting position would be 3.5% of paper equity, inside the 15.0% cap"
+    },
+    {
+     "name": "correlation_exposure",
+     "status": "SKIP",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 0,
+     "threshold": 0,
+     "reason": "correlation exposure could not be evaluated: the paper portfolio holds no positions to correlate against",
+     "skipped_reason": "no open positions"
+    },
+    {
+     "name": "portfolio_drawdown",
+     "status": "PASS",
+     "decision": "ALLOW_PAPER_SIGNAL",
+     "value": 0.0,
+     "threshold": 0.1,
+     "reason": "paper portfolio drawdown of 0.0% is inside the 10.0% halt threshold"
+    }
+   ],
+   "warnings": [
+    "annualised realised volatility of 41.1% is approaching the 45.0% limit",
+    "serving model is only 0.40 points of accuracy above its base rate, below the 2.00 point margin the charter expects"
+   ],
+   "config_hash": "eec4f7c3477d3e59",
+   "regime": "RANGE",
+   "feature_hash": "dc8d4ff317a832def603b5b458793b6fa03338efa90f147d00ae545a25e7a1a2",
+   "prediction_id": "01a04611-174b-7b76-8292-1bc675a5ee34",
+   "evaluated_at": "2026-08-28T02:04:00Z"
+  },
+  "opportunity": {
+   "ticker": "BA",
+   "created_at": "2026-08-28T01:55:00.325297436Z",
+   "score": 46.5,
+   "bias": "FLAT",
+   "confidence": 0.07,
+   "risk": "LOW",
+   "components": {
+    "directional_edge": 0,
+    "event_headroom": 3,
+    "liquidity": 8,
+    "model_confidence": 0.9,
+    "regime_alignment": 6,
+    "risk_headroom": 6.5,
+    "risk_reward": 3.2,
+    "stock_score": 16.6,
+    "volatility_fit": 2.3
+   },
+   "risk_reward": 1.67,
+   "expected_move_bps": 86.1,
+   "stop_distance_bps": 26.6,
+   "target_distance_bps": 44.3,
+   "prediction_id": "01a04613-d665-78a0-b4ec-4bef8d809737",
+   "regime": "RANGE",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  "updated_at": "2026-08-28T02:45:00Z",
+  "signals": [
+   {
+    "id": "01a7c3d2-4f6b-7a91-b8e2-5c9d1f3a7b04",
+    "ticker": "BA",
+    "created_at": "2026-08-28T02:04:00Z",
+    "expires_at": "2026-08-28T03:04:00Z",
+    "side": "LONG",
+    "status": "ACTIVE",
+    "strength": 71.4,
+    "confidence": 0.4462,
+    "horizon": "60m",
+    "entry_reference": 178.9598,
+    "stop_reference": 176.5171,
+    "target_reference": 183.1939,
+    "suggested_weight": 0.035,
+    "invalidations": [
+     {
+      "kind": "PRICE_BELOW",
+      "threshold": 176.5171,
+      "description": "Close below 176.5171 (1.5x ATR under the entry reference) invalidates the setup."
+     },
+     {
+      "kind": "VWAP_CROSS",
+      "threshold": 178.7093,
+      "description": "A sustained cross back below session VWAP removes the participation thesis."
+     },
+     {
+      "kind": "REGIME_CHANGE",
+      "regime_from": "RANGE",
+      "description": "A change out of the RANGE regime invalidates the mean-reversion premise this signal was scored under."
+     },
+     {
+      "kind": "CONFIDENCE_BELOW",
+      "threshold": 0.25,
+      "description": "Model confidence falling below 0.25 on a subsequent prediction invalidates the signal."
+     },
+     {
+      "kind": "TIME_EXPIRY",
+      "deadline": "2026-08-28T03:04:00Z",
+      "description": "The 60-minute horizon elapses without either reference level being reached."
+     }
+    ],
+    "strategy_id": "breakout",
+    "rules_fired": [
+     "vwap_reclaim",
+     "volume_expansion",
+     "adx_trend_intact"
+    ],
+    "evidence": [
+     "Price reclaimed session VWAP 4 bars ago and has held above it since.",
+     "Volume over the last 20 bars is 1.8x the trailing average (volume_z_20 = 2.14).",
+     "ADX(14) at 22.4 with +DI above -DI: the directional structure is intact rather than chopping.",
+     "Relative strength against the sector ETF is in the top quintile of the tracked universe."
+    ],
+    "counter_evidence": [
+     "bb_percent_b is 0.87, near the top of the Bollinger channel: entry is not at a favourable point in the range.",
+     "The regime is RANGE, in which breakout continuation historically resolves FLAT more often than UP."
+    ],
+    "prediction_id": "01a04611-174b-7b76-8292-1bc675a5ee34",
+    "risk_assessment_id": "01a7c3d2-51aa-7f04-9d13-2e8b6c4a9f77",
+    "score_ref": "score:BA:dc8d4ff317a8",
+    "feature_hash": "dc8d4ff317a832def603b5b458793b6fa03338efa90f147d00ae545a25e7a1a2",
+    "regime": "RANGE",
+    "model_version": "v1.000339040",
+    "config_hash": "eec4f7c3477d3e59",
+    "correlation_id": "01a7c3d2-3e11-7c88-a4f5-9b2d7e0c6a13",
+    "explanation": "The platform classified the market as RANGE with 0.68 confidence and recorded a reclaim of session VWAP on BA accompanied by volume roughly 1.8 times its trailing average. Three configured rules fired in support and two fired against: the instrument is trading near the top of its Bollinger channel, and in a RANGE regime this pattern has historically resolved FLAT more often than it has resolved UP. The model assigns 0.44 to UP, 0.33 to FLAT and 0.23 to DOWN over the 60-minute horizon with a flat band of plus or minus 18 basis points, so the most likely single outcome carries less than even odds and both other outcomes remain plausible. The risk engine allowed a paper signal with two warnings recorded.",
+    "explanation_source": "analyst/template (deterministic, grounding-validated)",
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+   }
+  ],
+  "explanation": {
+   "ticker": "BA",
+   "generated_at": "2026-08-28T02:05:00Z",
+   "summary": "The platform classified the market as RANGE with 0.68 confidence and recorded a reclaim of session VWAP on BA accompanied by volume roughly 1.8 times its trailing average. Three configured rules fired in support and two fired against: the instrument is trading near the top of its Bollinger channel, and in a RANGE regime this pattern has historically resolved FLAT more often than it has resolved UP. The model assigns 0.44 to UP, 0.33 to FLAT and 0.23 to DOWN over the 60-minute horizon with a flat band of plus or minus 18 basis points, so the most likely single outcome carries less than even odds and both other outcomes remain plausible. The risk engine allowed a paper signal with two warnings recorded.",
+   "supporting_evidence": [
+    "Price reclaimed session VWAP 4 bars ago and has held above it since.",
+    "Volume over the last 20 bars is 1.8x the trailing average (volume_z_20 = 2.14).",
+    "ADX(14) at 22.4 with +DI above -DI: the directional structure is intact rather than chopping.",
+    "Relative strength against the sector ETF is in the top quintile of the tracked universe."
+   ],
+   "counter_evidence": [
+    "bb_percent_b is 0.87, near the top of the Bollinger channel: entry is not at a favourable point in the range.",
+    "The regime is RANGE, in which breakout continuation historically resolves FLAT more often than UP."
+   ],
+   "uncertainty": "The leading outcome carries 0.44 probability over a 60 minute horizon with a plus or minus 18 basis point flat band, so it is more likely than either alternative but far from certain. The serving model is currently only 0.4 accuracy points above its base rate over 1,768 resolved predictions, which is not a margin that supports confident directional reading.",
+   "risks": [
+    "Realised volatility at 41.1% is close to the 45% level at which the risk engine stops allowing signals.",
+    "The instrument is near the top of its Bollinger channel, so the entry reference is not at a favourable point in the range.",
+    "A change out of the RANGE regime invalidates the premise this signal was scored under."
+   ],
+   "scenarios": [
+    "UP (0.44): the VWAP reclaim holds and the move extends past the 2.6x ATR target reference.",
+    "FLAT (0.33): price oscillates inside the plus or minus 18 basis point band and the signal expires on its 60 minute horizon.",
+    "DOWN (0.23): the reclaim fails, price loses VWAP, and the 1.5x ATR stop reference is reached."
+   ],
+   "source": "template",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  }
+ },
+ "meta": {
+  "as_of": "2026-08-28T02:45:00Z"
+ },
+ "degraded": [
+  "model"
+ ],
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "2081994174dffcd3",
+ "served_at": "2026-08-28T01:55:22.285718249Z"
+}

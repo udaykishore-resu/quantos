@@ -1,0 +1,275 @@
+# Continuous deployment: dev automatically, prod behind a human.
+#
+# The shape is deliberate. Dev is reconciled by ArgoCD on every merge, because
+# the cost of a bad dev deploy is a redeploy. Prod is a separate job with an
+# `environment:` gate, because the cost of a bad prod deploy is a gap in the
+# ingestion-continuity SLO at the moment the data is least reproducible - and
+# because "someone decided this should ship" is not a property a merge carries.
+#
+# AWS access is by OIDC. There is no long-lived key anywhere in this file; the
+# `policy` job in security.yml fails the build if one appears.
+name: cd
+
+on:
+  push:
+    branches: [main]
+    # Manifest and chart changes only. A change to internal/ reaches dev via the
+    # image tag the release workflow publishes, not via a manifest sync.
+    paths:
+      - "infra/kubernetes/**"
+      - "infra/helm/**"
+      - "infra/argocd/**"
+      - ".github/workflows/cd.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to deploy (e.g. v1.4.2). Required for prod."
+        required: true
+        type: string
+      target:
+        description: "Which environment to deploy"
+        required: true
+        default: dev
+        type: choice
+        options: [dev, prod]
+
+permissions:
+  contents: read
+
+concurrency:
+  # One deployment at a time, and never cancelled: a cancelled sync leaves the
+  # cluster half-reconciled.
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  # ----------------------------------------------------------------- gate ---
+  render:
+    name: render and validate manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: kustomize
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh \
+            | bash -s -- 5.4.3 /usr/local/bin
+
+      - name: both overlays build
+        # A sync that fails on a malformed manifest leaves Argo reporting
+        # OutOfSync with no way forward. Catching it here costs ten seconds.
+        run: |
+          kustomize build infra/kubernetes/overlays/dev  > /tmp/dev.yaml
+          kustomize build infra/kubernetes/overlays/prod > /tmp/prod.yaml
+
+      - name: no literal secrets
+        run: |
+          if grep -nE '^kind: Secret$' /tmp/dev.yaml /tmp/prod.yaml; then
+            echo "a rendered manifest contains a Secret; secrets are references only"
+            exit 1
+          fi
+
+      - name: placeholders are gone
+        # The base ships with 000000000000 as the IRSA account and REPLACE-ME in
+        # the certificate ARN, so an unpatched overlay fails here rather than
+        # producing pods that cannot assume a role.
+        #
+        # As committed, this step FAILS: the overlays carry
+        # REPLACE-WITH-DEV-CERT and REPLACE-WITH-PROD-CERT because nobody has
+        # supplied a real ACM certificate yet. That is the intended behaviour of
+        # a deploy gate on a repository that has never been deployed - the
+        # alternative is a pipeline that goes green and then produces an ALB with
+        # no TLS listener. Replace the placeholders in
+        # infra/kubernetes/overlays/*/ from `terraform output`, and this passes.
+        run: |
+          set -euo pipefail
+          if grep -n '000000000000\|REPLACE-ME\|REPLACE-WITH' /tmp/dev.yaml /tmp/prod.yaml; then
+            echo "an overlay still carries a base placeholder"
+            exit 1
+          fi
+
+  # ------------------------------------------------------------------ dev ---
+  dev:
+    name: deploy dev
+    needs: render
+    if: github.event_name == 'push' || inputs.target == 'dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: dev
+      url: https://quantos-dev.example.internal
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # OIDC. The trust policy on this role names this repository and the
+          # `dev` environment, so a workflow in a fork cannot assume it.
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: quantos-cd-dev
+
+      - name: kubeconfig
+        run: aws eks update-kubeconfig --name "${{ vars.EKS_CLUSTER_DEV }}"
+
+      - name: argocd cli
+        run: |
+          curl -sSfL -o /usr/local/bin/argocd \
+            https://github.com/argoproj/argo-cd/releases/download/v2.12.3/argocd-linux-amd64
+          chmod +x /usr/local/bin/argocd
+
+      - name: sync
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          argocd app sync quantos-dev --prune --timeout 600
+          # Wait for health, not just for the sync to be applied. A Deployment
+          # whose pods are CrashLoopBackOff is Synced and not Healthy, and only
+          # the second answers "did the deploy work".
+          argocd app wait quantos-dev --health --timeout 600
+
+      - name: smoke test
+        # Hits /healthz, /readyz and two real endpoints. Failing here does not
+        # roll back on its own - the rollback decision belongs to a person with
+        # docs/runbooks/deploy-rollback.md open - but it fails the job loudly.
+        run: |
+          kubectl -n quantos port-forward svc/api-gateway 18080:8080 &
+          sleep 5
+          QUANTOS_API=http://127.0.0.1:18080 ./scripts/smoke-test.sh
+
+  # ----------------------------------------------------------------- prod ---
+  prod:
+    name: deploy prod
+    needs: render
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'prod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      # This is the gate. Configure `production` in the repository settings with
+      # required reviewers; the job blocks here until one of them approves, and
+      # the approval is recorded against the run.
+      name: production
+      url: https://quantos.example.com
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: the tag must exist and be a release
+        # Prod deploys a tag, never a branch: what runs in production should be
+        # a name that cannot move underneath it.
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          git rev-parse "refs/tags/${VERSION}" >/dev/null || {
+            echo "tag ${VERSION} does not exist"
+            exit 1
+          }
+          echo "deploying ${VERSION}"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: quantos-cd-prod
+
+      - name: verify the release before deploying it
+        # Signature and SBOM. An unsigned image is one nobody can attribute, and
+        # this is the last point at which that is cheap to notice.
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          curl -sSfL -o /usr/local/bin/cosign \
+            https://github.com/sigstore/cosign/releases/download/v2.4.0/cosign-linux-amd64
+          chmod +x /usr/local/bin/cosign
+          ./scripts/verify-release.sh "${VERSION}"
+
+      - name: kubeconfig
+        run: aws eks update-kubeconfig --name "${{ vars.EKS_CLUSTER_PROD }}"
+
+      - name: argocd cli
+        run: |
+          curl -sSfL -o /usr/local/bin/argocd \
+            https://github.com/argoproj/argo-cd/releases/download/v2.12.3/argocd-linux-amd64
+          chmod +x /usr/local/bin/argocd
+
+      - name: point prod at the release tag
+        env:
+          VERSION: ${{ inputs.version }}
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          argocd app set quantos-prod --revision "${VERSION}"
+
+      - name: record what prod was running
+        # Written before the sync, so the rollback target is known even if the
+        # sync leaves the application in a state that is hard to read.
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          argocd app history quantos-prod | tail -5 | tee previous-revision.txt
+
+      - name: sync
+        env:
+          ARGOCD_SERVER: ${{ vars.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          argocd app sync quantos-prod --prune --timeout 900
+          argocd app wait quantos-prod --health --timeout 900
+
+      - name: smoke test
+        run: |
+          kubectl -n quantos port-forward svc/api-gateway 18080:8080 &
+          sleep 5
+          QUANTOS_API=http://127.0.0.1:18080 ./scripts/smoke-test.sh
+
+      - name: watch for a rollback signal
+        # Five minutes of watching the two conditions that a bad deploy produces
+        # first. Not an automatic rollback: rolling back is a decision, and an
+        # automatic one taken on a five-minute window will sometimes undo a
+        # deploy that was fixing the problem.
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 10); do
+            restarts=$(kubectl -n quantos get pods \
+              -o jsonpath='{range .items[*]}{.status.containerStatuses[*].restartCount}{"\n"}{end}' \
+              | awk '{s+=$1} END {print s+0}')
+            notready=$(kubectl -n quantos get pods \
+              --field-selector=status.phase!=Running -o name | wc -l)
+            echo "restarts=${restarts} not-running=${notready}"
+            if [ "${restarts}" -gt 5 ] || [ "${notready}" -gt 2 ]; then
+              echo "::error::deployment looks unhealthy; see docs/runbooks/deploy-rollback.md"
+              exit 1
+            fi
+            sleep 30
+          done
+
+      - name: rollback instructions on failure
+        if: failure()
+        run: |
+          {
+            echo "### Prod deploy of ${{ inputs.version }} failed"
+            echo
+            echo 'Roll back with:'
+            echo
+            echo '```sh'
+            echo 'argocd app rollback quantos-prod   # picks the previous synced revision'
+            echo 'argocd app wait quantos-prod --health --timeout 900'
+            echo '```'
+            echo
+            echo 'Then follow docs/runbooks/deploy-rollback.md, which covers the'
+            echo 'cases a rollback does not fix on its own: a schema migration'
+            echo 'already applied, and consumer offsets already committed.'
+          } >> "$GITHUB_STEP_SUMMARY"

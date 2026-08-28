@@ -1,0 +1,160 @@
+id: breakout
+name: Volume-Confirmed Breakout
+version: "1.1.0"
+description: >
+  Trades expansion out of consolidation, and only when volume confirms. The
+  volume requirement is the discriminating condition: price poking above a
+  twenty-bar high on thin volume is noise, and a breakout rule without volume
+  confirmation is mostly a wick detector. The strategy also requires that the
+  band width was compressed recently, so it is trading expansion rather than
+  chasing a move that is already extended.
+enabled: true
+interval: 1m
+
+regimes:
+  - BREAKOUT
+  - BULL_TREND
+  - HIGH_VOLATILITY
+  - RISK_ON
+
+rules:
+  - id: breakout_up_confirmed
+    description: Close beyond the prior twenty-bar high with volume confirmation
+    side: LONG
+    weight: 3.0
+    all:
+      - feature: breakout_up
+        op: is_true
+
+  - id: volume_surge
+    description: Volume is at least twice its twenty period average
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: volume_ratio_20
+        op: gte
+        value: 2.0
+
+  - id: volume_zscore
+    description: Volume is more than two standard deviations above its recent mean
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: volume_z_20
+        op: gte
+        value: 2.0
+
+  - id: band_expansion
+    description: Bollinger band width is expanding out of compression
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: bb_width
+        op: gt
+        value: 0.012
+      - feature: bb_percent_b
+        op: gt
+        value: 0.9
+
+  - id: above_vwap_strongly
+    description: Price is more than twenty basis points above the session VWAP
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: vwap_dist_bps
+        op: gt
+        value: 20
+
+  - id: directional_strength
+    description: Directional movement favours the upside
+    side: LONG
+    weight: 1.0
+    all:
+      - feature: plus_di_14
+        op: gt
+        other: minus_di_14
+        scale: 1.15
+
+  # ---- counter-evidence
+  - id: exhaustion_risk
+    description: RSI is extremely stretched, raising the risk of an immediate failure
+    side: LONG
+    weight: 2.0
+    counter: true
+    all:
+      - feature: rsi_14
+        op: gt
+        value: 85
+
+  - id: gap_open
+    description: The bar opened with a large gap, so the breakout may already be exhausted
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: gap_pct
+        op: gt
+        value: 0.03
+
+  - id: thin_liquidity_move
+    description: Volatility is high while volume participation is only average
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: realized_vol_20
+        op: gt
+        value: 0.6
+      - feature: volume_ratio_20
+        op: lt
+        value: 1.2
+
+weights:
+  fundamental: 0.25
+  growth: 0.5
+  quality: 0.5
+  valuation: 0.25
+  technical: 2.5
+  momentum: 1.75
+  sector: 0.75
+  market_regime: 1.25
+  risk: 1.5
+  event_risk: 1.25
+
+policy:
+  min_rule_score: 45
+  min_final_score: 62
+  min_confidence: 0.32
+  min_directional_edge: 0.12
+  min_risk_reward: 1.8
+  horizon: 60m
+  stop_atr_multiple: 1.2
+  target_atr_multiple: 3.0
+  max_weight: 0.05
+  cooldown_minutes: 60
+  allow_short: false
+
+invalidation:
+  - kind: PRICE_BELOW
+    ref: entry
+    multiple: 1.2
+    description: Price falls back below the breakout level by more than 1.2 ATR, a failed breakout
+  - kind: VWAP_CROSS
+    ref: vwap
+    description: Price closes back below the session VWAP
+  - kind: REGIME_CHANGE
+    description: The regime leaves the breakout or trending set
+  - kind: VOLATILITY_ABOVE
+    ref: atr
+    value: 1.0
+    description: Volatility exceeds the calibrated range
+  - kind: CONFIDENCE_BELOW
+    ref: confidence
+    value: 0.22
+    description: Model confidence falls below the level that justified the signal
+  - kind: TIME_EXPIRY
+    minutes: 180
+    description: The breakout does not follow through within the expected window
+
+fundamental:
+  prefer_low_valuation: false

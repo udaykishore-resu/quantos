@@ -1,0 +1,149 @@
+# news-service
+#
+# RoleNews. Polls the wire, classifies deterministically, and may use the
+# language model only to refine that classification into the same typed
+# schema (ADR-005). The raw article text never reaches the decision path.
+#
+# Exactly one replica: it is a poller, and two pollers fetch the same
+# articles twice. Store-level dedup would catch it, but paying an LLM twice
+# for the same headline is not a cost worth absorbing.
+#
+# Generated from one table with the other eight (ADR-011: the binaries differ
+# only in which roles they name), then committed. Edit this file, not a
+# generator.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-service
+  labels:
+    app.kubernetes.io/name: news-service
+    app.kubernetes.io/part-of: quantos
+    app.kubernetes.io/component: platform
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: news-service
+  strategy:
+    # A singleton must stop before its replacement starts, or two instances
+    # briefly publish the same events.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: news-service
+        app.kubernetes.io/part-of: quantos
+        app.kubernetes.io/component: platform
+    spec:
+      serviceAccountName: quantos-news-service
+      automountServiceAccountToken: true
+      # Distroless nonroot is uid 65532 (deploy/Dockerfile).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      nodeSelector:
+        quantos.io/pool: platform
+      # cli.Main installs a SIGTERM handler and drains; give it more than the
+      # 15s http.shutdown_timeout so the drain finishes before SIGKILL.
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: news-service
+          # Overwritten by the kustomize images: transformer. deploy/Dockerfile
+          # builds one image per service from the same multi-stage build.
+          image: quantos/news-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            # /metrics is served on this same port: internal/api.Mount registers
+            # it on the main router, and telemetry.metrics_addr starts no second
+            # listener. deploy/prometheus/prometheus.yml scrapes the same way.
+            - name: http
+              containerPort: 8085
+              protocol: TCP
+          env:
+            - name: QUANTOS_SERVICE
+              value: news-service
+            - name: QUANTOS_HTTP_ADDR
+              value: ":8085"
+            - name: QUANTOS_LLM_PROVIDER
+              value: anthropic
+          envFrom:
+            # QUANTOS_CONFIG, QUANTOS_MODE, QUANTOS_ENV, QUANTOS_LOG_* and the
+            # model-artifact coordinates. Non-secret, patched per overlay.
+            - configMapRef:
+                name: quantos-env
+            # QUANTOS_POSTGRES_DSN, QUANTOS_REDIS_ADDR, QUANTOS_JWT_SECRET.
+            - secretRef:
+                name: quantos-store
+            # QUANTOS_KAFKA_BROKERS.
+            - secretRef:
+                name: quantos-bus
+            # ANTHROPIC_API_KEY, named by llm.api_key_env. Mounted here and in
+            # no other Deployment.
+            - secretRef:
+                name: quantos-llm
+          livenessProbe:
+            # /healthz answers "the process is up". It reports degraded
+            # subsystems in the body but still returns 200, so a degraded
+            # service is not killed - degradation is a state this platform is
+            # designed to run in, not a crash.
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            # /readyz answers "this instance can serve its purpose", and returns
+            # 503 when the universe is empty, no strategies loaded, or
+            # App.CanEmitSignals is false. That last one is the important case:
+            # when the provenance store is unwritable the platform suspends
+            # emission, and this probe takes the pod out of the Service so the
+            # suppression is visible rather than silent.
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            # Feature warm-up reads history before the first bar
+            # (features.warmup_bars). Until it finishes the service is not
+            # ready, and without this the readiness failures would restart it.
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/quantos
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: quantos-config
+        # The distroless image has a read-only root filesystem; anything the
+        # process writes needs an explicit volume.
+        - name: tmp
+          emptyDir: {}

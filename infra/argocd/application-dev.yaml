@@ -1,0 +1,66 @@
+# QuantOS dev.
+#
+# Automated sync with prune and self-heal: dev is the environment where git is
+# the truth and a manual kubectl edit should be reverted within the minute. Prod
+# (application-prod.yaml) is deliberately different.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quantos-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/part-of: quantos
+    quantos.io/environment: dev
+spec:
+  project: quantos
+
+  source:
+    repoURL: https://github.com/udaykishoreresu/quantos.git
+    # Dev tracks the default branch. The image tag inside the overlay is what
+    # cd.yml updates on every merge; the manifest path itself does not move.
+    targetRevision: main
+    path: infra/kubernetes/overlays/dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quantos
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      # Do not delete the namespace when the Application is deleted; the
+      # ExternalSecret-materialised Secrets and any PVCs go with it.
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      # The topic Job is a PreSync hook and must complete before any producer
+      # starts, or the first publish fails into a CrashLoopBackOff that looks
+      # like a bug in the service.
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
+
+  ignoreDifferences:
+    # The HPA owns the replica count once it is running. Without this, Argo
+    # reports permanent drift and self-heal fights the autoscaler on every
+    # reconcile.
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    # External Secrets writes the Secret's data; Argo does not manage it and
+    # must not try to.
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data
+
+  revisionHistoryLimit: 10

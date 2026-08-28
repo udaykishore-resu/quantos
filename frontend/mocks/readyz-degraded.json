@@ -1,0 +1,9 @@
+{
+ "error": {
+  "code": "unavailable",
+  "message": "a required backing service is unavailable",
+  "detail": "market data is stale for 31 of 118 instruments; signal emission is suspended",
+  "request_id": "mockfixture0001"
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+}

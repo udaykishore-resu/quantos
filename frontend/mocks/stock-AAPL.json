@@ -1,0 +1,428 @@
+{
+    "data": {
+        "stock": {
+            "ticker": "AAPL",
+            "company": "Apple Inc.",
+            "sector": "Technology",
+            "industry": "Consumer Electronics",
+            "exchange": "NASDAQ",
+            "asset_class": "EQUITY",
+            "currency": "USD",
+            "market_cap": 3200000000000,
+            "shares_outstanding": 13913043478.26087,
+            "avg_volume_30d": 55000000,
+            "reference_price": 230,
+            "avg_notional_30d": 12650000000,
+            "beta": 1.15,
+            "listed_at": "2010-01-01T00:00:00Z",
+            "tags": [
+                "fixture"
+            ]
+        },
+        "features": {
+            "ticker": "AAPL",
+            "as_of": "2026-08-28T02:45:00Z",
+            "interval": "1m",
+            "values": {
+                "adx_14": 16.5562383111386,
+                "atr_14": 0.5030109321995505,
+                "atr_pct": 0.002146925618965053,
+                "bb_lower": 232.65622267841763,
+                "bb_percent_b": 0.6690669996911847,
+                "bb_upper": 235.1034773215821,
+                "bb_width": 0.01046372589671345,
+                "breakout_down": 0,
+                "breakout_up": 0,
+                "dist_resistance_bps": 10.042954651770051,
+                "dist_support_bps": 23.19738994150905,
+                "ema_21": 233.83347808319996,
+                "ema_9": 233.9329999970068,
+                "gap_pct": -0.00015994560138900778,
+                "last": 234.2936,
+                "macd": 0.11922709240215568,
+                "macd_hist": 0.8453574518483088,
+                "macd_signal": 0.09942090833411898,
+                "minus_di_14": 29.292624098099072,
+                "momentum_10": 0.004316148327358604,
+                "momentum_60": 0.010460688641516391,
+                "plus_di_14": 27.870270721719933,
+                "realized_vol_20": 0.4594970194655524,
+                "rel_strength_20": -0.0024731726042606403,
+                "resistance": 234.5289,
+                "ret_log_1": 0.0019828124356711992,
+                "ret_log_5": 0.001538997742823344,
+                "rsi_14": 56.20543104597922,
+                "sma_20": 233.87984999999986,
+                "sma_200": 232.41260823529413,
+                "sma_50": 233.62050599999992,
+                "support": 233.7501,
+                "trend_slope_20": -1.0576537462368227,
+                "vol_of_vol_20": 0.0003292910266611297,
+                "volume_ratio_20": 1.0078229201613271,
+                "volume_z_20": -0.11488800725170471,
+                "vwap": 232.38873939175394,
+                "vwap_dist_bps": 81.9687138555753,
+                "zscore_20": 0.6762679987924035
+            },
+            "warm": {
+                "adx_14": true,
+                "atr_14": true,
+                "atr_pct": true,
+                "bb_lower": true,
+                "bb_percent_b": true,
+                "bb_upper": true,
+                "bb_width": true,
+                "breakout_down": true,
+                "breakout_up": true,
+                "dist_resistance_bps": true,
+                "dist_support_bps": true,
+                "ema_21": true,
+                "ema_9": true,
+                "gap_pct": true,
+                "last": true,
+                "macd": true,
+                "macd_hist": true,
+                "macd_signal": true,
+                "minus_di_14": true,
+                "momentum_10": true,
+                "momentum_60": true,
+                "plus_di_14": true,
+                "realized_vol_20": true,
+                "rel_strength_20": true,
+                "resistance": true,
+                "ret_log_1": true,
+                "ret_log_5": true,
+                "rsi_14": true,
+                "sma_20": true,
+                "sma_200": false,
+                "sma_50": true,
+                "support": true,
+                "trend_slope_20": true,
+                "vol_of_vol_20": true,
+                "volume_ratio_20": true,
+                "volume_z_20": true,
+                "vwap": true,
+                "vwap_dist_bps": true,
+                "zscore_20": true
+            },
+            "last": 234.2936,
+            "bid": 0,
+            "ask": 0,
+            "volume": 2159015,
+            "spread_bps": 0,
+            "stale": false,
+            "last_tick_at": "2026-08-28T02:45:00Z",
+            "schema_version": 1,
+            "hash": "a685b8bdf29002914899b223e837e79a7681f62ea6decd8e1ff9e8568f540cbc"
+        },
+        "score": {
+            "ticker": "AAPL",
+            "created_at": "2026-08-28T01:55:00.320463266Z",
+            "fundamental_score": 83.7,
+            "growth_score": 100,
+            "quality_score": 72,
+            "valuation_score": 25.8,
+            "technical_score": 65.4,
+            "momentum_score": 54.3,
+            "sector_score": 81.4,
+            "market_regime_score": 37.3,
+            "risk_score": 77,
+            "event_risk_score": 100,
+            "final_score": 66.8,
+            "classification": "NEUTRAL",
+            "weights": {
+                "event_risk": 1,
+                "fundamental": 0.5,
+                "growth": 0.5,
+                "market_regime": 1.5,
+                "momentum": 2,
+                "quality": 0.5,
+                "risk": 1,
+                "sector": 0.75,
+                "technical": 2,
+                "valuation": 0.25
+            },
+            "strategy_id": "momentum",
+            "config_hash": "029e25cd01e9ede3",
+            "evidence": [
+                "gross margin of 44.2%",
+                "operating margin of 10.5%",
+                "return on equity of 35.8%",
+                "return on invested capital of 16.5%",
+                "accruals at -0.9% of assets",
+                "revenue growth of 35.6%",
+                "earnings growth of 37.9%",
+                "positive year-over-year earnings in 100% of comparable periods",
+                "debt-to-equity of 1.31",
+                "current ratio of 2.48",
+                "free-cash-flow margin of 6.0%",
+                "PEG of 3.47 against a policy maximum of 2.00; P/E of 131.5 against a policy maximum of 35; EV/EBITDA of 77.0 (D&A assumed at 4% of revenue); free-cash-flow yield of 0.5%",
+                "price 234.29 against 20-period 233.88 and 50-period 233.62",
+                "ADX at 16.6",
+                "82 bps from session VWAP",
+                "10-period momentum 0.43%",
+                "60-period momentum 1.05%",
+                "relative strength -0.25% against the benchmark",
+                "Technology sector ranks 2 on relative strength",
+                "regime RANGE at confidence 0.68, not supporting the FLAT setup",
+                "risk warnings: annualised realised volatility of 46% exceeds the soft limit of 45%; model confidence of 0.01 is below the 0.30 minimum for a paper signal"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "prediction": {
+            "id": "01a04613-d660-7b14-a215-f2eb111e8991",
+            "ticker": "AAPL",
+            "created_at": "2026-08-28T01:55:00.320692248Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.3368831158655076,
+                        "flat": 0.32623376826898476,
+                        "down": 0.3368831158655076
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 53.3,
+                    "confidence": 0.0053,
+                    "uncertainty": 0.9999
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3852175555657273,
+                        "flat": 0.2295648888685455,
+                        "down": 0.3852175555657273
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 106.7,
+                    "confidence": 0.0778,
+                    "uncertainty": 0.9765
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.4214620531492184,
+                        "flat": 0.1570758937015632,
+                        "down": 0.4214620531492184
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 522.5,
+                    "confidence": 0.1322,
+                    "uncertainty": 0.9276
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "a685b8bdf29002914899b223e837e79a7681f62ea6decd8e1ff9e8568f540cbc",
+            "feature_as_of": "2026-08-28T02:45:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6789996312169487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "risk": {
+            "id": "01a04613-d660-774a-bccb-7422ef21dca7",
+            "ticker": "AAPL",
+            "created_at": "2026-08-28T01:55:00.320463266Z",
+            "decision": "WATCH_ONLY",
+            "level": "LOW",
+            "score": 23,
+            "checks": [
+                {
+                    "name": "data_freshness",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": -2999.679536734,
+                    "threshold": 30,
+                    "reason": "market data is current (-49m59s old)"
+                },
+                {
+                    "name": "liquidity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 12650000000,
+                    "threshold": 20000000,
+                    "reason": "average daily notional of $12650.0M"
+                },
+                {
+                    "name": "spread",
+                    "status": "SKIP",
+                    "decision": "WATCH_ONLY",
+                    "value": 0,
+                    "threshold": 0,
+                    "reason": "spread could not be evaluated: no two-sided quote available",
+                    "skipped_reason": "no two-sided quote available"
+                },
+                {
+                    "name": "volatility",
+                    "status": "WARN",
+                    "decision": "WATCH_ONLY",
+                    "value": 0.4594970194655524,
+                    "threshold": 0.45,
+                    "reason": "annualised realised volatility of 46% exceeds the soft limit of 45%"
+                },
+                {
+                    "name": "event_proximity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 24,
+                    "reason": "no scheduled events within the monitored window"
+                },
+                {
+                    "name": "model_confidence",
+                    "status": "WARN",
+                    "decision": "WATCH_ONLY",
+                    "value": 0.0053,
+                    "threshold": 0.3,
+                    "reason": "model confidence of 0.01 is below the 0.30 minimum for a paper signal"
+                },
+                {
+                    "name": "model_health",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 3,
+                    "reason": "model rules-fallback is healthy"
+                },
+                {
+                    "name": "market_regime",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.6789996312169487,
+                    "threshold": 0.35,
+                    "reason": "regime RANGE at confidence 0.68"
+                },
+                {
+                    "name": "portfolio_concentration",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.07,
+                    "reason": "resulting position weight of 6.0%"
+                },
+                {
+                    "name": "correlation_exposure",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.35,
+                    "reason": "correlation-adjusted exposure of 6.0%"
+                },
+                {
+                    "name": "portfolio_drawdown",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 0.12,
+                    "reason": "portfolio drawdown of 0.0%"
+                }
+            ],
+            "warnings": [
+                "annualised realised volatility of 46% exceeds the soft limit of 45%",
+                "model confidence of 0.01 is below the 0.30 minimum for a paper signal"
+            ],
+            "config_hash": "72193c9606026c01",
+            "regime": "RANGE",
+            "feature_hash": "a685b8bdf29002914899b223e837e79a7681f62ea6decd8e1ff9e8568f540cbc",
+            "prediction_id": "01a04613-d660-7b14-a215-f2eb111e8991",
+            "evaluated_at": "2026-08-28T01:55:00.320463266Z"
+        },
+        "opportunity": {
+            "ticker": "AAPL",
+            "created_at": "2026-08-28T01:55:00.320463266Z",
+            "score": 46.5,
+            "bias": "FLAT",
+            "confidence": 0.08,
+            "risk": "LOW",
+            "components": {
+                "directional_edge": 0,
+                "event_headroom": 3,
+                "liquidity": 8,
+                "model_confidence": 1.1,
+                "regime_alignment": 6,
+                "risk_headroom": 6.2,
+                "risk_reward": 3.2,
+                "stock_score": 17.4,
+                "volatility_fit": 1.7
+            },
+            "risk_reward": 1.67,
+            "expected_move_bps": 106.7,
+            "stop_distance_bps": 32.2,
+            "target_distance_bps": 53.7,
+            "prediction_id": "01a04613-d660-7b14-a215-f2eb111e8991",
+            "regime": "RANGE",
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "news": [
+            {
+                "id": "sim-20260827-26",
+                "ticker": "AAPL",
+                "timestamp": "2026-08-28T01:53:03.306526601Z",
+                "ingested_at": "2026-08-28T01:53:03.306545527Z",
+                "source": "quantos-sim-wire",
+                "headline": "Apple Inc. announces a partnership to expand its product line",
+                "category": "PRODUCT",
+                "sentiment": "positive",
+                "sentiment_score": 0.4,
+                "materiality": "medium",
+                "materiality_score": 0.4,
+                "confidence": 0.59,
+                "affected_sector": "Technology",
+                "expected_horizon": "60m",
+                "stage": "deterministic",
+                "matched_terms": [
+                    "partnership"
+                ],
+                "cluster_id": "0713db90931f06a3"
+            },
+            {
+                "id": "sim-20260827-11",
+                "ticker": "AAPL",
+                "timestamp": "2026-08-28T01:35:33.306488211Z",
+                "ingested_at": "2026-08-28T01:35:33.306506136Z",
+                "source": "quantos-sim-wire",
+                "headline": "Analysts upgrade Apple Inc. to overweight and lift the price target",
+                "category": "ANALYST_ACTION",
+                "sentiment": "positive",
+                "sentiment_score": 0.4,
+                "materiality": "medium",
+                "materiality_score": 0.44,
+                "confidence": 0.85,
+                "affected_sector": "Technology",
+                "expected_horizon": "60m",
+                "stage": "deterministic",
+                "matched_terms": [
+                    "overweight",
+                    "price target",
+                    "upgrade"
+                ],
+                "cluster_id": "c095fd2c23a44ea8"
+            }
+        ],
+        "updated_at": "2026-08-28T02:45:00Z"
+    },
+    "meta": {
+        "as_of": "2026-08-28T02:45:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "ff36d14409ebdaeb",
+    "served_at": "2026-08-28T01:55:22.471979544Z"
+}

@@ -1,0 +1,116 @@
+{
+ "data": {
+  "id": "01a7c3d2-51aa-7f04-9d13-2e8b6c4a9f77",
+  "ticker": "BA",
+  "created_at": "2026-08-28T02:04:00Z",
+  "decision": "ALLOW_PAPER_SIGNAL",
+  "level": "MEDIUM",
+  "score": 41.0,
+  "checks": [
+   {
+    "name": "data_freshness",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 3.2,
+    "threshold": 30,
+    "reason": "market data is current (3.2s old)"
+   },
+   {
+    "name": "liquidity",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 4120000000,
+    "threshold": 20000000,
+    "reason": "average daily notional of $4120.0M"
+   },
+   {
+    "name": "spread",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 2.4,
+    "threshold": 25,
+    "reason": "quoted spread of 2.4 bps is inside the 25.0 bps limit"
+   },
+   {
+    "name": "volatility",
+    "status": "WARN",
+    "decision": "WATCH_ONLY",
+    "value": 0.4106,
+    "threshold": 0.45,
+    "reason": "annualised realised volatility of 41.1% is approaching the 45.0% limit"
+   },
+   {
+    "name": "event_proximity",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 19.0,
+    "threshold": 2,
+    "reason": "no confirmed corporate event within 2 days (next is 19 days out)"
+   },
+   {
+    "name": "model_confidence",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 0.4462,
+    "threshold": 0.25,
+    "reason": "model confidence of 0.45 clears the 0.25 floor"
+   },
+   {
+    "name": "model_health",
+    "status": "WARN",
+    "decision": "WATCH_ONLY",
+    "value": 0.004,
+    "threshold": 0.02,
+    "reason": "serving model is only 0.40 points of accuracy above its base rate, below the 2.00 point margin the charter expects"
+   },
+   {
+    "name": "market_regime",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 0.6798,
+    "threshold": 0.4,
+    "reason": "regime RANGE is classified with 0.68 confidence, above the 0.40 floor"
+   },
+   {
+    "name": "portfolio_concentration",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 0.035,
+    "threshold": 0.15,
+    "reason": "resulting position would be 3.5% of paper equity, inside the 15.0% cap"
+   },
+   {
+    "name": "correlation_exposure",
+    "status": "SKIP",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 0,
+    "threshold": 0,
+    "reason": "correlation exposure could not be evaluated: the paper portfolio holds no positions to correlate against",
+    "skipped_reason": "no open positions"
+   },
+   {
+    "name": "portfolio_drawdown",
+    "status": "PASS",
+    "decision": "ALLOW_PAPER_SIGNAL",
+    "value": 0.0,
+    "threshold": 0.1,
+    "reason": "paper portfolio drawdown of 0.0% is inside the 10.0% halt threshold"
+   }
+  ],
+  "warnings": [
+   "annualised realised volatility of 41.1% is approaching the 45.0% limit",
+   "serving model is only 0.40 points of accuracy above its base rate, below the 2.00 point margin the charter expects"
+  ],
+  "config_hash": "eec4f7c3477d3e59",
+  "regime": "RANGE",
+  "feature_hash": "dc8d4ff317a832def603b5b458793b6fa03338efa90f147d00ae545a25e7a1a2",
+  "prediction_id": "01a04611-174b-7b76-8292-1bc675a5ee34",
+  "evaluated_at": "2026-08-28T02:04:00Z"
+ },
+ "meta": {
+  "as_of": "2026-08-28T02:04:00Z"
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

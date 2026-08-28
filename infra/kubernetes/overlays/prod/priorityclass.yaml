@@ -1,0 +1,22 @@
+# Two priority classes, so that a node under memory pressure evicts the right
+# thing.
+#
+# The decision path and the ingest producer are what the platform is for; a
+# backtest is work that can be resubmitted. Without an explicit priority the
+# kubelet picks by QoS class and usage, and backtest-service - which requests
+# 1Gi and is allowed 4Gi - is not reliably the one it picks.
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: quantos-live
+value: 1000
+globalDefault: false
+description: "QuantOS live decision path: ingest, engine, API, alert delivery."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: quantos-batch
+value: 100
+globalDefault: false
+description: "QuantOS batch work: backtests and evaluation. Preemptible; runs are resubmittable."

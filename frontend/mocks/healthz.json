@@ -1,0 +1,33 @@
+{
+    "data": {
+        "status": "degraded",
+        "version": "dev",
+        "mode": "embedded",
+        "uptime": "32m19s",
+        "degraded": [
+            "model"
+        ],
+        "store": {
+            "postgres": {
+                "enabled": false,
+                "healthy": true
+            },
+            "clickhouse": {
+                "enabled": false,
+                "healthy": true
+            },
+            "redis": {
+                "enabled": false,
+                "healthy": true
+            }
+        },
+        "stream_clients": 0,
+        "timestamp": "2026-08-28T01:52:22.722433816Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "a667574a3fd8880b",
+    "served_at": "2026-08-28T01:52:22.722462501Z"
+}

@@ -1,0 +1,51 @@
+# Overrides for the local Docker Compose stack (`make dev`).
+#
+# The only differences from the embedded profile are the bus and store drivers
+# and the observability endpoints. The engines are identical, which is the point
+# of the mode split described in docs/architecture/overview.md.
+
+env: compose
+mode: compose
+
+log:
+  level: info
+  format: json
+
+telemetry:
+  otlp_endpoint: http://otel-collector:4318
+  metrics_addr: ":9090"
+
+bus:
+  # The WAL driver gives durability, replay and consumer groups on a single
+  # node with no broker. Switch to `kafka` after building drivers/kafka.
+  driver: wal
+  dir: /var/lib/quantos/wal
+  group_prefix: quantos
+  max_event_age: 5m
+
+store:
+  driver: sql
+  postgres_dsn: postgres://quantos:quantos@postgres:5432/quantos?sslmode=disable
+  clickhouse_url: http://clickhouse:8123
+  clickhouse_db: quantos
+  clickhouse_user: quantos
+  clickhouse_password: quantos
+  redis_addr: redis:6379
+  max_open_conns: 25
+  max_idle_conns: 5
+
+http:
+  cors_origins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+
+market:
+  provider: sim
+  seed: 20260827
+  tick_interval: 1s
+
+llm:
+  provider: mock
+
+auth:
+  enabled: true

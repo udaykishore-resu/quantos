@@ -1,0 +1,26 @@
+# Dev hostname and certificate.
+#
+# Internal scheme: the dev API is reachable from the VPN, not from the internet.
+# There is no reason for a research environment's API to be publicly resolvable.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quantos-api
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:111111111111:certificate/REPLACE-WITH-DEV-CERT
+spec:
+  tls:
+    - hosts:
+        - quantos-dev.example.internal
+  rules:
+    - host: quantos-dev.example.internal
+      http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http

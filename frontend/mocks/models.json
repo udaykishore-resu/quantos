@@ -1,0 +1,35 @@
+{
+ "data": [
+  {
+   "id": "direction-3class",
+   "version": "v1.000339040",
+   "family": "multinomial_logistic",
+   "horizon": "60m",
+   "features": [
+    "ret_log_1",
+    "ret_log_5",
+    "momentum_10",
+    "momentum_60",
+    "rsi_14",
+    "macd_hist",
+    "vwap_dist_bps",
+    "bb_percent_b",
+    "adx_14",
+    "rel_strength_20",
+    "volume_ratio_20",
+    "volume_z_20",
+    "atr_pct",
+    "realized_vol_20",
+    "zscore_20",
+    "trend_slope_20"
+   ],
+   "artifact_sha": "d95f1a79c4b2e6083f17a5d90c8b4e2617fa30d5b8c941e7a26d03f85b1c9e4a"
+  }
+ ],
+ "meta": {
+  "count": 1
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

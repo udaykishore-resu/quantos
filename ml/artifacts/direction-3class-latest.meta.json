@@ -1,0 +1,112 @@
+{
+  "model_id": "direction-3class",
+  "version": "v1.000339040.e6a8254a",
+  "artifact": "direction-3class-v1.000339040.e6a8254a.json",
+  "sha256": "8cf7664c0c579e7ad9b344b2532c3c942c7acd04bf316fdd3c86aa70d192db3b",
+  "family": "multinomial_logistic",
+  "horizon": "60m",
+  "generator": "quantos/ml/training/train.py",
+  "trained_at": "2026-08-28T03:00:24Z",
+  "report_card": {
+    "test_samples": 60216,
+    "test_accuracy": 0.419041,
+    "test_base_rate": 0.392288,
+    "test_brier": 0.629036,
+    "validation_ece": 0.00132868836572,
+    "validation_max_deviation": 0.00250387215764
+  },
+  "provisional_health": {
+    "healthy": true,
+    "issues": [],
+    "note": "What mlinfer.Artifact.ProvisionalHealth will decide at load time. An unhealthy model is blocked by the risk engine, not served."
+  },
+  "test": {
+    "n": 60216,
+    "accuracy": 0.419041,
+    "base_rate": 0.392288,
+    "majority_class": "DOWN",
+    "lift_over_base_rate": 0.026754,
+    "beats_base_rate": true,
+    "brier": 0.629036,
+    "log_loss": 1.034888,
+    "log_loss_uniform": 1.098612,
+    "log_loss_class_prior": 1.0669,
+    "beats_class_prior_log_loss": true,
+    "ece": 0.014314,
+    "max_calibration_deviation": 0.035687,
+    "class_distribution": {
+      "UP": 0.38885,
+      "FLAT": 0.218862,
+      "DOWN": 0.392288
+    },
+    "confusion_actual_by_predicted": [
+      [
+        10740,
+        1623,
+        11052
+      ],
+      [
+        6073,
+        3313,
+        3793
+      ],
+      [
+        10615,
+        1827,
+        11180
+      ]
+    ],
+    "per_regime": {
+      "LOW_VOLATILITY": {
+        "n": 1248,
+        "accuracy": 0.419071,
+        "base_rate": 0.456731,
+        "lift": -0.03766
+      },
+      "RANGE": {
+        "n": 58968,
+        "accuracy": 0.419041,
+        "base_rate": 0.39379,
+        "lift": 0.025251
+      }
+    }
+  },
+  "train": {
+    "n": 218504,
+    "accuracy": 0.423324,
+    "base_rate": 0.396327,
+    "majority_class": "UP",
+    "lift_over_base_rate": 0.026997,
+    "beats_base_rate": true,
+    "brier": 0.628488,
+    "log_loss": 1.033617,
+    "log_loss_uniform": 1.098612,
+    "log_loss_class_prior": 1.062034,
+    "beats_class_prior_log_loss": true,
+    "ece": 0.014781,
+    "max_calibration_deviation": 0.015795,
+    "class_distribution": {
+      "UP": 0.396327,
+      "FLAT": 0.210792,
+      "DOWN": 0.392881
+    },
+    "confusion_actual_by_predicted": [
+      [
+        40108,
+        7283,
+        39208
+      ],
+      [
+        21622,
+        11196,
+        13241
+      ],
+      [
+        37992,
+        6660,
+        41194
+      ]
+    ]
+  },
+  "note": "Pointer only. mlinfer.LoadDir ignores *.meta.json and selects the lexicographically greatest version for each model_id."
+}

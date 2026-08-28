@@ -1,0 +1,59 @@
+# Base: the complete cluster-mode deployment with placeholder values.
+#
+# The base is not applyable on its own and is not meant to be. Three things in
+# it are deliberately wrong until an overlay patches them: the IRSA account id
+# (000000000000), the VPC CIDR in the NetworkPolicies, and the model bucket. All
+# three fail loudly rather than quietly doing the wrong thing.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: quantos
+
+commonLabels:
+  app.kubernetes.io/part-of: quantos
+  app.kubernetes.io/managed-by: kustomize
+
+resources:
+  - namespace.yaml
+  - serviceaccounts.yaml
+  - configmap.yaml
+  - externalsecrets.yaml
+  - services.yaml
+  - deploy-api-gateway.yaml
+  - deploy-market-service.yaml
+  - deploy-signal-service.yaml
+  - deploy-risk-service.yaml
+  - deploy-portfolio-service.yaml
+  - deploy-news-service.yaml
+  - deploy-evaluation-service.yaml
+  - deploy-alert-service.yaml
+  - deploy-backtest-service.yaml
+  - pdb.yaml
+  - hpa.yaml
+  - networkpolicy.yaml
+  - ingress.yaml
+  - servicemonitor.yaml
+  - prometheusrule.yaml
+  - topics-job.yaml
+
+images:
+  # Overlays set newTag to the release tag. `latest` here so a base build is
+  # obviously un-pinned rather than silently pinned to something stale.
+  - name: quantos/api-gateway
+    newTag: latest
+  - name: quantos/market-service
+    newTag: latest
+  - name: quantos/signal-service
+    newTag: latest
+  - name: quantos/risk-service
+    newTag: latest
+  - name: quantos/portfolio-service
+    newTag: latest
+  - name: quantos/news-service
+    newTag: latest
+  - name: quantos/evaluation-service
+    newTag: latest
+  - name: quantos/alert-service
+    newTag: latest
+  - name: quantos/backtest-service
+    newTag: latest

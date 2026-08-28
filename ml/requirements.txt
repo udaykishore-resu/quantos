@@ -1,0 +1,19 @@
+# Python research environment for QuantOS.
+#
+# Deliberately small. Every dependency here is one more thing that can differ
+# between a researcher's laptop and CI, and a model fitted under a different
+# numerical stack from the one that produced the artifact is a skew bug waiting
+# to happen. Nothing here needs a GPU, a compiler toolchain or a wheel larger
+# than a few tens of megabytes.
+#
+# Lower bounds rather than exact pins: the trainer rounds every float it writes
+# (see ml/training/train.py:_round_sig), so a patch-level numerical difference
+# in the optimiser cannot change the artifact bytes. Exact pins would break the
+# container's already-installed versions for no reproducibility gain.
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+
+# Test runner. Kept in the same file because the parity tests are not optional
+# extras: they are the check that Go and Python compute the same function.
+pytest>=7.4

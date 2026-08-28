@@ -1,0 +1,180 @@
+id: momentum
+name: Trend Momentum
+version: "1.2.0"
+description: >
+  Buys established up-trends that are still being confirmed by participation.
+  The thesis is that a trend with rising relative strength, an ADX above the
+  trending threshold and above-average volume is more likely to persist over an
+  intraday-to-daily horizon than to reverse. It is deliberately restricted to
+  trending and breakout regimes: the same rules in a range produce a stream of
+  losing signals, which is the classic failure of applying indicators blindly.
+enabled: true
+interval: 1m
+
+regimes:
+  - BULL_TREND
+  - BREAKOUT
+  - RISK_ON
+
+rules:
+  - id: price_above_fast_and_slow
+    description: Price is above both the 20 and 50 period moving averages
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: last
+        op: gt
+        other: sma_20
+      - feature: last
+        op: gt
+        other: sma_50
+
+  - id: trend_is_directional
+    description: ADX confirms a directional market rather than chop
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: adx_14
+        op: gte
+        value: 22
+      - feature: plus_di_14
+        op: gt
+        other: minus_di_14
+
+  - id: above_vwap
+    description: Price is trading above the session VWAP
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: vwap_dist_bps
+        op: gt
+        value: 5
+
+  - id: momentum_positive
+    description: Ten and sixty period momentum are both positive
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: momentum_10
+        op: gt
+        value: 0.001
+      - feature: momentum_60
+        op: gt
+        value: 0
+
+  - id: relative_strength
+    description: Outperforming the benchmark over the last twenty bars
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: rel_strength_20
+        op: gt
+        value: 0.001
+
+  - id: macd_confirms
+    description: MACD histogram is positive and expanding
+    side: LONG
+    weight: 1.0
+    all:
+      - feature: macd_hist
+        op: gt
+        value: 0
+
+  - id: volume_participation
+    description: Volume is above its twenty period average
+    side: LONG
+    weight: 1.0
+    all:
+      - feature: volume_ratio_20
+        op: gte
+        value: 1.1
+
+  # ---- counter-evidence: fires against the thesis and is surfaced to the user
+  - id: overbought_stretch
+    description: RSI is in overbought territory and price is stretched above the upper band
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: rsi_14
+        op: gt
+        value: 78
+      - feature: bb_percent_b
+        op: gt
+        value: 1.0
+
+  - id: volatility_expansion
+    description: Realised volatility is elevated, which widens the plausible adverse move
+    side: LONG
+    weight: 1.0
+    counter: true
+    all:
+      - feature: realized_vol_20
+        op: gt
+        value: 0.55
+
+  - id: resistance_overhead
+    description: A resistance level sits within thirty basis points overhead
+    side: LONG
+    weight: 1.0
+    counter: true
+    all:
+      - feature: dist_resistance_bps
+        op: lt
+        value: 30
+      - feature: dist_resistance_bps
+        op: gt
+        value: 0
+
+weights:
+  fundamental: 0.5
+  growth: 0.5
+  quality: 0.5
+  valuation: 0.25
+  technical: 2.0
+  momentum: 2.0
+  sector: 0.75
+  market_regime: 1.5
+  risk: 1.0
+  event_risk: 1.0
+
+policy:
+  min_rule_score: 35
+  min_final_score: 60
+  min_confidence: 0.30
+  min_directional_edge: 0.10
+  min_risk_reward: 1.5
+  horizon: 60m
+  stop_atr_multiple: 1.5
+  target_atr_multiple: 2.5
+  max_weight: 0.06
+  cooldown_minutes: 30
+  allow_short: false
+
+invalidation:
+  - kind: PRICE_BELOW
+    ref: entry
+    multiple: 1.5
+    description: Price closes below the entry reference less 1.5 ATR
+  - kind: VWAP_CROSS
+    ref: vwap
+    description: Price closes below the session VWAP, removing the intraday trend premise
+  - kind: REGIME_CHANGE
+    description: The market regime leaves the trending or breakout set the strategy requires
+  - kind: VOLATILITY_ABOVE
+    ref: atr
+    value: 0.9
+    description: Realised volatility exceeds the level at which the model was calibrated
+  - kind: CONFIDENCE_BELOW
+    ref: confidence
+    value: 0.22
+    description: Model confidence falls below the level that justified the signal
+  - kind: TIME_EXPIRY
+    minutes: 240
+    description: The signal horizon elapses without the thesis resolving
+
+fundamental:
+  min_revenue_growth: 0.03
+  min_operating_margin: 0.05
+  max_debt_to_equity: 2.5
+  prefer_low_valuation: false

@@ -1,0 +1,43 @@
+# Prometheus scrape configuration for the local stack.
+#
+# Every service exposes /metrics on its own HTTP port. The scrape interval is
+# deliberately 5s rather than the usual 15s: the SLOs in
+# docs/operations/slo.md are sub-second, and a 15-second interval hides the
+# spikes that matter.
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: quantos-local
+    env: compose
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: quantos
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api-gateway:8080"]
+        labels: {service: api-gateway}
+      - targets: ["market-service:8081"]
+        labels: {service: market-service}
+      - targets: ["signal-service:8082"]
+        labels: {service: signal-service}
+      - targets: ["risk-service:8083"]
+        labels: {service: risk-service}
+      - targets: ["portfolio-service:8084"]
+        labels: {service: portfolio-service}
+      - targets: ["news-service:8085"]
+        labels: {service: news-service}
+      - targets: ["evaluation-service:8086"]
+        labels: {service: evaluation-service}
+      - targets: ["alert-service:8087"]
+        labels: {service: alert-service}
+      - targets: ["backtest-service:8088"]
+        labels: {service: backtest-service}
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

@@ -1,0 +1,406 @@
+{
+    "data": {
+        "stock": {
+            "ticker": "GS",
+            "company": "The Goldman Sachs Group",
+            "sector": "Financials",
+            "industry": "Investment Banking",
+            "exchange": "NYSE",
+            "asset_class": "EQUITY",
+            "currency": "USD",
+            "market_cap": 165000000000,
+            "shares_outstanding": 317307692.3076923,
+            "avg_volume_30d": 2000000,
+            "reference_price": 520,
+            "avg_notional_30d": 1040000000,
+            "beta": 1.35,
+            "listed_at": "2010-01-01T00:00:00Z",
+            "tags": [
+                "fixture"
+            ]
+        },
+        "features": {
+            "ticker": "GS",
+            "as_of": "2026-08-28T02:45:00Z",
+            "interval": "1m",
+            "values": {
+                "adx_14": 37.1944974382262,
+                "atr_14": 0.6146587529954665,
+                "atr_pct": 0.001165608603431459,
+                "bb_lower": 527.4163326349824,
+                "bb_percent_b": -0.052646907437218164,
+                "bb_upper": 529.0827673650176,
+                "bb_width": 0.0031546353991881958,
+                "breakout_down": 0,
+                "breakout_up": 0,
+                "dist_resistance_bps": 26.64183205689958,
+                "dist_support_bps": 33.42318243311751,
+                "ema_21": 528.0094254167641,
+                "ema_9": 528.0653402035036,
+                "gap_pct": 0.0002314119575974908,
+                "last": 527.3286,
+                "macd": 0.24959258321962352,
+                "macd_hist": -3.993577999080293,
+                "macd_signal": 0.46018537274420473,
+                "minus_di_14": 18.655992324086633,
+                "momentum_10": -0.000997622075144644,
+                "momentum_60": 0.01044904388115575,
+                "plus_di_14": 23.737367623887472,
+                "realized_vol_20": 0.26966162538082294,
+                "rel_strength_20": -0.0026791882962751644,
+                "resistance": 528.7335,
+                "ret_log_1": -0.00139095364513601,
+                "ret_log_5": -0.0021926204735197123,
+                "rsi_14": 44.21197627790357,
+                "sma_20": 528.24955,
+                "sma_200": 524.8010670588233,
+                "sma_50": 526.9812420000001,
+                "support": 525.5661,
+                "trend_slope_20": -0.2036709250353657,
+                "vol_of_vol_20": 0.00011685029822501176,
+                "volume_ratio_20": 0.9963433862256367,
+                "volume_z_20": -0.20580882322088753,
+                "vwap": 524.7804741278492,
+                "vwap_dist_bps": 48.55603433770464,
+                "zscore_20": -2.2105876287410244
+            },
+            "warm": {
+                "adx_14": true,
+                "atr_14": true,
+                "atr_pct": true,
+                "bb_lower": true,
+                "bb_percent_b": true,
+                "bb_upper": true,
+                "bb_width": true,
+                "breakout_down": true,
+                "breakout_up": true,
+                "dist_resistance_bps": true,
+                "dist_support_bps": true,
+                "ema_21": true,
+                "ema_9": true,
+                "gap_pct": true,
+                "last": true,
+                "macd": true,
+                "macd_hist": true,
+                "macd_signal": true,
+                "minus_di_14": true,
+                "momentum_10": true,
+                "momentum_60": true,
+                "plus_di_14": true,
+                "realized_vol_20": true,
+                "rel_strength_20": true,
+                "resistance": true,
+                "ret_log_1": true,
+                "ret_log_5": true,
+                "rsi_14": true,
+                "sma_20": true,
+                "sma_200": false,
+                "sma_50": true,
+                "support": true,
+                "trend_slope_20": true,
+                "vol_of_vol_20": true,
+                "volume_ratio_20": true,
+                "volume_z_20": true,
+                "vwap": true,
+                "vwap_dist_bps": true,
+                "zscore_20": true
+            },
+            "last": 527.3286,
+            "bid": 0,
+            "ask": 0,
+            "volume": 77715,
+            "spread_bps": 0,
+            "stale": false,
+            "last_tick_at": "2026-08-28T02:45:00Z",
+            "schema_version": 1,
+            "hash": "1a3baa7769434a9745e44811f8f974cb1a54abc20ef7ec94c7b1fb9342650337"
+        },
+        "score": {
+            "ticker": "GS",
+            "created_at": "2026-08-28T01:55:00.33602749Z",
+            "fundamental_score": 79.7,
+            "growth_score": 82.4,
+            "quality_score": 72.3,
+            "valuation_score": 26,
+            "technical_score": 57,
+            "momentum_score": 47.8,
+            "sector_score": 81.2,
+            "market_regime_score": 37.3,
+            "risk_score": 81,
+            "event_risk_score": 100,
+            "final_score": 63.1,
+            "classification": "NEUTRAL",
+            "weights": {
+                "event_risk": 1,
+                "fundamental": 0.5,
+                "growth": 0.5,
+                "market_regime": 1.5,
+                "momentum": 2,
+                "quality": 0.5,
+                "risk": 1,
+                "sector": 0.75,
+                "technical": 2,
+                "valuation": 0.25
+            },
+            "strategy_id": "momentum",
+            "config_hash": "029e25cd01e9ede3",
+            "evidence": [
+                "gross margin of 34.2%",
+                "operating margin of 19.1%",
+                "return on equity of 33.8%",
+                "return on invested capital of 17.3%",
+                "accruals at -0.7% of assets",
+                "revenue growth of 19.4%",
+                "earnings growth of 20.5%",
+                "positive year-over-year earnings in 100% of comparable periods",
+                "debt-to-equity of 1.02",
+                "current ratio of 2.57",
+                "free-cash-flow margin of 13.3%",
+                "PEG of 6.36 against a policy maximum of 2.00; P/E of 130.2 against a policy maximum of 35; EV/EBITDA of 87.0 (D&A assumed at 4% of revenue); free-cash-flow yield of 0.7%",
+                "price 527.33 against 20-period 528.25 and 50-period 526.98",
+                "ADX at 37.2",
+                "49 bps from session VWAP",
+                "10-period momentum -0.10%",
+                "60-period momentum 1.04%",
+                "relative strength -0.27% against the benchmark",
+                "Financials sector ranks 2 on relative strength",
+                "regime RANGE at confidence 0.68, not supporting the FLAT setup",
+                "risk warnings: model confidence of 0.13 is below the 0.30 minimum for a paper signal"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "prediction": {
+            "id": "01a04613-d670-71e6-9d67-6845923e381e",
+            "ticker": "GS",
+            "created_at": "2026-08-28T01:55:00.336079111Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.28915714152443467,
+                        "flat": 0.4216857169511308,
+                        "down": 0.28915714152443467
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 30.2,
+                    "confidence": 0.1325,
+                    "uncertainty": 0.9846
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.35993183020325165,
+                        "flat": 0.2801363395934967,
+                        "down": 0.35993183020325165
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 60.4,
+                    "confidence": 0.0399,
+                    "uncertainty": 0.994
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.4183331822510983,
+                        "flat": 0.16333363549780341,
+                        "down": 0.4183331822510983
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 295.9,
+                    "confidence": 0.1275,
+                    "uncertainty": 0.9331
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "1a3baa7769434a9745e44811f8f974cb1a54abc20ef7ec94c7b1fb9342650337",
+            "feature_as_of": "2026-08-28T02:45:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6789996312169487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "risk": {
+            "id": "01a04613-d670-773c-9182-aca139131d6f",
+            "ticker": "GS",
+            "created_at": "2026-08-28T01:55:00.33602749Z",
+            "decision": "WATCH_ONLY",
+            "level": "LOW",
+            "score": 19,
+            "checks": [
+                {
+                    "name": "data_freshness",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": -2999.66397251,
+                    "threshold": 30,
+                    "reason": "market data is current (-49m59s old)"
+                },
+                {
+                    "name": "liquidity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 1040000000,
+                    "threshold": 20000000,
+                    "reason": "average daily notional of $1040.0M"
+                },
+                {
+                    "name": "spread",
+                    "status": "SKIP",
+                    "decision": "WATCH_ONLY",
+                    "value": 0,
+                    "threshold": 0,
+                    "reason": "spread could not be evaluated: no two-sided quote available",
+                    "skipped_reason": "no two-sided quote available"
+                },
+                {
+                    "name": "volatility",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.26966162538082294,
+                    "threshold": 0.45,
+                    "reason": "annualised realised volatility of 27%"
+                },
+                {
+                    "name": "event_proximity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 24,
+                    "reason": "no scheduled events within the monitored window"
+                },
+                {
+                    "name": "model_confidence",
+                    "status": "WARN",
+                    "decision": "WATCH_ONLY",
+                    "value": 0.1325,
+                    "threshold": 0.3,
+                    "reason": "model confidence of 0.13 is below the 0.30 minimum for a paper signal"
+                },
+                {
+                    "name": "model_health",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 3,
+                    "reason": "model rules-fallback is healthy"
+                },
+                {
+                    "name": "market_regime",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.6789996312169487,
+                    "threshold": 0.35,
+                    "reason": "regime RANGE at confidence 0.68"
+                },
+                {
+                    "name": "portfolio_concentration",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.07,
+                    "reason": "resulting position weight of 6.0%"
+                },
+                {
+                    "name": "correlation_exposure",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.35,
+                    "reason": "correlation-adjusted exposure of 6.0%"
+                },
+                {
+                    "name": "portfolio_drawdown",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 0.12,
+                    "reason": "portfolio drawdown of 0.0%"
+                }
+            ],
+            "warnings": [
+                "model confidence of 0.13 is below the 0.30 minimum for a paper signal"
+            ],
+            "config_hash": "72193c9606026c01",
+            "regime": "RANGE",
+            "feature_hash": "1a3baa7769434a9745e44811f8f974cb1a54abc20ef7ec94c7b1fb9342650337",
+            "prediction_id": "01a04613-d670-71e6-9d67-6845923e381e",
+            "evaluated_at": "2026-08-28T01:55:00.33602749Z"
+        },
+        "opportunity": {
+            "ticker": "GS",
+            "created_at": "2026-08-28T01:55:00.33602749Z",
+            "score": 46.5,
+            "bias": "FLAT",
+            "confidence": 0.04,
+            "risk": "LOW",
+            "components": {
+                "directional_edge": 0,
+                "event_headroom": 3,
+                "liquidity": 8,
+                "model_confidence": 0.6,
+                "regime_alignment": 6,
+                "risk_headroom": 6.5,
+                "risk_reward": 3.2,
+                "stock_score": 16.4,
+                "volatility_fit": 2.9
+            },
+            "risk_reward": 1.67,
+            "expected_move_bps": 60.4,
+            "stop_distance_bps": 17.5,
+            "target_distance_bps": 29.1,
+            "prediction_id": "01a04613-d670-71e6-9d67-6845923e381e",
+            "regime": "RANGE",
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "news": [
+            {
+                "id": "sim-20260827-7",
+                "ticker": "GS",
+                "timestamp": "2026-08-28T01:29:33.306494733Z",
+                "ingested_at": "2026-08-28T01:29:33.306512073Z",
+                "source": "quantos-sim-wire",
+                "headline": "The Goldman Sachs Group cuts guidance, citing slowing demand",
+                "category": "GUIDANCE",
+                "sentiment": "negative",
+                "sentiment_score": -0.55,
+                "materiality": "high",
+                "materiality_score": 0.77,
+                "confidence": 0.71,
+                "affected_sector": "Financials",
+                "expected_horizon": "1d",
+                "stage": "deterministic",
+                "matched_terms": [
+                    "cuts",
+                    "guidance",
+                    "slowing"
+                ],
+                "cluster_id": "30ff10119e040651"
+            }
+        ],
+        "updated_at": "2026-08-28T02:45:00Z"
+    },
+    "meta": {
+        "as_of": "2026-08-28T02:45:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "721b069eec53addd",
+    "served_at": "2026-08-28T01:55:22.522629252Z"
+}

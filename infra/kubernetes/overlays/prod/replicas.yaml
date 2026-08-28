@@ -1,0 +1,71 @@
+# Production capacity.
+#
+# The numbers come from the capacity assumptions in docs/operations/slo.md: 500
+# active symbols, 2.5k-25k events/s, and a single feature-engine instance
+# CPU-bound at roughly 40k events/s on 2 vCPU. Three engine replicas is ~10x
+# headroom at steady state, which is what those SLOs were sized against.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-service
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: signal-service
+          resources:
+            requests: {cpu: "1", memory: 1Gi}
+            limits: {cpu: "2", memory: 2Gi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: api-gateway
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "1", memory: 1Gi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-service
+spec:
+  replicas: 2
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: signal-service
+spec:
+  minReplicas: 3
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway
+spec:
+  minReplicas: 3
+---
+# Two instances of the decision path must survive a single-node drain, not one.
+# Losing the last engine replica stops signal generation entirely, which is what
+# the ingestion-continuity SLO measures.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: signal-service
+spec:
+  minAvailable: 2
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway
+spec:
+  minAvailable: 2

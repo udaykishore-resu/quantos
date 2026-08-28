@@ -1,0 +1,164 @@
+# ClusterIP Services.
+#
+# Port numbers match deploy/docker-compose.yml and
+# deploy/prometheus/prometheus.yml exactly: api-gateway on 8080 and the rest on
+# 8081-8088 in the order they appear there. Keeping them identical across the
+# three runtime modes means a port in a runbook is right whichever mode is
+# running.
+#
+# /metrics is on the same port. internal/api.Mount registers it on the main
+# router and telemetry.metrics_addr starts no second listener, so there is no
+# separate metrics port to expose.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  labels:
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: api-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: market-service
+  labels:
+    app.kubernetes.io/name: market-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: market-service
+  ports:
+    - name: http
+      port: 8081
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signal-service
+  labels:
+    app.kubernetes.io/name: signal-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: signal-service
+  ports:
+    - name: http
+      port: 8082
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-service
+  labels:
+    app.kubernetes.io/name: risk-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: risk-service
+  ports:
+    - name: http
+      port: 8083
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-service
+  labels:
+    app.kubernetes.io/name: portfolio-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: portfolio-service
+  ports:
+    - name: http
+      port: 8084
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-service
+  labels:
+    app.kubernetes.io/name: news-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: news-service
+  ports:
+    - name: http
+      port: 8085
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evaluation-service
+  labels:
+    app.kubernetes.io/name: evaluation-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: evaluation-service
+  ports:
+    - name: http
+      port: 8086
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-service
+  labels:
+    app.kubernetes.io/name: alert-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: alert-service
+  ports:
+    - name: http
+      port: 8087
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backtest-service
+  labels:
+    app.kubernetes.io/name: backtest-service
+    app.kubernetes.io/part-of: quantos
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: backtest-service
+  ports:
+    - name: http
+      port: 8088
+      targetPort: http
+      protocol: TCP

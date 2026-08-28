@@ -1,0 +1,75 @@
+# One replica of the scalable services too.
+#
+# Dev is a correctness environment, not a capacity one: the behaviour two
+# replicas would exercise is the consumer-group rebalance, and that is covered
+# by tests/failure rather than by paying for a second pod all day.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-service
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-service
+spec:
+  replicas: 1
+---
+# The HPAs would otherwise put the second replica straight back: minReplicas is
+# a floor the Deployment's replicas field cannot win against.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway
+spec:
+  minReplicas: 1
+  maxReplicas: 3
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: signal-service
+spec:
+  minReplicas: 1
+  maxReplicas: 3
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: alert-service
+spec:
+  minReplicas: 1
+  maxReplicas: 2
+---
+# Dropped, not relaxed.
+#
+# minAvailable: 1 against a single replica blocks every voluntary eviction, so
+# a node rotation in dev would hang on a drain forever. Deleting the budget says
+# "dev has no availability guarantee" honestly; setting it to zero would say the
+# same thing while looking like a guarantee.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway
+$patch: delete
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: signal-service
+$patch: delete
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: alert-service
+$patch: delete

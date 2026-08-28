@@ -1,0 +1,42 @@
+# Prometheus Operator scrape configuration.
+#
+# One ServiceMonitor covering all nine services, selected by the shared
+# part-of label. Every Service exposes a port named `http`, and /metrics is on
+# that same port: internal/api.Mount registers it on the main router, and
+# telemetry.metrics_addr starts no second listener.
+#
+# The 5s interval is the same one deploy/prometheus/prometheus.yml uses, and for
+# the same reason stated there: the SLOs in docs/operations/slo.md are
+# sub-second, and a 15-second interval hides the spikes that matter.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quantos
+  labels:
+    app.kubernetes.io/part-of: quantos
+    # Matched by the Prometheus resource's serviceMonitorSelector.
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames: [quantos]
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 5s
+      scrapeTimeout: 4s
+      # Honour the timestamps the exporter reports rather than the scrape time,
+      # so a slow scrape does not smear a latency histogram.
+      honorLabels: false
+      relabelings:
+        # `service` matches the label deploy/prometheus/prometheus.yml attaches
+        # statically, so a query written against the compose stack works against
+        # the cluster unchanged.
+        - sourceLabels: [__meta_kubernetes_service_label_app_kubernetes_io_name]
+          targetLabel: service
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node

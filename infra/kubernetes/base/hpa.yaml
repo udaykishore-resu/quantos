@@ -1,0 +1,148 @@
+# Horizontal Pod Autoscalers.
+#
+# Only three services have one. The other six are singletons by construction -
+# a timer over shared state, or the sole producer of a stream - and an
+# autoscaler on those would not add capacity, it would add duplicate events.
+#
+# The custom metrics come from the /metrics endpoint every service already
+# serves (internal/obs/metrics.go) via prometheus-adapter. Two of the three
+# scale on something other than CPU, because docs/operations/slo.md is explicit
+# that "scaling is by partition count, and the HPA targets consumer lag rather
+# than CPU": a signal-service instance that is 40% CPU-bound but 30 seconds
+# behind the log is failing at its job, and CPU alone cannot see that.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: signal-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: signal-service
+  minReplicas: 2
+  # market.bars and market.quotes have 12 partitions (ADR-002). Per-symbol
+  # ordering means one partition is consumed by one instance, so the 13th
+  # replica does nothing but idle in the consumer group.
+  maxReplicas: 12
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          # quantos_kafka_lag, gauge, labelled (topic, group).
+          name: quantos_kafka_lag
+        target:
+          type: AverageValue
+          # bus.max_event_age is 5m and the quote rate is ~5/s/symbol steady;
+          # 500 buffered events per instance is roughly a hundred seconds of
+          # backlog at steady state, which is well inside that window and far
+          # enough from it to leave the autoscaler time to act.
+          averageValue: "500"
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      # Lag builds fast. A minute of hesitation is a minute of events aging
+      # towards max_event_age, after which they are dropped rather than acted on.
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+    scaleDown:
+      # Slow, because a consumer-group rebalance pauses consumption for every
+      # instance, and flapping replicas means a permanent rebalance.
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          # quantos_http_in_flight_requests. The API read SLO is a 300 ms P99
+          # whose tail is Postgres joins on provenance, so queue depth predicts
+          # a breach earlier than CPU does - the requests are waiting on I/O,
+          # not on cores.
+          name: quantos_http_in_flight_requests
+        target:
+          type: AverageValue
+          averageValue: "40"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      # Long enough that an SSE client's connection is not churned by a
+      # scale-down triggered by a brief lull. /api/v1/stream connections are
+      # long-lived by design.
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: alert-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: alert-service
+  minReplicas: 2
+  # alert.generated has 6 partitions (ADR-002).
+  maxReplicas: 6
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: quantos_kafka_lag
+        target:
+          type: AverageValue
+          # Tighter than the engine's. The alert-generation SLO is a 500 ms P99
+          # and delivery is what the user actually sees; a backlog here is a
+          # late page.
+          averageValue: "100"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180

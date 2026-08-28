@@ -1,0 +1,88 @@
+# ApplicationSet: the two environments from one generator.
+#
+# An alternative to the two hand-written Applications beside this file, not an
+# addition. Apply one or the other, never both - two controllers owning the same
+# Application name is a reconcile loop.
+#
+# The list generator is used rather than the git-directory generator on purpose.
+# A directory generator would create an Application for every directory under
+# overlays/, so adding overlays/staging would silently deploy it. Naming the two
+# environments makes a third environment a reviewed change.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: quantos
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: quantos
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - list:
+        elements:
+          - env: dev
+            # Dev tracks the branch; cd.yml updates the image tag in the overlay
+            # on every merge.
+            revision: main
+            automated: "true"
+            selfHeal: "true"
+          - env: prod
+            # Prod tracks a tag, rewritten by cd.yml after the approval gate. A
+            # branch here would mean prod moves on someone else's merge.
+            revision: v0.1.0
+            automated: "false"
+            selfHeal: "false"
+
+  template:
+    metadata:
+      name: quantos-{{.env}}
+      labels:
+        app.kubernetes.io/part-of: quantos
+        quantos.io/environment: "{{.env}}"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: quantos
+      source:
+        repoURL: https://github.com/udaykishoreresu/quantos.git
+        targetRevision: "{{.revision}}"
+        path: infra/kubernetes/overlays/{{.env}}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: quantos
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+          - RespectIgnoreDifferences=true
+      ignoreDifferences:
+        # The HPA owns the replica count once it is running; without this,
+        # self-heal fights the autoscaler on every reconcile.
+        - group: apps
+          kind: Deployment
+          jsonPointers: ["/spec/replicas"]
+        # External Secrets writes the Secret's data. Argo does not manage it.
+        - group: ""
+          kind: Secret
+          jsonPointers: ["/data"]
+
+  # Deleting an element from the generator should not delete the environment it
+  # named. Removing an Application is a decision that deserves an explicit
+  # `kubectl delete`, not a one-line diff.
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+
+  # The template above cannot express "automated for dev only", because
+  # syncPolicy.automated is an object and the generator supplies strings. The
+  # override does it per environment.
+  templatePatch: |
+    {{- if eq .automated "true" }}
+    spec:
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: {{ .selfHeal }}
+          allowEmpty: false
+    {{- end }}

@@ -1,0 +1,271 @@
+# Release: build, sign, and publish everything a deployment needs.
+#
+# Triggered by a version tag. Everything it produces is addressed by digest
+# rather than by tag, because a tag can be moved and a digest cannot - and the
+# whole point of signing an artifact is that the thing you verified is the thing
+# that runs.
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (must already exist)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never two releases of the same tag at once, and never cancelled halfway:
+  # a partially published matrix is worse than a late one.
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GO_VERSION: "1.24"
+  REGISTRY: ghcr.io
+
+jobs:
+  # ------------------------------------------------------------ preflight ---
+  preflight:
+    name: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - id: meta
+        run: |
+          version="${{ inputs.tag || github.ref_name }}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "releasing ${version}"
+
+      - name: the tag must be on a commit that passes
+        # A tag can be pushed to any commit, including one that never went
+        # through a pull request. Re-running the fast checks here means a
+        # release cannot be cut from something that was never green.
+        run: |
+          make lint
+          make validate
+          go test -count=1 -timeout 15m ./...
+
+  # ---------------------------------------------------------------- image ---
+  images:
+    name: build and push ${{ matrix.service }}
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      packages: write
+      # Keyless cosign signing: the OIDC token is the identity, so there is no
+      # signing key to store, rotate or leak.
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # The nine binaries in services/. Same list as Makefile SERVICES.
+        service:
+          - api-gateway
+          - market-service
+          - signal-service
+          - risk-service
+          - portfolio-service
+          - news-service
+          - evaluation-service
+          - alert-service
+          - backtest-service
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          # arm64 as well as amd64: Graviton nodes are cheaper for a workload
+          # that is CPU-bound on integer and float arithmetic, and the binary is
+          # static so there is nothing platform-specific to get wrong.
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          build-args: |
+            SERVICE=${{ matrix.service }}
+            VERSION=${{ needs.preflight.outputs.version }}
+            COMMIT=${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}:${{ needs.preflight.outputs.version }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - uses: sigstore/cosign-installer@v3.5.0
+
+      - name: sign the digest
+        # The digest, not the tag. Signing a tag signs a name that can be
+        # repointed at anything.
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      - uses: anchore/sbom-action@v0.17.1
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}@${{ steps.build.outputs.digest }}
+          format: spdx-json
+          output-file: sbom-${{ matrix.service }}.spdx.json
+
+      - name: attach the SBOM to the image
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
+        run: |
+          cosign attest --yes --predicate "sbom-${{ matrix.service }}.spdx.json" \
+            --type spdxjson "${IMAGE}@${DIGEST}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.service }}
+          path: sbom-${{ matrix.service }}.spdx.json
+          retention-days: 90
+
+  # ----------------------------------------------------------------- helm ---
+  chart:
+    name: publish the helm chart
+    needs: [preflight, images]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.15.2
+
+      - name: set the chart and app versions from the tag
+        # The chart is published at the platform's version so `helm history`
+        # answers "which QuantOS is this" without a second lookup.
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+        run: |
+          v="${VERSION#v}"
+          helm package infra/helm/quantos --version "$v" --app-version "$v" -d dist/
+
+      - name: lint what is about to be published
+        run: helm lint infra/helm/quantos
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: push
+        name: push
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+        run: |
+          set -euo pipefail
+          v="${VERSION#v}"
+          # helm push prints "Digest: sha256:..." on success. Capturing it is
+          # how the signing step below addresses the chart by content rather
+          # than by a tag that can be repointed.
+          helm push "dist/quantos-${v}.tgz" \
+            "oci://${REGISTRY}/${{ github.repository_owner }}/charts" 2>&1 | tee push.log
+          digest=$(awk '/^Digest: /{print $2}' push.log)
+          test -n "$digest" || { echo "helm push printed no digest"; exit 1; }
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+
+      - uses: sigstore/cosign-installer@v3.5.0
+
+      - name: sign the chart
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          cosign sign --yes \
+            "${REGISTRY}/${{ github.repository_owner }}/charts/quantos@${DIGEST}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: dist/*.tgz
+          retention-days: 90
+
+  # --------------------------------------------------------------- notes ----
+  publish:
+    name: github release
+    needs: [preflight, images, chart]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: release notes
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+        run: |
+          {
+            echo "## QuantOS ${VERSION}"
+            echo
+            echo "Nine service images, multi-arch (amd64, arm64), signed with cosign"
+            echo "and carrying an SPDX SBOM attestation. Helm chart published to"
+            echo "\`oci://${REGISTRY}/${{ github.repository_owner }}/charts/quantos\`."
+            echo
+            echo "Verify before deploying — \`scripts/verify-release.sh ${VERSION}\`."
+            echo
+            echo "### Changes"
+            git log --pretty='- %s (%h)' "$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null)..HEAD" || git log --pretty='- %s (%h)' -20
+            echo
+            echo "---"
+            echo
+            echo "QuantOS is an educational research and paper-trading platform."
+            echo "It routes no real-money orders."
+          } > notes.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.preflight.outputs.version }}
+          body_path: notes.md
+          files: artifacts/**/*
+          draft: false
+          prerelease: ${{ contains(needs.preflight.outputs.version, '-') }}

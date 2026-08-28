@@ -1,0 +1,168 @@
+id: mean_reversion
+name: Range Mean Reversion
+version: "1.1.0"
+description: >
+  Fades stretched moves back toward the twenty period mean, and only in a range
+  or low-volatility regime. The restriction is the whole point: mean reversion
+  in a strong trend is a way of losing money slowly and then quickly. The rules
+  additionally require that the trend measure is weak, so that a range
+  classification with a strong underlying drift does not trigger a fade.
+enabled: true
+interval: 1m
+
+regimes:
+  - RANGE
+  - LOW_VOLATILITY
+
+rules:
+  - id: stretched_below_band
+    description: Price is at or below the lower Bollinger band
+    side: LONG
+    weight: 2.5
+    all:
+      - feature: bb_percent_b
+        op: lt
+        value: 0.05
+
+  - id: oversold_oscillator
+    description: RSI is oversold
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: rsi_14
+        op: lt
+        value: 28
+
+  - id: weak_trend
+    description: ADX is below the trending threshold, so the range premise holds
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: adx_14
+        op: lt
+        value: 20
+
+  - id: near_support
+    description: Price is within fifty basis points of identified support
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: dist_support_bps
+        op: between
+        value: 0
+        value2: 50
+
+  - id: negative_zscore
+    description: Price is more than two standard deviations below its twenty period mean
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: zscore_20
+        op: lt
+        value: -2.0
+
+  - id: stretched_above_band
+    description: Price is at or above the upper Bollinger band
+    side: SHORT
+    weight: 2.5
+    all:
+      - feature: bb_percent_b
+        op: gt
+        value: 0.95
+
+  - id: overbought_oscillator
+    description: RSI is overbought
+    side: SHORT
+    weight: 2.0
+    all:
+      - feature: rsi_14
+        op: gt
+        value: 72
+
+  - id: positive_zscore
+    description: Price is more than two standard deviations above its twenty period mean
+    side: SHORT
+    weight: 1.5
+    all:
+      - feature: zscore_20
+        op: gt
+        value: 2.0
+
+  # ---- counter-evidence
+  - id: breakout_in_progress
+    description: A volume-confirmed breakout is under way, which invalidates the range premise
+    side: LONG
+    weight: 3.0
+    counter: true
+    any:
+      - feature: breakout_up
+        op: is_true
+      - feature: breakout_down
+        op: is_true
+
+  - id: trend_emerging
+    description: ADX is rising through the trending threshold
+    side: LONG
+    weight: 2.0
+    counter: true
+    all:
+      - feature: adx_14
+        op: gte
+        value: 25
+
+  - id: volatility_regime_shift
+    description: Realised volatility has expanded beyond the range assumption
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: realized_vol_20
+        op: gt
+        value: 0.45
+
+weights:
+  fundamental: 0.5
+  growth: 0.25
+  quality: 0.75
+  valuation: 0.5
+  technical: 2.0
+  momentum: 0.5
+  sector: 0.5
+  market_regime: 1.5
+  risk: 1.5
+  event_risk: 1.25
+
+policy:
+  min_rule_score: 40
+  min_final_score: 58
+  min_confidence: 0.32
+  min_directional_edge: 0.08
+  min_risk_reward: 1.2
+  horizon: 15m
+  stop_atr_multiple: 1.0
+  target_atr_multiple: 1.5
+  max_weight: 0.04
+  cooldown_minutes: 45
+  allow_short: false
+
+invalidation:
+  - kind: PRICE_BELOW
+    ref: entry
+    multiple: 1.0
+    description: Price closes below the entry reference less 1.0 ATR, meaning the level did not hold
+  - kind: REGIME_CHANGE
+    description: The market leaves the range or low-volatility regime this strategy requires
+  - kind: VOLATILITY_ABOVE
+    ref: atr
+    value: 0.5
+    description: Volatility expands past the range assumption
+  - kind: CONFIDENCE_BELOW
+    ref: confidence
+    value: 0.24
+    description: Model confidence falls below the level that justified the signal
+  - kind: TIME_EXPIRY
+    minutes: 90
+    description: The reversion does not occur within the expected window
+
+fundamental:
+  prefer_low_valuation: true

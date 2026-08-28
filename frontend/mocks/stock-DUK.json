@@ -1,0 +1,381 @@
+{
+    "data": {
+        "stock": {
+            "ticker": "DUK",
+            "company": "Duke Energy",
+            "sector": "Utilities",
+            "industry": "Electric Utilities",
+            "exchange": "NYSE",
+            "asset_class": "EQUITY",
+            "currency": "USD",
+            "market_cap": 85000000000,
+            "shares_outstanding": 772727272.7272727,
+            "avg_volume_30d": 4000000,
+            "reference_price": 110,
+            "avg_notional_30d": 440000000,
+            "beta": 0.45,
+            "listed_at": "2010-01-01T00:00:00Z",
+            "tags": [
+                "fixture"
+            ]
+        },
+        "features": {
+            "ticker": "DUK",
+            "as_of": "2026-08-28T02:45:00Z",
+            "interval": "1m",
+            "values": {
+                "adx_14": 49.29506687007805,
+                "atr_14": 0.15237689295138704,
+                "atr_pct": 0.00136038529517773,
+                "bb_lower": 110.90610418465481,
+                "bb_percent_b": 0.7689269525988355,
+                "bb_upper": 112.34186581534532,
+                "bb_width": 0.012862483190243624,
+                "breakout_down": 0,
+                "breakout_up": 0,
+                "dist_resistance_bps": 11.025791424166844,
+                "dist_support_bps": 18.48047631418896,
+                "ema_21": 111.64246387822493,
+                "ema_9": 111.92270313372498,
+                "gap_pct": -3.748728110103105e-05,
+                "last": 112.0101,
+                "macd": 0.30879843488662573,
+                "macd_hist": 1.1498967344376336,
+                "macd_signal": 0.29591843006522245,
+                "minus_di_14": 10.31712360501616,
+                "momentum_10": 0.0037709708726554325,
+                "momentum_60": 0.014831512388435275,
+                "plus_di_14": 36.94405538450364,
+                "realized_vol_20": 0.2920938925484737,
+                "rel_strength_20": 0.007829794650268234,
+                "resistance": 112.1336,
+                "ret_log_1": -0.00024905366431781766,
+                "ret_log_5": 0.0006805273009393531,
+                "rsi_14": 74.5141298713253,
+                "sma_20": 111.62398500000006,
+                "sma_200": 110.68041411764703,
+                "sma_50": 111.05222799999996,
+                "support": 111.8031,
+                "trend_slope_20": 5.350155285741566,
+                "vol_of_vol_20": 0.00014035689891319495,
+                "volume_ratio_20": 1.0024707323322193,
+                "volume_z_20": 0.810266187884814,
+                "vwap": 110.66802598887388,
+                "vwap_dist_bps": 121.27025842685964,
+                "zscore_20": 1.0757078103335223
+            },
+            "warm": {
+                "adx_14": true,
+                "atr_14": true,
+                "atr_pct": true,
+                "bb_lower": true,
+                "bb_percent_b": true,
+                "bb_upper": true,
+                "bb_width": true,
+                "breakout_down": true,
+                "breakout_up": true,
+                "dist_resistance_bps": true,
+                "dist_support_bps": true,
+                "ema_21": true,
+                "ema_9": true,
+                "gap_pct": true,
+                "last": true,
+                "macd": true,
+                "macd_hist": true,
+                "macd_signal": true,
+                "minus_di_14": true,
+                "momentum_10": true,
+                "momentum_60": true,
+                "plus_di_14": true,
+                "realized_vol_20": true,
+                "rel_strength_20": true,
+                "resistance": true,
+                "ret_log_1": true,
+                "ret_log_5": true,
+                "rsi_14": true,
+                "sma_20": true,
+                "sma_200": false,
+                "sma_50": true,
+                "support": true,
+                "trend_slope_20": true,
+                "vol_of_vol_20": true,
+                "volume_ratio_20": true,
+                "volume_z_20": true,
+                "vwap": true,
+                "vwap_dist_bps": true,
+                "zscore_20": true
+            },
+            "last": 112.0101,
+            "bid": 0,
+            "ask": 0,
+            "volume": 156899,
+            "spread_bps": 0,
+            "stale": false,
+            "last_tick_at": "2026-08-28T02:45:00Z",
+            "schema_version": 1,
+            "hash": "cdcd7284445cb944b733cd1c15aaf30bf8f8dfb9c8448004ce1be62942a7a2be"
+        },
+        "score": {
+            "ticker": "DUK",
+            "created_at": "2026-08-28T01:55:00.332463918Z",
+            "fundamental_score": 86.7,
+            "growth_score": 84.6,
+            "quality_score": 93.9,
+            "valuation_score": 44.3,
+            "technical_score": 75.6,
+            "momentum_score": 61.7,
+            "sector_score": 88.7,
+            "market_regime_score": 37.3,
+            "risk_score": 81,
+            "event_risk_score": 100,
+            "final_score": 72.2,
+            "classification": "BULLISH_SETUP",
+            "weights": {
+                "event_risk": 1,
+                "fundamental": 0.5,
+                "growth": 0.5,
+                "market_regime": 1.5,
+                "momentum": 2,
+                "quality": 0.5,
+                "risk": 1,
+                "sector": 0.75,
+                "technical": 2,
+                "valuation": 0.25
+            },
+            "strategy_id": "momentum",
+            "config_hash": "029e25cd01e9ede3",
+            "evidence": [
+                "gross margin of 64.4%",
+                "operating margin of 30.3%",
+                "return on equity of 78.4%",
+                "return on invested capital of 39.8%",
+                "accruals at -2.4% of assets",
+                "revenue growth of 23.1%",
+                "earnings growth of 19.6%",
+                "positive year-over-year earnings in 100% of comparable periods",
+                "debt-to-equity of 1.12",
+                "current ratio of 1.12",
+                "free-cash-flow margin of 25.0%",
+                "PEG of 1.47 against a policy maximum of 2.00; P/E of 28.8 against a policy maximum of 35; EV/EBITDA of 21.1 (D&A assumed at 4% of revenue); free-cash-flow yield of 3.6%",
+                "price 112.01 against 20-period 111.62 and 50-period 111.05",
+                "ADX at 49.3",
+                "121 bps from session VWAP",
+                "10-period momentum 0.38%",
+                "60-period momentum 1.48%",
+                "relative strength 0.78% against the benchmark",
+                "Utilities sector ranks 1 on relative strength",
+                "regime RANGE at confidence 0.68, not supporting the FLAT setup",
+                "risk warnings: model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "prediction": {
+            "id": "01a04613-d66c-7eda-aecc-f2cc96126e89",
+            "ticker": "DUK",
+            "created_at": "2026-08-28T01:55:00.332524382Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.30063203245089554,
+                        "flat": 0.3987359350982089,
+                        "down": 0.30063203245089554
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 33.8,
+                    "confidence": 0.0981,
+                    "uncertainty": 0.9915
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3661649866018306,
+                        "flat": 0.26767002679633883,
+                        "down": 0.3661649866018306
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 67.7,
+                    "confidence": 0.0492,
+                    "uncertainty": 0.9908
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.4196396636458266,
+                        "flat": 0.16072067270834672,
+                        "down": 0.4196396636458266
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 331.7,
+                    "confidence": 0.1295,
+                    "uncertainty": 0.9308
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "cdcd7284445cb944b733cd1c15aaf30bf8f8dfb9c8448004ce1be62942a7a2be",
+            "feature_as_of": "2026-08-28T02:45:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6789996312169487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "risk": {
+            "id": "01a04613-d66c-7f8a-83bd-33cf04e3241f",
+            "ticker": "DUK",
+            "created_at": "2026-08-28T01:55:00.332463918Z",
+            "decision": "WATCH_ONLY",
+            "level": "LOW",
+            "score": 19,
+            "checks": [
+                {
+                    "name": "data_freshness",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": -2999.667536082,
+                    "threshold": 30,
+                    "reason": "market data is current (-49m59s old)"
+                },
+                {
+                    "name": "liquidity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 440000000,
+                    "threshold": 20000000,
+                    "reason": "average daily notional of $440.0M"
+                },
+                {
+                    "name": "spread",
+                    "status": "SKIP",
+                    "decision": "WATCH_ONLY",
+                    "value": 0,
+                    "threshold": 0,
+                    "reason": "spread could not be evaluated: no two-sided quote available",
+                    "skipped_reason": "no two-sided quote available"
+                },
+                {
+                    "name": "volatility",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.2920938925484737,
+                    "threshold": 0.45,
+                    "reason": "annualised realised volatility of 29%"
+                },
+                {
+                    "name": "event_proximity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 24,
+                    "reason": "no scheduled events within the monitored window"
+                },
+                {
+                    "name": "model_confidence",
+                    "status": "WARN",
+                    "decision": "WATCH_ONLY",
+                    "value": 0.0981,
+                    "threshold": 0.3,
+                    "reason": "model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+                },
+                {
+                    "name": "model_health",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 3,
+                    "reason": "model rules-fallback is healthy"
+                },
+                {
+                    "name": "market_regime",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.6789996312169487,
+                    "threshold": 0.35,
+                    "reason": "regime RANGE at confidence 0.68"
+                },
+                {
+                    "name": "portfolio_concentration",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.07,
+                    "reason": "resulting position weight of 6.0%"
+                },
+                {
+                    "name": "correlation_exposure",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.35,
+                    "reason": "correlation-adjusted exposure of 6.0%"
+                },
+                {
+                    "name": "portfolio_drawdown",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 0.12,
+                    "reason": "portfolio drawdown of 0.0%"
+                }
+            ],
+            "warnings": [
+                "model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+            ],
+            "config_hash": "72193c9606026c01",
+            "regime": "RANGE",
+            "feature_hash": "cdcd7284445cb944b733cd1c15aaf30bf8f8dfb9c8448004ce1be62942a7a2be",
+            "prediction_id": "01a04613-d66c-7eda-aecc-f2cc96126e89",
+            "evaluated_at": "2026-08-28T01:55:00.332463918Z"
+        },
+        "opportunity": {
+            "ticker": "DUK",
+            "created_at": "2026-08-28T01:55:00.332463918Z",
+            "score": 48.1,
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "components": {
+                "directional_edge": 0,
+                "event_headroom": 3,
+                "liquidity": 7.3,
+                "model_confidence": 0.7,
+                "regime_alignment": 6,
+                "risk_headroom": 6.5,
+                "risk_reward": 3.2,
+                "stock_score": 18.8,
+                "volatility_fit": 2.7
+            },
+            "risk_reward": 1.67,
+            "expected_move_bps": 67.7,
+            "stop_distance_bps": 20.4,
+            "target_distance_bps": 34,
+            "prediction_id": "01a04613-d66c-7eda-aecc-f2cc96126e89",
+            "regime": "RANGE",
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "updated_at": "2026-08-28T02:45:00Z"
+    },
+    "meta": {
+        "as_of": "2026-08-28T02:45:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "a2a2d5e07fc5bc1c",
+    "served_at": "2026-08-28T01:55:22.425543511Z"
+}

@@ -1,0 +1,245 @@
+# NetworkPolicies: default-deny, then explicit allows.
+#
+# The allow rules are short because QuantOS services do not call each other. The
+# platform is event-driven (ADR-010): a service reads from the log and writes to
+# the log, and the only in-cluster HTTP that exists is Prometheus scraping
+# /metrics and the ingress controller reaching api-gateway. That property is
+# what makes a tight policy set possible, so it is worth preserving.
+#
+# The CIDR in the data-store rules is the VPC. Overlays patch it to the real
+# range from `terraform output`. It is a CIDR rather than a namespace selector
+# because RDS, ElastiCache and MSK are outside the cluster and a NetworkPolicy
+# has no other way to name them.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  # Empty selector: every pod in the namespace, including ones added later. A
+  # policy that has to be remembered for each new Deployment is a policy that
+  # will be forgotten for one of them.
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+# DNS. Everything else fails in a way that looks like a network partition
+# without it, so it is separated out and applied to every pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# The backing stores and the bus, all outside the cluster.
+#
+# Ports are named individually rather than as a range: 5432 is Postgres, 6379 is
+# Redis, 9098 is MSK's IAM-SASL listener, 443 is the interface VPC endpoints
+# (STS for IRSA, Secrets Manager, CloudWatch Logs, ECR). Nothing else in the VPC
+# is reachable from a QuantOS pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-datastores
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            # Patched per overlay to the VPC CIDR from modules/network.
+            cidr: 10.40.0.0/16
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 9098
+        - protocol: TCP
+          port: 443
+---
+# ClickHouse, if it is run inside the cluster. It is not provisioned by the
+# Terraform tree (see that README's "not automated" section), and this rule is
+# the in-cluster half of either arrangement: harmless if ClickHouse is external,
+# necessary if it is a StatefulSet in this namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-clickhouse
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: clickhouse
+      ports:
+        - protocol: TCP
+          port: 8123
+---
+# Traces to the collector, which lives in its own namespace exactly as it does
+# in deploy/docker-compose.yml.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-otel
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4318
+---
+# The LLM provider, over the public internet.
+#
+# Two Deployments, selected by name. They are the only two that hold
+# ANTHROPIC_API_KEY (see the ExternalSecret and the IRSA grants), so this rule
+# and that one say the same thing at two layers: a service with no key cannot
+# call, and a service with no route cannot either.
+#
+# 0.0.0.0/0 minus the VPC is the tightest a stock NetworkPolicy can express. A
+# CNI with FQDN policy support (Cilium, Calico enterprise) can pin
+# api.anthropic.com; if yours does, replace this with that rule.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-llm
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: [signal-service, news-service]
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # In-VPC destinations are covered by the data-store rule above and
+              # must not be reachable on 443 through this one.
+              - 10.40.0.0/16
+              - 169.254.169.254/32 # IMDS. Never from a pod.
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# Prometheus scraping /metrics. The port is the service's own HTTP port, because
+# internal/api.Mount serves /metrics on the main router.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-prometheus
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8081
+        - protocol: TCP
+          port: 8082
+        - protocol: TCP
+          port: 8083
+        - protocol: TCP
+          port: 8084
+        - protocol: TCP
+          port: 8085
+        - protocol: TCP
+          port: 8086
+        - protocol: TCP
+          port: 8087
+        - protocol: TCP
+          port: 8088
+---
+# The only ingress path from outside the cluster, and it reaches api-gateway
+# alone. The other eight services are not addressable from the ingress
+# controller, so a routing mistake cannot expose signal-service's API surface -
+# which is real, because every binary mounts the same routes (cli.Spec.WithHTTP).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-api-gateway
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+# The topic-creation Job needs the bus and nothing else. It runs once per
+# deployment and is the only workload here that talks to Kafka's admin API.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-topics-job
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: quantos-topics
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.40.0.0/16
+      ports:
+        - protocol: TCP
+          port: 9098
+        - protocol: TCP
+          port: 443

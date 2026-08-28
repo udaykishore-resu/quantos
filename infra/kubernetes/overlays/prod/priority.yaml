@@ -1,0 +1,85 @@
+# Priority class assignment.
+#
+# Live path first, batch last. See priorityclass.yaml for why this is explicit
+# rather than left to the kubelet's QoS heuristic.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-live
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evaluation-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-batch
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backtest-service
+spec:
+  template:
+    spec:
+      priorityClassName: quantos-batch

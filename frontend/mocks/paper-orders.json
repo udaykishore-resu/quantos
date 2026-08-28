@@ -1,0 +1,181 @@
+{
+ "data": [
+  {
+   "id": "ord-0000",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-0",
+   "ticker": "BA",
+   "side": "SELL",
+   "type": "LIMIT",
+   "quantity": 93.0,
+   "time_in_force": "DAY",
+   "status": "FILLED",
+   "filled_qty": 93.0,
+   "avg_fill_price": 179.3514,
+   "commission": 1.668,
+   "slippage_bps": 0.81,
+   "created_at": "2026-08-27T19:32:57Z",
+   "updated_at": "2026-08-28T02:07:27Z",
+   "limit_price": 179.3514,
+   "signal_id": "01a7c3d2-4f6b-7a91-b8e2-5c9d1f3a7b04",
+   "fills": [
+    {
+     "quantity": 93.0,
+     "price": 179.3514,
+     "commission": 1.668,
+     "slippage_bps": 0.81,
+     "at": "2026-08-28T02:07:27Z"
+    }
+   ]
+  },
+  {
+   "id": "ord-0001",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-1",
+   "ticker": "NOW",
+   "side": "BUY",
+   "type": "MARKET",
+   "quantity": 84.0,
+   "time_in_force": "DAY",
+   "status": "FILLED",
+   "filled_qty": 84.0,
+   "avg_fill_price": 936.0852,
+   "commission": 7.8631,
+   "slippage_bps": 1.83,
+   "created_at": "2026-08-27T18:25:11Z",
+   "updated_at": "2026-08-28T02:08:35Z",
+   "fills": [
+    {
+     "quantity": 84.0,
+     "price": 936.0852,
+     "commission": 7.8631,
+     "slippage_bps": 1.83,
+     "at": "2026-08-28T02:08:35Z"
+    }
+   ]
+  },
+  {
+   "id": "ord-0002",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-2",
+   "ticker": "XLI",
+   "side": "BUY",
+   "type": "LIMIT",
+   "quantity": 95.0,
+   "time_in_force": "DAY",
+   "status": "FILLED",
+   "filled_qty": 95.0,
+   "avg_fill_price": 134.998,
+   "commission": 1.2825,
+   "slippage_bps": 0.42,
+   "created_at": "2026-08-28T00:04:45Z",
+   "updated_at": "2026-08-28T02:07:01Z",
+   "limit_price": 134.998,
+   "fills": [
+    {
+     "quantity": 95.0,
+     "price": 134.998,
+     "commission": 1.2825,
+     "slippage_bps": 0.42,
+     "at": "2026-08-28T02:07:01Z"
+    }
+   ]
+  },
+  {
+   "id": "ord-0003",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-3",
+   "ticker": "DUK",
+   "side": "SELL",
+   "type": "MARKET",
+   "quantity": 119.0,
+   "time_in_force": "DAY",
+   "status": "FILLED",
+   "filled_qty": 119.0,
+   "avg_fill_price": 111.9724,
+   "commission": 1.3325,
+   "slippage_bps": 2.83,
+   "created_at": "2026-08-27T20:05:43Z",
+   "updated_at": "2026-08-28T02:07:04Z",
+   "fills": [
+    {
+     "quantity": 119.0,
+     "price": 111.9724,
+     "commission": 1.3325,
+     "slippage_bps": 2.83,
+     "at": "2026-08-28T02:07:04Z"
+    }
+   ]
+  },
+  {
+   "id": "ord-0004",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-4",
+   "ticker": "AAPL",
+   "side": "BUY",
+   "type": "LIMIT",
+   "quantity": 88.0,
+   "time_in_force": "DAY",
+   "status": "FILLED",
+   "filled_qty": 88.0,
+   "avg_fill_price": 233.439,
+   "commission": 2.0543,
+   "slippage_bps": 2.89,
+   "created_at": "2026-08-28T00:30:19Z",
+   "updated_at": "2026-08-28T02:07:37Z",
+   "limit_price": 233.439,
+   "fills": [
+    {
+     "quantity": 88.0,
+     "price": 233.439,
+     "commission": 2.0543,
+     "slippage_bps": 2.89,
+     "at": "2026-08-28T02:07:37Z"
+    }
+   ]
+  },
+  {
+   "id": "ord-0005",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-5",
+   "ticker": "GS",
+   "side": "BUY",
+   "type": "MARKET",
+   "quantity": 129.0,
+   "time_in_force": "DAY",
+   "status": "REJECTED",
+   "filled_qty": 0.0,
+   "avg_fill_price": 0.0,
+   "commission": 0.0,
+   "slippage_bps": 0.0,
+   "created_at": "2026-08-27T16:44:22Z",
+   "updated_at": "2026-08-28T02:08:01Z",
+   "reject_reason": "rejected by the broker: order notional would breach the 15% per-instrument concentration cap"
+  },
+  {
+   "id": "ord-0006",
+   "portfolio_id": "pf-paper-001",
+   "idempotency_key": "api:signal-01a7c3d2-6",
+   "ticker": "META",
+   "side": "SELL",
+   "type": "LIMIT",
+   "quantity": 31.0,
+   "time_in_force": "DAY",
+   "status": "PENDING",
+   "filled_qty": 0.0,
+   "avg_fill_price": 0.0,
+   "commission": 0.0,
+   "slippage_bps": 0.0,
+   "created_at": "2026-08-27T21:24:07Z",
+   "updated_at": "2026-08-28T02:07:32Z",
+   "limit_price": 551.7279
+  }
+ ],
+ "meta": {
+  "count": 7,
+  "limit": 100
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

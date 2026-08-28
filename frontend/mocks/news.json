@@ -1,0 +1,187 @@
+{
+ "data": [
+  {
+   "id": "nw-0009",
+   "ticker": "BA",
+   "timestamp": "2026-08-28T01:53:00Z",
+   "ingested_at": "2026-08-28T01:54:00Z",
+   "source": "sim-newswire",
+   "headline": "BA raises full-year delivery guidance above consensus",
+   "category": "GUIDANCE",
+   "sentiment": "positive",
+   "sentiment_score": 0.72,
+   "materiality": "high",
+   "materiality_score": 0.88,
+   "confidence": 0.91,
+   "expected_horizon": "5d",
+   "stage": "llm-enriched",
+   "affected_sector": "Industrials",
+   "matched_terms": [
+    "raises",
+    "guidance",
+    "above consensus"
+   ],
+   "llm_model": "claude-sonnet-4-5",
+   "llm_agreed": true
+  },
+  {
+   "id": "nw-0008",
+   "ticker": "__MACRO__",
+   "timestamp": "2026-08-28T01:29:00Z",
+   "ingested_at": "2026-08-28T01:30:00Z",
+   "source": "sim-newswire",
+   "headline": "Federal Reserve holds rates steady, signals data dependence",
+   "category": "MACRO",
+   "sentiment": "neutral",
+   "sentiment_score": 0.04,
+   "materiality": "high",
+   "materiality_score": 0.81,
+   "confidence": 0.86,
+   "expected_horizon": "5d",
+   "stage": "llm-enriched",
+   "matched_terms": [
+    "Federal Reserve",
+    "rates"
+   ],
+   "llm_model": "claude-sonnet-4-5",
+   "llm_agreed": true
+  },
+  {
+   "id": "nw-0007",
+   "ticker": "NOW",
+   "timestamp": "2026-08-28T01:05:00Z",
+   "ingested_at": "2026-08-28T01:06:00Z",
+   "source": "sim-newswire",
+   "headline": "NOW announces $4B accelerated buyback",
+   "category": "M_AND_A",
+   "sentiment": "positive",
+   "sentiment_score": 0.51,
+   "materiality": "medium",
+   "materiality_score": 0.62,
+   "confidence": 0.78,
+   "expected_horizon": "1d",
+   "stage": "deterministic",
+   "matched_terms": [
+    "buyback",
+    "accelerated"
+   ]
+  },
+  {
+   "id": "nw-0006",
+   "ticker": "XLI",
+   "timestamp": "2026-08-28T00:40:00Z",
+   "ingested_at": "2026-08-28T00:41:00Z",
+   "source": "sim-newswire",
+   "headline": "Regulator opens review of data-handling practices",
+   "category": "REGULATORY",
+   "sentiment": "negative",
+   "sentiment_score": -0.63,
+   "materiality": "high",
+   "materiality_score": 0.79,
+   "confidence": 0.83,
+   "expected_horizon": "5d",
+   "stage": "llm-enriched",
+   "matched_terms": [
+    "regulator",
+    "review"
+   ],
+   "llm_model": "claude-sonnet-4-5",
+   "llm_agreed": false
+  },
+  {
+   "id": "nw-0005",
+   "ticker": "__MACRO__",
+   "timestamp": "2026-08-28T00:13:00Z",
+   "ingested_at": "2026-08-28T00:14:00Z",
+   "source": "sim-newswire",
+   "headline": "Crude inventories draw more than expected",
+   "category": "MACRO",
+   "sentiment": "neutral",
+   "sentiment_score": 0.11,
+   "materiality": "medium",
+   "materiality_score": 0.44,
+   "confidence": 0.64,
+   "expected_horizon": "1d",
+   "stage": "deterministic",
+   "affected_sector": "Energy"
+  },
+  {
+   "id": "nw-0004",
+   "ticker": "XOM",
+   "timestamp": "2026-08-27T23:51:00Z",
+   "ingested_at": "2026-08-27T23:52:00Z",
+   "source": "sim-newswire",
+   "headline": "XOM confirms Q3 earnings date",
+   "category": "EARNINGS",
+   "sentiment": "neutral",
+   "sentiment_score": 0.0,
+   "materiality": "medium",
+   "materiality_score": 0.55,
+   "confidence": 0.69,
+   "expected_horizon": "5d",
+   "stage": "deterministic",
+   "matched_terms": [
+    "earnings date"
+   ]
+  },
+  {
+   "id": "nw-0003",
+   "ticker": "BA",
+   "timestamp": "2026-08-27T23:15:00Z",
+   "ingested_at": "2026-08-27T23:16:00Z",
+   "source": "sim-newswire",
+   "headline": "Analyst raises BA price target, maintains prior rating",
+   "category": "ANALYST_ACTION",
+   "sentiment": "positive",
+   "sentiment_score": 0.34,
+   "materiality": "low",
+   "materiality_score": 0.21,
+   "confidence": 0.58,
+   "expected_horizon": "1d",
+   "stage": "deterministic",
+   "matched_terms": [
+    "price target",
+    "raises"
+   ]
+  },
+  {
+   "id": "nw-0002",
+   "ticker": "DUK",
+   "timestamp": "2026-08-27T22:41:00Z",
+   "ingested_at": "2026-08-27T22:42:00Z",
+   "source": "sim-newswire",
+   "headline": "Supply chain note flags shipping delays",
+   "category": "PRODUCT",
+   "sentiment": "negative",
+   "sentiment_score": -0.29,
+   "materiality": "low",
+   "materiality_score": 0.18,
+   "confidence": 0.52,
+   "expected_horizon": "60m",
+   "stage": "deterministic"
+  },
+  {
+   "id": "nw-0001",
+   "ticker": "__MACRO__",
+   "timestamp": "2026-08-27T22:07:00Z",
+   "ingested_at": "2026-08-27T22:08:00Z",
+   "source": "sim-newswire",
+   "headline": "Sector rotation from cyclicals into defensives continues",
+   "category": "MACRO",
+   "sentiment": "neutral",
+   "sentiment_score": -0.08,
+   "materiality": "low",
+   "materiality_score": 0.26,
+   "confidence": 0.61,
+   "expected_horizon": "5d",
+   "stage": "deterministic"
+  }
+ ],
+ "meta": {
+  "count": 9,
+  "limit": 50
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

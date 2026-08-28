@@ -1,0 +1,190 @@
+{
+ "data": [
+  {
+   "id": "al-0009",
+   "dedup_key": "SIGNAL_GENERATED:BA:01a7c3d2",
+   "type": "SIGNAL_GENERATED",
+   "severity": "NOTICE",
+   "ticker": "BA",
+   "created_at": "2026-08-28T02:04:00Z",
+   "title": "Paper signal generated for BA",
+   "message": "A LONG paper signal was generated after the risk engine returned ALLOW_PAPER_SIGNAL with two warnings recorded.",
+   "before": {
+    "strength": 0.0,
+    "confidence": 0.0
+   },
+   "after": {
+    "strength": 71.4,
+    "confidence": 0.4462,
+    "suggested_weight": 0.035
+   },
+   "regime": "RANGE",
+   "risk_level": "MEDIUM",
+   "status": "PAPER-TRADING WATCH",
+   "signal_id": "01a7c3d2-4f6b-7a91-b8e2-5c9d1f3a7b04",
+   "correlation_id": "01a7c3d2-3e11-7c88-a4f5-9b2d7e0c6a13",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0008",
+   "dedup_key": "MODEL_DRIFT:direction-3class:v1.000339040:2026-08-28T02",
+   "type": "MODEL_DRIFT",
+   "severity": "WARNING",
+   "created_at": "2026-08-28T01:57:00Z",
+   "title": "Feature drift detected on two model inputs",
+   "message": "Population stability index for volume_z_20 and realized_vol_20 has moved past the 0.15 warning threshold against the training reference window.",
+   "before": {
+    "volume_z_20_psi": 0.0912,
+    "realized_vol_20_psi": 0.1043
+   },
+   "after": {
+    "volume_z_20_psi": 0.1974,
+    "realized_vol_20_psi": 0.1651
+   },
+   "regime": "RANGE",
+   "status": "MODEL WATCH",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0007",
+   "dedup_key": "VWAP_CROSS:BA:2026-08-28T02:04",
+   "type": "VWAP_CROSS",
+   "severity": "INFO",
+   "ticker": "BA",
+   "created_at": "2026-08-28T02:00:00Z",
+   "title": "BA reclaimed session VWAP",
+   "message": "Price crossed above session VWAP and has held above it for four consecutive bars.",
+   "before": {
+    "vwap_dist_bps": -8.7
+   },
+   "after": {
+    "vwap_dist_bps": 14.2
+   },
+   "regime": "RANGE",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0006",
+   "dedup_key": "VOLUME_ACCELERATION:BA:2026-08-28T02:03",
+   "type": "VOLUME_ACCELERATION",
+   "severity": "NOTICE",
+   "ticker": "BA",
+   "created_at": "2026-08-28T01:59:00Z",
+   "title": "Volume acceleration on BA",
+   "message": "Twenty-bar volume ratio moved from 1.02 to 1.80 against the trailing average.",
+   "before": {
+    "volume_ratio_20": 1.0221,
+    "volume_z_20": 0.1904
+   },
+   "after": {
+    "volume_ratio_20": 1.8043,
+    "volume_z_20": 2.1387
+   },
+   "regime": "RANGE",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0005",
+   "dedup_key": "REGIME_CHANGE:LOW_VOLATILITY:RANGE:2026-08-28T01",
+   "type": "REGIME_CHANGE",
+   "severity": "WARNING",
+   "created_at": "2026-08-28T01:24:00Z",
+   "title": "Market regime changed to RANGE",
+   "message": "The regime classifier moved from LOW_VOLATILITY to RANGE. Signals scored under the previous regime carry a REGIME_CHANGE invalidation condition.",
+   "before": {
+    "confidence": 0.7213
+   },
+   "after": {
+    "confidence": 0.6798
+   },
+   "regime": "RANGE",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0004",
+   "dedup_key": "SIGNAL_INVALIDATED:NOW:01a7c3b0",
+   "type": "SIGNAL_INVALIDATED",
+   "severity": "WARNING",
+   "ticker": "NOW",
+   "created_at": "2026-08-28T01:10:00Z",
+   "title": "Signal invalidated on NOW",
+   "message": "Price closed above the 1.5x ATR stop reference. The PRICE_ABOVE invalidation condition fired and the signal was retired.",
+   "before": {
+    "last": 926.9025
+   },
+   "after": {
+    "last": 931.0924
+   },
+   "regime": "RANGE",
+   "risk_level": "MEDIUM",
+   "signal_id": "01a7c3b0-9d22-7e55-8c31-6f4a2b9d0e18",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0003",
+   "dedup_key": "DATA_STALE:UPS:2026-08-28T01",
+   "type": "DATA_STALE",
+   "severity": "CRITICAL",
+   "ticker": "UPS",
+   "created_at": "2026-08-28T00:58:00Z",
+   "title": "Market data went stale for UPS",
+   "message": "No accepted tick for 312 seconds, past the 30 second freshness gate. The instrument may still be displayed but may not produce a new signal.",
+   "before": {
+    "age_seconds": 4.1
+   },
+   "after": {
+    "age_seconds": 312.0
+   },
+   "status": "EMISSION SUSPENDED FOR INSTRUMENT",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0002",
+   "dedup_key": "RISK_BLOCK:XOM:2026-08-28T01",
+   "type": "RISK_BLOCK",
+   "severity": "NOTICE",
+   "ticker": "XOM",
+   "created_at": "2026-08-28T00:43:00Z",
+   "title": "Risk engine blocked a candidate on XOM",
+   "message": "The event_proximity check failed: a confirmed earnings event falls inside the 2 day exclusion window.",
+   "before": {
+    "days_to_event": 3.4
+   },
+   "after": {
+    "days_to_event": 1.6
+   },
+   "regime": "RANGE",
+   "risk_level": "HIGH",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  },
+  {
+   "id": "al-0001",
+   "dedup_key": "PROBABILITY_SHIFT:BA:2026-08-28T01",
+   "type": "PROBABILITY_SHIFT",
+   "severity": "INFO",
+   "ticker": "BA",
+   "created_at": "2026-08-28T00:27:00Z",
+   "title": "Prediction distribution shifted on BA",
+   "message": "P(up) over the 60 minute horizon moved from 0.31 to 0.44 while P(down) fell from 0.34 to 0.23.",
+   "before": {
+    "up": 0.3104,
+    "flat": 0.3488,
+    "down": 0.3408
+   },
+   "after": {
+    "up": 0.4419,
+    "flat": 0.3277,
+    "down": 0.2304
+   },
+   "regime": "RANGE",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+  }
+ ],
+ "meta": {
+  "count": 9,
+  "limit": 100
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

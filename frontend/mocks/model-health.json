@@ -1,0 +1,348 @@
+{
+    "data": {
+        "by_regime": {
+            "RANGE": {
+                "model_version": "rules-fallback",
+                "window": "RANGE",
+                "start": "2026-08-28T01:36:03.30791108Z",
+                "end": "2026-08-28T01:52:03.30760403Z",
+                "horizon": "15m",
+                "regime": "RANGE",
+                "samples": 1768,
+                "accuracy": 0.4033,
+                "base_rate": 0.3993,
+                "lift": 0.01,
+                "brier_score": 0.6355,
+                "brier_skill_score": 0.0356,
+                "log_loss": 1.0554,
+                "precision_up": 0.369,
+                "recall_up": 0.054,
+                "precision_down": 0,
+                "recall_down": 0,
+                "macro_f1": 0.2216,
+                "confusion": {
+                    "counts": {
+                        "DOWN": {
+                            "DOWN": 0,
+                            "FLAT": 0,
+                            "UP": 0
+                        },
+                        "FLAT": {
+                            "DOWN": 459,
+                            "FLAT": 682,
+                            "UP": 543
+                        },
+                        "UP": {
+                            "DOWN": 29,
+                            "FLAT": 24,
+                            "UP": 31
+                        }
+                    },
+                    "total": 1768
+                },
+                "calibration": [
+                    {
+                        "lower": 0,
+                        "upper": 0.1,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.1,
+                        "upper": 0.2,
+                        "count": 100,
+                        "mean_predicted": 0.1742,
+                        "observed_frequency": 0.2,
+                        "deviation": 0.0258
+                    },
+                    {
+                        "lower": 0.2,
+                        "upper": 0.3,
+                        "count": 879,
+                        "mean_predicted": 0.2616,
+                        "observed_frequency": 0.3185,
+                        "deviation": 0.0569
+                    },
+                    {
+                        "lower": 0.3,
+                        "upper": 0.4,
+                        "count": 789,
+                        "mean_predicted": 0.3203,
+                        "observed_frequency": 0.3473,
+                        "deviation": 0.027
+                    },
+                    {
+                        "lower": 0.4,
+                        "upper": 0.5,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.5,
+                        "upper": 0.6,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.6,
+                        "upper": 0.7,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.7,
+                        "upper": 0.8,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.8,
+                        "upper": 0.9,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    },
+                    {
+                        "lower": 0.9,
+                        "upper": 1,
+                        "count": 0,
+                        "mean_predicted": 0,
+                        "observed_frequency": 0,
+                        "deviation": 0
+                    }
+                ],
+                "max_calibration_deviation": 0.0569,
+                "expected_calibration_error": 0.0418,
+                "computed_at": "2026-08-28T01:52:03.30760403Z"
+            }
+        },
+        "drift": {
+            "model_version": "rules-fallback",
+            "computed_at": "2026-08-28T01:52:03.309857291Z",
+            "severity": "mild",
+            "feature_drift": {
+                "adx_14": 0.0794,
+                "atr_14": 0.02,
+                "atr_pct": 0.0264,
+                "bb_lower": 0.0134,
+                "bb_percent_b": 0.0368,
+                "bb_upper": 0.0046,
+                "bb_width": 0.0444,
+                "breakout_down": 0.0092,
+                "breakout_up": 0.0092,
+                "dist_resistance_bps": 0.0582,
+                "dist_support_bps": 0.0482,
+                "ema_21": 0.0041,
+                "ema_9": 0.0031,
+                "gap_pct": 0.0211,
+                "last": 0.004,
+                "macd": 0.1151,
+                "macd_hist": 0.0226,
+                "macd_signal": 0.0751,
+                "minus_di_14": 0.06,
+                "momentum_10": 0.0449,
+                "momentum_60": 0.0222,
+                "plus_di_14": 0.0513,
+                "realized_vol_20": 0.0328,
+                "rel_strength_20": 0.246,
+                "resistance": 0.0043,
+                "ret_log_1": 0.0172,
+                "ret_log_5": 0.0252,
+                "rsi_14": 0.0771,
+                "sma_20": 0.0078,
+                "sma_50": 0.0106,
+                "support": 0.005,
+                "trend_slope_20": 0.0662,
+                "vol_of_vol_20": 0.0638,
+                "volume_ratio_20": 0.0076,
+                "volume_z_20": 0.0098,
+                "vwap": 0.0068,
+                "vwap_dist_bps": 0.0325,
+                "zscore_20": 0.0368
+            },
+            "max_feature_psi": 0.246,
+            "prediction_drift": 0,
+            "reference_accuracy": 0,
+            "recent_accuracy": 0,
+            "accuracy_delta": 0,
+            "reference_brier": 0,
+            "recent_brier": 0,
+            "samples": 0,
+            "recommendation": "Monitor. The input distribution has shifted but measured performance has not yet degraded.",
+            "reasons": [
+                "feature population stability index reached 0.25, above the 0.15 warning threshold"
+            ]
+        },
+        "health": {
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "stage": "active",
+            "as_of": "2026-08-28T01:52:03.30760403Z",
+            "accuracy": 0.4033,
+            "calibration": 0.9582,
+            "brier_score": 0.6355,
+            "drift": "mild",
+            "high_volatility_accuracy": 0,
+            "trending_accuracy": 0,
+            "range_accuracy": 0.4033,
+            "samples": 1768,
+            "healthy": true,
+            "last_evaluated_at": "2026-08-28T01:52:03.30760403Z"
+        },
+        "overall": {
+            "model_version": "rules-fallback",
+            "window": "rolling",
+            "start": "2026-08-28T01:36:03.30791108Z",
+            "end": "2026-08-28T01:52:03.30760403Z",
+            "horizon": "15m",
+            "samples": 1768,
+            "accuracy": 0.4033,
+            "base_rate": 0.3993,
+            "lift": 0.01,
+            "brier_score": 0.6355,
+            "brier_skill_score": 0.0356,
+            "log_loss": 1.0554,
+            "precision_up": 0.369,
+            "recall_up": 0.054,
+            "precision_down": 0,
+            "recall_down": 0,
+            "macro_f1": 0.2216,
+            "confusion": {
+                "counts": {
+                    "DOWN": {
+                        "DOWN": 0,
+                        "FLAT": 0,
+                        "UP": 0
+                    },
+                    "FLAT": {
+                        "DOWN": 459,
+                        "FLAT": 682,
+                        "UP": 543
+                    },
+                    "UP": {
+                        "DOWN": 29,
+                        "FLAT": 24,
+                        "UP": 31
+                    }
+                },
+                "total": 1768
+            },
+            "calibration": [
+                {
+                    "lower": 0,
+                    "upper": 0.1,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.1,
+                    "upper": 0.2,
+                    "count": 100,
+                    "mean_predicted": 0.1742,
+                    "observed_frequency": 0.2,
+                    "deviation": 0.0258
+                },
+                {
+                    "lower": 0.2,
+                    "upper": 0.3,
+                    "count": 879,
+                    "mean_predicted": 0.2616,
+                    "observed_frequency": 0.3185,
+                    "deviation": 0.0569
+                },
+                {
+                    "lower": 0.3,
+                    "upper": 0.4,
+                    "count": 789,
+                    "mean_predicted": 0.3203,
+                    "observed_frequency": 0.3473,
+                    "deviation": 0.027
+                },
+                {
+                    "lower": 0.4,
+                    "upper": 0.5,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.5,
+                    "upper": 0.6,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.6,
+                    "upper": 0.7,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.7,
+                    "upper": 0.8,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.8,
+                    "upper": 0.9,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                },
+                {
+                    "lower": 0.9,
+                    "upper": 1,
+                    "count": 0,
+                    "mean_predicted": 0,
+                    "observed_frequency": 0,
+                    "deviation": 0
+                }
+            ],
+            "max_calibration_deviation": 0.0569,
+            "expected_calibration_error": 0.0418,
+            "computed_at": "2026-08-28T01:52:03.30760403Z"
+        },
+        "pending": 8216,
+        "veto_cost": {
+            "blocked": 0,
+            "watch_only": 1768,
+            "allowed": 0,
+            "blocked_accuracy": 0,
+            "allowed_accuracy": 0,
+            "blocked_mean_return_bps": 0,
+            "allowed_mean_return_bps": 0,
+            "interpretation": "no predictions were blocked in this window, so the veto had no measurable cost"
+        }
+    },
+    "meta": {
+        "as_of": "2026-08-28T01:52:03.30760403Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "7a7d33772f9c53af",
+    "served_at": "2026-08-28T01:52:23.068632551Z"
+}

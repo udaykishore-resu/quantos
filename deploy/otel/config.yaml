@@ -1,0 +1,40 @@
+# OpenTelemetry Collector configuration.
+#
+# QuantOS exports OTLP over HTTP/JSON directly (see internal/obs/trace.go), so
+# only the http receiver is strictly required; the gRPC receiver is enabled for
+# anything else you point at this collector.
+
+receivers:
+  otlp:
+    protocols:
+      grpc: {endpoint: 0.0.0.0:4317}
+      http: {endpoint: 0.0.0.0:4318}
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+  # Keep every trace locally. In a cluster this becomes tail sampling that
+  # always keeps errors and slow traces and samples the rest.
+  probabilistic_sampler:
+    sampling_percentage: 100
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls: {insecure: true}
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, probabilistic_sampler, batch]
+      exporters: [otlp/jaeger]
+  telemetry:
+    logs: {level: warn}

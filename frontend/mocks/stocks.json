@@ -1,0 +1,540 @@
+{
+    "data": [
+        {
+            "ticker": "BA",
+            "company": "The Boeing Company",
+            "sector": "Industrials",
+            "last": 178.9598,
+            "score": 68.7,
+            "opportunity": 47.8,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.32032344460244006,
+                "flat": 0.3593531107951199,
+                "down": 0.32032344460244006
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "NOW",
+            "company": "ServiceNow, Inc.",
+            "sector": "Technology",
+            "last": 931.0924,
+            "score": 67.5,
+            "opportunity": 47.7,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3011989384057089,
+                "flat": 0.39760212318858223,
+                "down": 0.3011989384057089
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "XLI",
+            "company": "Industrial Select Sector SPDR",
+            "sector": "Industrials",
+            "last": 135.3726,
+            "score": 65.2,
+            "opportunity": 47.6,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.23,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.1732556542708205,
+                "flat": 0.653488691458359,
+                "down": 0.1732556542708205
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "DUK",
+            "company": "Duke Energy",
+            "sector": "Utilities",
+            "last": 112.0234,
+            "score": 69.5,
+            "opportunity": 47.4,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3050244571549737,
+                "flat": 0.38995108569005255,
+                "down": 0.3050244571549737
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "AAPL",
+            "company": "Apple Inc.",
+            "sector": "Technology",
+            "last": 234.2378,
+            "score": 68.6,
+            "opportunity": 47.3,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.08,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.334442120767043,
+                "flat": 0.331115758465914,
+                "down": 0.334442120767043
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "GS",
+            "company": "The Goldman Sachs Group",
+            "sector": "Financials",
+            "last": 528.0781,
+            "score": 66.4,
+            "opportunity": 47.3,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.04,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2864052592397489,
+                "flat": 0.4271894815205022,
+                "down": 0.2864052592397489
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "META",
+            "company": "Meta Platforms, Inc.",
+            "sector": "Communication Services",
+            "last": 554.9021,
+            "score": 66.3,
+            "opportunity": 47.2,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.31257751207568857,
+                "flat": 0.374844975848623,
+                "down": 0.31257751207568857
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "BAC",
+            "company": "Bank of America",
+            "sector": "Financials",
+            "last": 41.9562,
+            "score": 66.3,
+            "opportunity": 47.1,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.07,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.323842785794208,
+                "flat": 0.352314428411584,
+                "down": 0.323842785794208
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "XLK",
+            "company": "Technology Select Sector SPDR",
+            "sector": "Technology",
+            "last": 231.3092,
+            "score": 67.5,
+            "opportunity": 47,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.11,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.18805402888867928,
+                "flat": 0.6238919422226414,
+                "down": 0.18805402888867928
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "V",
+            "company": "Visa Inc.",
+            "sector": "Financials",
+            "last": 287.1876,
+            "score": 65,
+            "opportunity": 46.9,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3094329689832562,
+                "flat": 0.38113406203348765,
+                "down": 0.3094329689832562
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "ACN",
+            "company": "Accenture plc",
+            "sector": "Technology",
+            "last": 344.643,
+            "score": 66,
+            "opportunity": 46.8,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.07,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3284147195784433,
+                "flat": 0.34317056084311337,
+                "down": 0.3284147195784433
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "LLY",
+            "company": "Eli Lilly and Company",
+            "sector": "Health Care",
+            "last": 859.3892,
+            "score": 64.7,
+            "opportunity": 46.8,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.30893469393021067,
+                "flat": 0.38213061213957866,
+                "down": 0.30893469393021067
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "LMT",
+            "company": "Lockheed Martin",
+            "sector": "Industrials",
+            "last": 554.2606,
+            "score": 67.5,
+            "opportunity": 46.8,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.07,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3321817429809926,
+                "flat": 0.33563651403801475,
+                "down": 0.3321817429809926
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "WFC",
+            "company": "Wells Fargo & Company",
+            "sector": "Financials",
+            "last": 62.5674,
+            "score": 65,
+            "opportunity": 46.8,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.31966391306036923,
+                "flat": 0.36067217387926154,
+                "down": 0.31966391306036923
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "C",
+            "company": "Citigroup Inc.",
+            "sector": "Financials",
+            "last": 64.7756,
+            "score": 63.9,
+            "opportunity": 46.7,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.29889785490115917,
+                "flat": 0.40220429019768167,
+                "down": 0.29889785490115917
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "MA",
+            "company": "Mastercard Incorporated",
+            "sector": "Financials",
+            "last": 500.1562,
+            "score": 65.5,
+            "opportunity": 46.7,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.07,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.32624244554157183,
+                "flat": 0.34751510891685633,
+                "down": 0.32624244554157183
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "XLF",
+            "company": "Financial Select Sector SPDR",
+            "sector": "Financials",
+            "last": 46.2417,
+            "score": 66.8,
+            "opportunity": 46.7,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.08,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2036435878078231,
+                "flat": 0.5927128243843538,
+                "down": 0.2036435878078231
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "GOOGL",
+            "company": "Alphabet Inc. Class A",
+            "sector": "Communication Services",
+            "last": 174.5369,
+            "score": 62.9,
+            "opportunity": 46.5,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2980894480231948,
+                "flat": 0.4038211039536103,
+                "down": 0.2980894480231948
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "RTX",
+            "company": "RTX Corporation",
+            "sector": "Industrials",
+            "last": 119.6615,
+            "score": 66.1,
+            "opportunity": 46.5,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.07,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.33065697036144304,
+                "flat": 0.3386860592771139,
+                "down": 0.33065697036144304
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "WMT",
+            "company": "Walmart Inc.",
+            "sector": "Consumer Staples",
+            "last": 80.3391,
+            "score": 66.8,
+            "opportunity": 46.5,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.08,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.3363759456322952,
+                "flat": 0.3272481087354095,
+                "down": 0.3363759456322952
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "FCX",
+            "company": "Freeport-McMoRan",
+            "sector": "Materials",
+            "last": 45.1268,
+            "score": 63.8,
+            "opportunity": 46.4,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2978373479345744,
+                "flat": 0.40432530413085127,
+                "down": 0.2978373479345744
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "TMUS",
+            "company": "T-Mobile US, Inc.",
+            "sector": "Communication Services",
+            "last": 216.0624,
+            "score": 63.4,
+            "opportunity": 46.4,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.03,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2768008066471046,
+                "flat": 0.44639838670579085,
+                "down": 0.2768008066471046
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "GE",
+            "company": "GE Aerospace",
+            "sector": "Industrials",
+            "last": 175.3734,
+            "score": 64.5,
+            "opportunity": 46.3,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.02,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2704055753693442,
+                "flat": 0.4591888492613116,
+                "down": 0.2704055753693442
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "CRM",
+            "company": "Salesforce, Inc.",
+            "sector": "Technology",
+            "last": 267.8566,
+            "score": 61.5,
+            "opportunity": 46.1,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.2965404237581959,
+                "flat": 0.4069191524836082,
+                "down": 0.2965404237581959
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        },
+        {
+            "ticker": "INTC",
+            "company": "Intel Corporation",
+            "sector": "Technology",
+            "last": 21.4729,
+            "score": 62.7,
+            "opportunity": 46.1,
+            "classification": "NEUTRAL",
+            "bias": "FLAT",
+            "confidence": 0.06,
+            "risk": "LOW",
+            "risk_decision": "WATCH_ONLY",
+            "probability": {
+                "up": 0.31726163564575,
+                "flat": 0.3654767287085001,
+                "down": 0.31726163564575
+            },
+            "stale": false,
+            "rejection": "direction: no directional bias: edge is inside the neutral band",
+            "updated_at": "2026-08-28T02:42:00Z"
+        }
+    ],
+    "meta": {
+        "count": 25,
+        "limit": 25,
+        "as_of": "0001-01-01T00:00:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "52c86b3c2f6a32ea",
+    "served_at": "2026-08-28T01:52:22.983343908Z"
+}

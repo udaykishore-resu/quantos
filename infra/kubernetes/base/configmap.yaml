@@ -1,0 +1,146 @@
+# The cluster-mode override sheet, mounted at /etc/quantos/quantos.cluster.yaml
+# and selected with QUANTOS_CONFIG.
+#
+# It is the same shape as config/quantos.compose.yaml: an override sheet, not a
+# complete configuration. internal/config.Default() supplies everything absent,
+# and every value here exists as a yaml tag in internal/config — a key that does
+# not is silently ignored, which is worse than a failure.
+#
+# No secret appears here. Only the *name* of the environment variable that holds
+# one (auth.hmac_secret_env, llm.api_key_env), which is the same contract
+# config/quantos.yaml states.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quantos-config
+  labels:
+    app.kubernetes.io/part-of: quantos
+data:
+  quantos.cluster.yaml: |
+    # Overrides for the EKS deployment. Overridden in turn by the QUANTOS_*
+    # environment variables in each Deployment, which is where anything
+    # per-service or secret-derived lives.
+    env: cluster
+    mode: cluster
+
+    log:
+      level: info
+      format: json
+
+    telemetry:
+      # The collector runs in its own namespace, as in the compose stack.
+      otlp_endpoint: http://otel-collector.observability.svc.cluster.local:4318
+      metrics_addr: ":9090"
+      flush_every: 5s
+
+    bus:
+      # MSK. Brokers arrive as QUANTOS_KAFKA_BROKERS; config.Validate rejects
+      # driver=kafka with an empty broker list, so a missing secret fails at
+      # start-up rather than at the first publish.
+      driver: kafka
+      group_prefix: quantos
+      # Events older than this are recorded but never acted on. Consumer lag
+      # becomes silence rather than stale trading signals.
+      max_event_age: 5m
+      max_retries: 2
+      buffer: 8192
+      dedup_ttl: 48h
+
+    store:
+      driver: sql
+      # postgres_dsn and redis_addr come from the projected secret. They are
+      # absent here on purpose: a DSN carries a password.
+      clickhouse_db: quantos
+      max_open_conns: 25
+      max_idle_conns: 5
+      conn_timeout: 5s
+
+    http:
+      addr: ":8080"
+      read_timeout: 10s
+      write_timeout: 30s
+      idle_timeout: 120s
+      shutdown_timeout: 15s
+      max_body_bytes: 1048576
+      # Replace with the real dashboard origin per environment. A wildcard here
+      # would make every authenticated endpoint readable from any page the user
+      # happens to have open.
+      cors_origins:
+        - https://quantos.example.internal
+      rate_limit_rps: 50
+      rate_limit_burst: 100
+      sse_buffer: 256
+      sse_replay: 1024
+
+    market:
+      # Still the simulator. This platform is research and paper trading; a
+      # cluster deployment changes the topology, not the fact that no order
+      # reaches a venue.
+      provider: sim
+      tick_interval: 1s
+      staleness_soft: 30s
+      staleness_hard: 2m
+
+    predict:
+      # An init container syncs the versioned artifacts from the models bucket
+      # into this emptyDir before the service starts.
+      artifact_dir: /var/lib/quantos/models
+
+    llm:
+      # Overridden to `anthropic` for signal-service and news-service only, via
+      # QUANTOS_LLM_PROVIDER. Every other service holds no key and can make no
+      # call, which is the least-privilege half of ADR-005.
+      provider: mock
+      api_key_env: ANTHROPIC_API_KEY
+      timeout: 20s
+      cache_ttl: 30m
+      max_per_minute: 60
+      fail_open: true
+
+    auth:
+      # config.Validate refuses to start in cluster mode with auth disabled.
+      enabled: true
+      issuer: https://issuer.example.internal/realms/quantos
+      audience: quantos-api
+      # Set jwks_url to the issuer's key set. The HMAC secret below is the
+      # fallback for service-to-service tokens; dev_users is deliberately
+      # absent, because a static local principal has no place in a cluster.
+      jwks_url: https://issuer.example.internal/realms/quantos/protocol/openid-connect/certs
+      hmac_secret_env: QUANTOS_JWT_SECRET
+      token_ttl: 12h
+      dev_users: []
+
+    strategies:
+      dir: /app/strategies
+---
+# Non-secret environment. Separate from the YAML override sheet above because
+# these are the values an overlay changes per environment, and a ConfigMap key
+# is a cleaner patch target than a line inside an embedded document.
+#
+# Every QUANTOS_* name here exists in internal/config.applyEnv. A name that does
+# not is read by nothing and is therefore a lie in a manifest.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quantos-env
+  labels:
+    app.kubernetes.io/part-of: quantos
+data:
+  QUANTOS_CONFIG: /etc/quantos/quantos.cluster.yaml
+  QUANTOS_MODE: cluster
+  QUANTOS_ENV: cluster
+  QUANTOS_LOG_LEVEL: info
+  QUANTOS_LOG_FORMAT: json
+  QUANTOS_STORE_DRIVER: sql
+  QUANTOS_BUS_DRIVER: kafka
+  QUANTOS_STRATEGY_DIR: /app/strategies
+  QUANTOS_ARTIFACT_DIR: /var/lib/quantos/models
+  QUANTOS_OTLP_ENDPOINT: http://otel-collector.observability.svc.cluster.local:4318
+  QUANTOS_CLICKHOUSE_URL: http://clickhouse.quantos.svc.cluster.local:8123
+  QUANTOS_MARKET_PROVIDER: sim
+  QUANTOS_AUTH_ENABLED: "true"
+
+  # Not QUANTOS_ variables: consumed by the fetch-models init container, not by
+  # the Go binary. Overlays set the real bucket from the Terraform output.
+  MODEL_BUCKET: quantos-models-REPLACE-ME
+  MODEL_ID: direction-3class

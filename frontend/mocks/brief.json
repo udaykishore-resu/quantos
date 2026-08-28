@@ -1,0 +1,542 @@
+{
+    "data": {
+        "id": "brief-20260828-0152",
+        "generated_at": "2026-08-28T01:52:23.362068395Z",
+        "trading_day": "2026-08-28",
+        "title": "QuantOS Morning Brief \u2014 28 August 2026",
+        "market_overview": {
+            "as_of": "2026-08-28T01:52:23.362068395Z",
+            "regime": {
+                "regime": "RANGE",
+                "confidence": 0.6798096833919487,
+                "secondary": "LOW_VOLATILITY",
+                "secondary_score": 0.6802993150684932,
+                "volatility": 0.077445205479452,
+                "breadth": 0.09615384615384616,
+                "momentum": 0.2109794933363861,
+                "risk_appetite": 0.02608916256081613,
+                "liquidity": 0.500534296049701,
+                "inputs": {
+                    "bb_percent_b": 0.649489523579404,
+                    "bb_width": 0.002356541659350522,
+                    "breadth": 0.09615384615384616,
+                    "credit_momentum": -0.00010762654349127931,
+                    "dollar_momentum": 0.0002804749634848225,
+                    "price_over_sma50": -0.0001050798744489656,
+                    "primary_adx": 22.42677507142154,
+                    "primary_momentum_60": -0.0009247912451194606,
+                    "primary_slope": 8.329090903970817e-05,
+                    "rates_momentum": 0.0005497016450695114,
+                    "realized_vol": 0.10528700987289068,
+                    "risk_appetite": 0.02608916256081613,
+                    "rsi": 51.272470246810705,
+                    "secondary_slope": 0.00012766066789935605,
+                    "sma20_over_sma50": -0.0004571971037864442,
+                    "vix": 16.2614,
+                    "volume_ratio": 1.001068592099402
+                },
+                "scores": {
+                    "BEAR_TREND": 0,
+                    "BREAKOUT": 0.1095330258473423,
+                    "BULL_TREND": 0.1780382286647622,
+                    "HIGH_VOLATILITY": 0,
+                    "LOW_VOLATILITY": 0.6802993150684932,
+                    "RANGE": 0.8500681240377762,
+                    "REVERSAL": 0,
+                    "RISK_OFF": 0,
+                    "RISK_ON": 0.04010209927942214
+                },
+                "evidence": [
+                    "SPY ADX at 22.4 is below the trending threshold of 25",
+                    "QQQ confirms the direction of SPY"
+                ],
+                "as_of": "2026-08-28T02:42:00Z",
+                "version": "regime-v1",
+                "changed": false,
+                "previous_regime": "UNDEFINED",
+                "stable_for": 4860000000000
+            },
+            "benchmarks": {
+                "DXY": 103.0684,
+                "GLD": 240.4158,
+                "IWM": 218.3517,
+                "QQQ": 481.1092,
+                "SPY": 560.9048,
+                "TLT": 91.7365
+            },
+            "vix": 16.2614,
+            "breadth": 0.09615384615384616,
+            "sector_rotation": [
+                {
+                    "sector": "Technology",
+                    "etf": "XLK",
+                    "return_1d": 0.00019015679349217534,
+                    "return_5d": 0.0009554712258911025,
+                    "return_20d": 0.0011715883761820312,
+                    "rel_strength": 0.006458463652581847,
+                    "breadth": 0,
+                    "rank": 1
+                },
+                {
+                    "sector": "Financials",
+                    "etf": "XLF",
+                    "return_1d": 3.677023255427084e-05,
+                    "return_5d": 0.0011924769329184502,
+                    "return_20d": 0.001978648797423599,
+                    "rel_strength": 0.00537196825449604,
+                    "breadth": 0,
+                    "rank": 2
+                },
+                {
+                    "sector": "Industrials",
+                    "etf": "XLI",
+                    "return_1d": -0.00011959046922531629,
+                    "return_5d": -6.274986907673932e-05,
+                    "return_20d": -0.00031808751908712907,
+                    "rel_strength": 0.005257859137264176,
+                    "breadth": 0,
+                    "rank": 3
+                },
+                {
+                    "sector": "Communication Services",
+                    "etf": "XLC",
+                    "return_1d": -0.00012071925597005641,
+                    "return_5d": -0.0012988036677357676,
+                    "return_20d": -0.001845279448239312,
+                    "rel_strength": 0.004214088232932345,
+                    "breadth": 0,
+                    "rank": 4
+                },
+                {
+                    "sector": "Utilities",
+                    "etf": "XLU",
+                    "return_1d": 0.00035753546385550264,
+                    "return_5d": 1.0670849639889644e-05,
+                    "return_20d": 0.0006219602692847381,
+                    "rel_strength": 0.0023058960220857516,
+                    "breadth": 0,
+                    "rank": 5
+                },
+                {
+                    "sector": "Energy",
+                    "etf": "XLE",
+                    "return_1d": 3.443363611198447e-05,
+                    "return_5d": -7.552769426424258e-05,
+                    "return_20d": 0.0003811301676193146,
+                    "rel_strength": 0.0008759209269514345,
+                    "breadth": 0,
+                    "rank": 6
+                },
+                {
+                    "sector": "Materials",
+                    "etf": "XLB",
+                    "return_1d": -3.7788022535061577e-05,
+                    "return_5d": 0.00017895679352729923,
+                    "return_20d": -6.668556090994038e-06,
+                    "rel_strength": -0.00010888368576522645,
+                    "breadth": 0,
+                    "rank": 7
+                },
+                {
+                    "sector": "Real Estate",
+                    "etf": "XLRE",
+                    "return_1d": 0.00022859047877318048,
+                    "return_5d": 0.0011410916886727485,
+                    "return_20d": 0.0017004531361792807,
+                    "rel_strength": -0.0009596875883571832,
+                    "breadth": 0,
+                    "rank": 8
+                },
+                {
+                    "sector": "Consumer Staples",
+                    "etf": "XLP",
+                    "return_1d": 3.017641889143794e-05,
+                    "return_5d": 0.0006829643432334832,
+                    "return_20d": 0.0015993652912547063,
+                    "rel_strength": -0.0012431678747995,
+                    "breadth": 0,
+                    "rank": 9
+                },
+                {
+                    "sector": "Health Care",
+                    "etf": "XLV",
+                    "return_1d": -3.481015412545878e-05,
+                    "return_5d": -0.0006765725801843619,
+                    "return_20d": -0.0013898266560596895,
+                    "rel_strength": -0.0013967719764035325,
+                    "breadth": 0,
+                    "rank": 10
+                },
+                {
+                    "sector": "Consumer Discretionary",
+                    "etf": "XLY",
+                    "return_1d": 0.000503857371492953,
+                    "return_5d": 0.0008427403972720447,
+                    "return_20d": 5.953077741183144e-05,
+                    "rel_strength": -0.0018432950988216401,
+                    "breadth": 0,
+                    "rank": 11
+                }
+            ],
+            "rotation": "MIXED",
+            "divergences": [
+                {
+                    "a": "SPY",
+                    "b": "VIX",
+                    "expected_correlation": -0.75,
+                    "observed_correlation": 0.295,
+                    "magnitude": 1.045,
+                    "note": "index level and implied volatility are strongly inversely related: observed 0.30 over the last 20 observations against a typical -0.75"
+                },
+                {
+                    "a": "SPY",
+                    "b": "IWM",
+                    "expected_correlation": 0.8,
+                    "observed_correlation": -0.103,
+                    "magnitude": 0.903,
+                    "note": "large and small caps normally move together: observed -0.10 over the last 20 observations against a typical 0.80"
+                },
+                {
+                    "a": "XLK",
+                    "b": "SPY",
+                    "expected_correlation": 0.88,
+                    "observed_correlation": -0.006,
+                    "magnitude": 0.886,
+                    "note": "technology is the dominant index weight: observed -0.01 over the last 20 observations against a typical 0.88"
+                },
+                {
+                    "a": "XLU",
+                    "b": "SPY",
+                    "expected_correlation": 0.45,
+                    "observed_correlation": -0.382,
+                    "magnitude": 0.832,
+                    "note": "utilities are defensive and less correlated in stress: observed -0.38 over the last 20 observations against a typical 0.45"
+                },
+                {
+                    "a": "SPY",
+                    "b": "HYG",
+                    "expected_correlation": 0.65,
+                    "observed_correlation": -0.126,
+                    "magnitude": 0.776,
+                    "note": "equities and high-yield credit normally move together: observed -0.13 over the last 20 observations against a typical 0.65"
+                },
+                {
+                    "a": "SPY",
+                    "b": "TLT",
+                    "expected_correlation": -0.3,
+                    "observed_correlation": 0.216,
+                    "magnitude": 0.516,
+                    "note": "equities and long-duration Treasuries are usually inversely related: observed 0.22 over the last 20 observations against a typical -0.30"
+                },
+                {
+                    "a": "SPY",
+                    "b": "QQQ",
+                    "expected_correlation": 0.9,
+                    "observed_correlation": 0.454,
+                    "magnitude": 0.446,
+                    "note": "large-cap and technology beta normally move together: observed 0.45 over the last 20 observations against a typical 0.90"
+                },
+                {
+                    "a": "GLD",
+                    "b": "DXY",
+                    "expected_correlation": -0.45,
+                    "observed_correlation": -0.059,
+                    "magnitude": 0.391,
+                    "note": "gold and the dollar are usually inversely related: observed -0.06 over the last 20 observations against a typical -0.45"
+                }
+            ],
+            "notes": [
+                "leading sector Technology (0.12% over 20 bars), lagging sector Consumer Discretionary (0.01%)"
+            ]
+        },
+        "major_macro_events": null,
+        "sector_leaders": [
+            {
+                "sector": "Technology",
+                "etf": "XLK",
+                "return_1d": 0.00019015679349217534,
+                "return_5d": 0.0009554712258911025,
+                "return_20d": 0.0011715883761820312,
+                "rel_strength": 0.006458463652581847,
+                "breadth": 0,
+                "rank": 1
+            },
+            {
+                "sector": "Financials",
+                "etf": "XLF",
+                "return_1d": 3.677023255427084e-05,
+                "return_5d": 0.0011924769329184502,
+                "return_20d": 0.001978648797423599,
+                "rel_strength": 0.00537196825449604,
+                "breadth": 0,
+                "rank": 2
+            },
+            {
+                "sector": "Industrials",
+                "etf": "XLI",
+                "return_1d": -0.00011959046922531629,
+                "return_5d": -6.274986907673932e-05,
+                "return_20d": -0.00031808751908712907,
+                "rel_strength": 0.005257859137264176,
+                "breadth": 0,
+                "rank": 3
+            },
+            {
+                "sector": "Communication Services",
+                "etf": "XLC",
+                "return_1d": -0.00012071925597005641,
+                "return_5d": -0.0012988036677357676,
+                "return_20d": -0.001845279448239312,
+                "rel_strength": 0.004214088232932345,
+                "breadth": 0,
+                "rank": 4
+            },
+            {
+                "sector": "Utilities",
+                "etf": "XLU",
+                "return_1d": 0.00035753546385550264,
+                "return_5d": 1.0670849639889644e-05,
+                "return_20d": 0.0006219602692847381,
+                "rel_strength": 0.0023058960220857516,
+                "breadth": 0,
+                "rank": 5
+            }
+        ],
+        "top_opportunities": [
+            {
+                "ticker": "BA",
+                "company": "The Boeing Company",
+                "sector": "Industrials",
+                "score": 47.8,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.32032344460244006,
+                    "flat": 0.3593531107951199,
+                    "down": 0.32032344460244006
+                },
+                "horizon": "15m",
+                "confidence": 0.06,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "NOW",
+                "company": "ServiceNow, Inc.",
+                "sector": "Technology",
+                "score": 47.7,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.3011989384057089,
+                    "flat": 0.39760212318858223,
+                    "down": 0.3011989384057089
+                },
+                "horizon": "15m",
+                "confidence": 0.05,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "XLI",
+                "company": "Industrial Select Sector SPDR",
+                "sector": "Industrials",
+                "score": 47.6,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.1732556542708205,
+                    "flat": 0.653488691458359,
+                    "down": 0.1732556542708205
+                },
+                "horizon": "15m",
+                "confidence": 0.23,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "DUK",
+                "company": "Duke Energy",
+                "sector": "Utilities",
+                "score": 47.4,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.3050244571549737,
+                    "flat": 0.38995108569005255,
+                    "down": 0.3050244571549737
+                },
+                "horizon": "15m",
+                "confidence": 0.05,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "AAPL",
+                "company": "Apple Inc.",
+                "sector": "Technology",
+                "score": 47.3,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.334442120767043,
+                    "flat": 0.331115758465914,
+                    "down": 0.334442120767043
+                },
+                "horizon": "15m",
+                "confidence": 0.08,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "GS",
+                "company": "The Goldman Sachs Group",
+                "sector": "Financials",
+                "score": 47.3,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.2864052592397489,
+                    "flat": 0.4271894815205022,
+                    "down": 0.2864052592397489
+                },
+                "horizon": "15m",
+                "confidence": 0.04,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "META",
+                "company": "Meta Platforms, Inc.",
+                "sector": "Communication Services",
+                "score": 47.2,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.31257751207568857,
+                    "flat": 0.374844975848623,
+                    "down": 0.31257751207568857
+                },
+                "horizon": "15m",
+                "confidence": 0.06,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "BAC",
+                "company": "Bank of America",
+                "sector": "Financials",
+                "score": 47.1,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.323842785794208,
+                    "flat": 0.352314428411584,
+                    "down": 0.323842785794208
+                },
+                "horizon": "15m",
+                "confidence": 0.07,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "XLK",
+                "company": "Technology Select Sector SPDR",
+                "sector": "Technology",
+                "score": 47,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.18805402888867928,
+                    "flat": 0.6238919422226414,
+                    "down": 0.18805402888867928
+                },
+                "horizon": "15m",
+                "confidence": 0.11,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            },
+            {
+                "ticker": "V",
+                "company": "Visa Inc.",
+                "sector": "Financials",
+                "score": 46.9,
+                "classification": "NEUTRAL",
+                "bias": "FLAT",
+                "probability": {
+                    "up": 0.3094329689832562,
+                    "flat": 0.38113406203348765,
+                    "down": 0.3094329689832562
+                },
+                "horizon": "15m",
+                "confidence": 0.06,
+                "risk": "LOW",
+                "risk_decision": "WATCH_ONLY",
+                "reasons": null,
+                "counter_signals": null
+            }
+        ],
+        "high_risk": null,
+        "important_earnings": null,
+        "prediction_summary": {
+            "resolved": 1768,
+            "accuracy": 0.4033,
+            "base_rate": 0.3993,
+            "brier_score": 0.6355,
+            "calibration": 0.9582,
+            "best_regime": "RANGE",
+            "worst_regime": "RANGE",
+            "veto_cost": {
+                "blocked": 0,
+                "watch_only": 1768,
+                "allowed": 0,
+                "blocked_accuracy": 0,
+                "allowed_accuracy": 0,
+                "blocked_mean_return_bps": 0,
+                "allowed_mean_return_bps": 0,
+                "interpretation": "no predictions were blocked in this window, so the veto had no measurable cost"
+            },
+            "interpretation": "accuracy of 40.3% is only marginally above the 39.9% base rate"
+        },
+        "model_confidence": {
+            "model_version": "rules-fallback",
+            "stage": "active",
+            "healthy": true,
+            "drift": "mild",
+            "serving_from_fallback": true
+        },
+        "risk_warnings": [
+            "the trained model is unavailable; probabilities come from the deterministic rule prior with a capped confidence"
+        ],
+        "narrative": "Market (__MARKET__, Index sector). The market regime is classified as RANGE with confidence 0.68. The composite research score is 68.7 out of 100, classified NEUTRAL. Over a 15m horizon the model distributes probability as 32% above +15 bps, 36% inside \u00b115 bps, and 32% below \u221215 bps. The trained model was unavailable, so this distribution comes from the deterministic rule prior with a capped confidence. The opportunity score is 47.8 with a FLAT bias and a risk/reward of 1.67 to 1.",
+        "narrative_source": "llm",
+        "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+    },
+    "meta": {
+        "as_of": "2026-08-28T01:52:23.362068395Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "3df27a3d96215cf4",
+    "served_at": "2026-08-28T01:52:23.365730166Z"
+}

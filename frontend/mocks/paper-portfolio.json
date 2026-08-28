@@ -1,0 +1,1007 @@
+{
+ "data": {
+  "equity_curve": [
+   {
+    "at": "2026-08-28T01:20:18.307641461Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:20:33.30768872Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:20:48.307645937Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:21:03.307658953Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:21:18.307614478Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:21:33.307864131Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:21:48.307630602Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:22:03.308193281Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:22:18.308112009Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:22:33.309301717Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:22:48.30759659Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:23:03.308449292Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:23:18.30790608Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:23:33.30771223Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:23:48.307704426Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:24:03.307648741Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:24:18.307721616Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:24:33.307739446Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:24:48.307664495Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:25:03.30778848Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:25:18.308130744Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:25:33.308005975Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:25:48.307664115Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:26:03.30782366Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:26:18.307791946Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:26:33.307764341Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:26:48.307675346Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:27:03.307981776Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:27:18.307632646Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:27:33.307859317Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:27:48.307807326Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:28:03.307846729Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:28:18.307693434Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:28:33.307688126Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:28:48.30765665Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:29:03.307760144Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:29:18.307644953Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:29:33.307785458Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:29:48.307685474Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:30:03.307761744Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:30:18.307692531Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:30:33.307796878Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:30:48.307653088Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:31:03.307605743Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:31:18.307669678Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:31:33.307779555Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:31:48.307637433Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:32:03.307666519Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:32:18.307616366Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:32:33.307697397Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:32:48.307611314Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:33:03.307706951Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:33:18.307709748Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:33:33.307590271Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:33:48.307755223Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:34:03.307691802Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:34:18.307706777Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:34:33.307666818Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:34:48.310054556Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:35:03.307605635Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:35:18.307700737Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:35:33.308041855Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:35:48.307739555Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:36:03.3078013Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:36:18.307654427Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:36:33.307644517Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:36:48.307868838Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:37:03.307596601Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:37:18.307684419Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:37:33.307646579Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:37:48.307724057Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:38:03.307812609Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:38:18.307714634Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:38:33.307899643Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:38:48.30778019Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:39:03.308793785Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:39:18.30763698Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:39:33.308409402Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:39:48.307643826Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:40:03.307685026Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:40:18.307678203Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:40:33.30770288Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:40:48.307814947Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:41:03.308115613Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:41:18.307751971Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:41:33.307877507Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:41:48.307764753Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:42:03.307799703Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:42:18.307679838Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:42:33.308063522Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:42:48.308149602Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:43:03.307755906Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:43:18.307647822Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:43:33.307849416Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:43:48.307636307Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:44:03.309300707Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:44:18.307660159Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:44:33.307803416Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:44:48.307653694Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:45:03.307694873Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:45:18.307735318Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:45:33.307612146Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:45:48.307694094Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:46:03.307694234Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:46:18.308074079Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:46:33.307588347Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:46:48.307737988Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:47:03.307655163Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:47:18.307615179Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:47:33.307829247Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:47:48.307752853Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:48:03.307844447Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:48:18.307656232Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:48:33.307950833Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:48:48.307709219Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:49:03.30758422Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:49:18.307652705Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:49:33.307807548Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:49:48.307599847Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:50:03.307744281Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:50:18.307610589Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:50:33.307810786Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:50:48.307628335Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:51:03.307813412Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:51:18.307987842Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:51:33.307645089Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:51:48.307871002Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:52:03.307883327Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   },
+   {
+    "at": "2026-08-28T01:52:18.307588695Z",
+    "equity": 100000,
+    "cash": 100000,
+    "drawdown": 0,
+    "exposure": 0
+   }
+  ],
+  "portfolio": {
+   "id": "paper-default",
+   "name": "QuantOS Paper Portfolio",
+   "owner": "",
+   "currency": "USD",
+   "as_of": "2026-08-28T01:52:18.307588695Z",
+   "starting_cash": 100000,
+   "cash": 100000,
+   "equity": 100000,
+   "market_value": 149003.14,
+   "realized_pnl": 0,
+   "unrealized_pnl": 1538.62,
+   "total_pnl": 0,
+   "return_pct": 0,
+   "gross_exposure": 0,
+   "net_exposure": 0,
+   "long_exposure": 0,
+   "short_exposure": 0,
+   "leverage": 0,
+   "peak_equity": 100000,
+   "drawdown": 0,
+   "max_drawdown": 0,
+   "paper": true,
+   "positions": [
+    {
+     "portfolio_id": "pf-paper-001",
+     "ticker": "BA",
+     "quantity": 91.0,
+     "avg_price": 177.2422,
+     "market_price": 178.9598,
+     "market_value": 16285.34,
+     "cost_basis": 16129.04,
+     "unrealized_pnl": 156.3,
+     "realized_pnl": -72.72,
+     "opened_at": "2026-08-27T14:44:34Z",
+     "updated_at": "2026-08-28T02:10:54Z",
+     "sector": "Industrials",
+     "signal_id": "01a7c3d2-4f6b-7a91-b8e2-5c9d1f3a7b04"
+    },
+    {
+     "portfolio_id": "pf-paper-001",
+     "ticker": "NOW",
+     "quantity": 144.0,
+     "avg_price": 923.4398,
+     "market_price": 931.0924,
+     "market_value": 134077.31,
+     "cost_basis": 132975.33,
+     "unrealized_pnl": 1101.97,
+     "realized_pnl": 49.84,
+     "opened_at": "2026-08-26T22:10:46Z",
+     "updated_at": "2026-08-28T02:10:54Z",
+     "sector": "Technology"
+    },
+    {
+     "portfolio_id": "pf-paper-001",
+     "ticker": "XLI",
+     "quantity": -111.0,
+     "avg_price": 136.7718,
+     "market_price": 135.3726,
+     "market_value": -15026.36,
+     "cost_basis": -15181.67,
+     "unrealized_pnl": 155.31,
+     "realized_pnl": 113.56,
+     "opened_at": "2026-08-27T08:09:39Z",
+     "updated_at": "2026-08-28T02:10:54Z",
+     "sector": "Industrials"
+    },
+    {
+     "portfolio_id": "pf-paper-001",
+     "ticker": "DUK",
+     "quantity": 122.0,
+     "avg_price": 110.9985,
+     "market_price": 112.0234,
+     "market_value": 13666.85,
+     "cost_basis": 13541.82,
+     "unrealized_pnl": 125.04,
+     "realized_pnl": 361.2,
+     "opened_at": "2026-08-27T09:58:19Z",
+     "updated_at": "2026-08-28T02:10:54Z",
+     "sector": "Utilities"
+    }
+   ],
+   "sector_exposure": {
+    "Utilities": 0.0917,
+    "Technology": 0.8998,
+    "Industrials": 0.2101
+   }
+  },
+  "trades": null
+ },
+ "meta": {
+  "as_of": "2026-08-28T01:52:18.307588695Z"
+ },
+ "degraded": [
+  "model"
+ ],
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "8c059ef884726482",
+ "served_at": "2026-08-28T01:52:23.210743826Z"
+}

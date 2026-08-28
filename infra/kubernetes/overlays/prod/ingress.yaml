@@ -1,0 +1,26 @@
+# Production hostname and certificate.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quantos-api
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:222222222222:certificate/REPLACE-WITH-PROD-CERT
+    # A WAF in front of the API. The rate limiter in internal/httpx is
+    # per-principal and runs after authentication; this one runs before it, and
+    # the two protect against different things.
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:us-east-1:222222222222:regional/webacl/quantos-api/REPLACE-ME
+spec:
+  tls:
+    - hosts:
+        - quantos.example.com
+  rules:
+    - host: quantos.example.com
+      http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http

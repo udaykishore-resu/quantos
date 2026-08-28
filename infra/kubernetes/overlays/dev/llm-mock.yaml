@@ -1,0 +1,35 @@
+# The mock LLM provider in dev.
+#
+# internal/llm's mock is deterministic and needs no key, so the whole platform
+# runs offline and a redeploy costs nothing. It also removes the one path by
+# which a dev environment could spend money on a provider API, which matters
+# when dev is redeployed twenty times a day.
+#
+# The ANTHROPIC_API_KEY secret is still projected: app.New reads it at start-up
+# regardless and warns when it is missing, and having the wiring exercised in
+# dev is how it is known to work before prod needs it.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: signal-service
+          env:
+            - name: QUANTOS_LLM_PROVIDER
+              value: mock
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-service
+spec:
+  template:
+    spec:
+      containers:
+        - name: news-service
+          env:
+            - name: QUANTOS_LLM_PROVIDER
+              value: mock

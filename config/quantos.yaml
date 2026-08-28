@@ -1,0 +1,256 @@
+# QuantOS configuration.
+#
+# Everything here has a built-in default, so this file is an override sheet
+# rather than a requirement: `quantos run` works with no file at all. The
+# effective configuration is hashed at load time and that hash is stamped on
+# every risk assessment, score and signal, so a historical decision can be
+# re-derived even after these values change.
+#
+# Secrets are never stored here. Only the *name* of the environment variable
+# that holds a secret appears in this file.
+
+service: quantos
+env: local
+version: 0.1.0
+# embedded = in-process bus and stores; compose = local Kafka/Postgres/
+# ClickHouse/Redis; cluster = MSK/RDS/ElastiCache.
+mode: embedded
+
+http:
+  addr: ":8080"
+  read_timeout: 10s
+  write_timeout: 30s
+  idle_timeout: 120s
+  shutdown_timeout: 15s
+  max_body_bytes: 1048576
+  cors_origins:
+    - http://localhost:3000
+  rate_limit_rps: 50
+  rate_limit_burst: 100
+  sse_buffer: 256
+  sse_replay: 1024
+
+log:
+  level: info
+  format: json
+
+telemetry:
+  # Empty means "generate and propagate trace ids but export nothing", which is
+  # the right default for a laptop.
+  otlp_endpoint: ""
+  metrics_addr: ":9090"
+  flush_every: 5s
+
+bus:
+  # memory | wal | kafka. The Kafka driver is a separate module; see
+  # drivers/kafka/README.md.
+  driver: memory
+  synchronous: false
+  dir: ./.quantos/wal
+  group_prefix: quantos
+  # Events older than this are recorded but never acted on: consumer lag turns
+  # into silence rather than into stale trading signals.
+  max_event_age: 5m
+  max_retries: 2
+  buffer: 8192
+  dedup_ttl: 48h
+
+store:
+  # memory | sql
+  driver: memory
+  postgres_dsn: ""
+  clickhouse_url: ""
+  clickhouse_db: quantos
+  redis_addr: ""
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_timeout: 5s
+  retention: 2160h
+
+market:
+  # sim | replay
+  provider: sim
+  seed: 20260827
+  tick_interval: 1s
+  bar_interval: 1m
+  # Beyond staleness_soft no new signal is created; beyond staleness_hard the
+  # symbol is treated as offline (governance rule G-5).
+  staleness_soft: 30s
+  staleness_hard: 2m
+  max_gap_pct: 0.25
+  max_spread_bps: 500
+  replay_dir: ./testdata/replay
+  request_timeout: 5s
+  cache_ttl: 2s
+  rate_limit_per_sec: 50
+  circuit_threshold: 5
+  circuit_cooldown: 30s
+
+features:
+  interval: 1m
+  warmup_bars: 260
+  max_history_bars: 500
+  benchmark: SPY
+  vwap_reset_daily: true
+
+regime:
+  benchmarks: [SPY, QQQ]
+  volatility_ref: VIX
+  min_confidence: 0.45
+  # A regime must persist for this long before it replaces the incumbent, or
+  # arrive with clearly higher confidence. Flapping regimes are worse than a
+  # slightly stale one, because every downstream threshold keys off the regime.
+  hysteresis: 5m
+  vix_high: 24
+  vix_low: 14
+  trend_threshold: 0.0004
+  breadth_threshold: 0.15
+
+predict:
+  artifact_dir: ml/artifacts
+  model_id: direction-3class
+  horizons: [15m, 60m, 1d]
+  # Half-width of the FLAT class. Without it, "UP: 0.63" means nothing.
+  flat_band_bps: 15
+  # Maximum weight given to the trained model against the deterministic rule
+  # prior. The weight actually used is scaled by the model's measured lift over
+  # its own base rate, so a model with no demonstrated skill contributes nothing
+  # rather than diluting the prior towards the middle.
+  blend_weight: 0.6
+  # The lift (accuracy minus base rate) at which a model earns its full
+  # blend_weight. 0.05 is five accuracy points over a constant guess.
+  blend_reference_lift: 0.05
+  # How far above a coin flip the model's measured UP-vs-DOWN AUC must be to
+  # earn full weight on the *direction* of a prediction. A model that separates
+  # quiet tapes from moving ones but cannot tell up from down gets the first
+  # job and not the second. Unmeasured counts as no skill.
+  directional_reference_auc: 0.03
+  # Confidence ceiling when serving from the rule prior alone, so a degraded
+  # prediction naturally fails the risk engine's confidence check.
+  fallback_confidence_ceiling: 0.55
+  canary_fraction: 0
+
+# The most safety-critical block in the file. Resolution is most-severe-wins:
+# any BLOCK is a BLOCK, with no averaging and no override (ADR-009).
+risk:
+  staleness_soft: 30s
+  staleness_hard: 2m
+  min_liquidity: 2000000
+  preferred_liquidity: 20000000
+  max_spread_soft_bps: 25
+  max_spread_hard_bps: 80
+  max_vol_soft: 0.45
+  max_vol_hard: 0.90
+  earnings_watch_window: 72h
+  earnings_block_window: 24h
+  min_confidence: 0.30
+  min_regime_confidence: 0.35
+  blocked_regimes: []
+  max_position_weight: 0.10
+  soft_position_weight: 0.07
+  max_sector_weight: 0.35
+  soft_sector_weight: 0.25
+  max_correlated_exposure: 0.50
+  soft_correlated_exposure: 0.35
+  # Portfolio kill switch.
+  max_drawdown: 0.20
+  drawdown_warn: 0.12
+  # Sustained veto rates above this usually mean a threshold needs review, not
+  # that the market is uniquely dangerous.
+  veto_rate_alert: 0.80
+
+signals:
+  default_strategy: momentum
+  max_active: 50
+  max_per_ticker: 1
+  cooldown: 30m
+  default_ttl: 4h
+  invalidation_sweep: 15s
+
+alerts:
+  dedup_bucket: 1m
+  cooldown: 5m
+  max_per_ticker_per_hour: 12
+  probability_delta: 0.08
+  volume_acceleration: 2.5
+  volatility_spike: 2.0
+
+paper:
+  starting_cash: 100000
+  max_positions: 20
+  max_weight: 0.10
+  allow_short: false
+  fill_delay: 0s
+  mark_interval: 5s
+  # Deliberately pessimistic. Optimistic cost assumptions are the most common
+  # way a backtest lies.
+  costs:
+    commission_bps: 1.0
+    commission_per_share: 0
+    min_commission: 0
+    spread_cost_bps: 2.0
+    slippage_model: sqrt_impact
+    slippage_bps: 1.5
+    impact_coefficient: 0.35
+    borrow_rate_annual: 0.03
+    participation_cap: 0.05
+
+news:
+  enabled: true
+  poll_interval: 30s
+  dedup_window: 6h
+  min_materiality: 0.3
+  use_llm: true
+  max_llm_per_minute: 20
+
+llm:
+  # mock | anthropic. The mock is deterministic and needs no key, so the whole
+  # platform runs offline.
+  provider: mock
+  model: claude-sonnet-4-5
+  api_key_env: ANTHROPIC_API_KEY
+  base_url: https://api.anthropic.com
+  max_tokens: 1024
+  temperature: 0.2
+  timeout: 20s
+  cache_ttl: 30m
+  max_per_minute: 60
+  fail_open: true
+
+auth:
+  enabled: true
+  issuer: quantos-local
+  audience: quantos-api
+  jwks_url: ""
+  hmac_secret_env: QUANTOS_JWT_SECRET
+  token_ttl: 12h
+  # Local principals for embedded and compose mode only. Cluster mode requires
+  # a real OIDC issuer and refuses to start without one.
+  dev_users:
+    - subject: demo
+      password: demo
+      roles: [viewer, analyst]
+    - subject: operator
+      password: operator
+      roles: [viewer, analyst, operator]
+
+universe:
+  source: builtin
+  include: []
+  exclude: []
+  max_symbols: 120
+
+strategies:
+  dir: strategies
+  enabled: []
+
+evaluation:
+  sweep_interval: 30s
+  calibration_bins: 10
+  drift_window: 500
+  drift_reference: 2000
+  psi_warn: 0.15
+  psi_alert: 0.25
+  accuracy_drop_warn: 0.05
+  accuracy_drop_alert: 0.10
+  min_samples: 100

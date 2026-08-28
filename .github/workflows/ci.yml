@@ -1,0 +1,321 @@
+# CI: everything that can be checked without deploying anything.
+#
+# Action versions are pinned to explicit tags rather than floating majors. They
+# are not pinned to commit digests here because a digest that is wrong is a
+# workflow that cannot run at all, and rotating them by hand is how they end up
+# stale; pin to digests in one pass with a tool that resolves them
+# (`pin-github-action`, Dependabot's `pinned` mode) if your policy requires it.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Nothing here writes to the repository, publishes a package, or assumes a role.
+# Read access to the contents is the entire requirement.
+permissions:
+  contents: read
+
+concurrency:
+  # A superseded PR run tells you about a commit nobody is going to merge.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Matches the ARG in deploy/Dockerfile and the directive in go.mod. Three
+  # places is two too many, and this is the one CI can be wrong in silently.
+  GO_VERSION: "1.24"
+  # The tests are deterministic and seeded; a flake here is a bug, not weather.
+  CGO_ENABLED: "0"
+
+jobs:
+  # ------------------------------------------------------------------ lint --
+  lint:
+    name: gofmt, vet, architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: gofmt
+        # `make fmt-check` prints the offending files rather than a diff, which
+        # is what you want when the fix is `make fmt`.
+        run: make fmt-check
+
+      - name: go vet
+        run: make vet
+
+      - name: architecture invariants
+        # tests/integration/architecture_test.go asserts the import DAG and the
+        # thin-main rule from ADR-005 and ADR-011. It is the check that stops
+        # business logic drifting into services/, so it runs before the slow
+        # test job rather than after it.
+        run: make arch
+
+      - name: go mod tidy is a no-op
+        run: |
+          go mod tidy
+          if ! git diff --quiet go.mod go.sum; then
+            echo "go.mod or go.sum is not tidy; run 'go mod tidy' and commit the result"
+            git --no-pager diff go.mod go.sum
+            exit 1
+          fi
+
+  # ------------------------------------------------------------------ test --
+  test:
+    name: test, race, coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: build every binary
+        # Nine services plus the CLI. A package that compiles in isolation but
+        # not as part of the full build is a broken build.
+        run: make build
+
+      - name: test with the race detector
+        # The bus, the hub and the pipeline are all concurrent; without -race
+        # this suite would pass while carrying a data race.
+        run: go test -race -count=1 -timeout 15m ./...
+
+      - name: coverage
+        run: |
+          go test -count=1 -coverprofile=coverage.out \
+            -coverpkg=./internal/... ./internal/... ./tests/...
+          go tool cover -func=coverage.out | tail -1
+
+      - name: coverage floor
+        # A floor rather than a ratchet. A ratchet turns "I deleted dead code"
+        # into a CI failure, and the number below is the level the logic
+        # packages are expected to hold, not a target to chase upward.
+        env:
+          FLOOR: "70.0"
+        run: |
+          total=$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')
+          echo "total coverage: ${total}% (floor ${FLOOR}%)"
+          awk -v t="$total" -v f="$FLOOR" 'BEGIN { exit (t+0 >= f+0) ? 0 : 1 }' || {
+            echo "coverage ${total}% is below the ${FLOOR}% floor"
+            exit 1
+          }
+
+      - name: upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 7
+
+  # ------------------------------------------------------------ behaviour ---
+  behaviour:
+    name: validate, demo, topics
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: validate configuration and strategies
+        # internal/config.Validate is strict about the risk block in particular:
+        # a mis-specified threshold there is how a veto silently becomes a
+        # suggestion. This catches it before anything is deployed.
+        run: make validate
+
+      - name: topic specification
+        # internal/bus.TopicConfigs is the source of truth that
+        # deploy/kafka/create-topics.sh, infra/kubernetes/base/topics-job.yaml
+        # and the Helm chart's Job all render. Printing it makes a change to
+        # partition counts visible in the CI log, where a reviewer can see that
+        # the three renderings need updating too.
+        run: make topics
+
+      - name: demo scenarios
+        # Ten end-to-end scenarios in one process with no infrastructure. This
+        # is the closest thing to an integration test the repository has that
+        # runs in seconds, including the one that exercises App.CanEmitSignals
+        # suppressing emission when provenance cannot be persisted.
+        run: make demo
+
+  # -------------------------------------------------------------- python ----
+  python:
+    name: ml tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: is there anything to run
+        id: check
+        run: |
+          if [ -d ml/tests ] && ls ml/tests/test_*.py >/dev/null 2>&1; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "no ml/tests/test_*.py; skipping"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.check.outputs.run == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ml/requirements.txt
+
+      - name: install
+        if: steps.check.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml/requirements.txt
+
+      - name: pytest
+        if: steps.check.outputs.run == 'true'
+        # ml/tests/test_go_parity.py is the one that matters: it checks that Go
+        # and Python compute the same feature values. A divergence there means a
+        # model trained on Python features is served against different numbers.
+        run: python -m pytest ml/tests -q
+
+  # ------------------------------------------------------------ frontend ----
+  frontend:
+    name: dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: is there a frontend
+        id: check
+        # frontend/ exists as a directory in this repository but has no
+        # package.json yet. A hard `cd frontend && npm ci` would fail the whole
+        # workflow on an empty directory, so the presence of the manifest is
+        # what decides.
+        run: |
+          if [ -f frontend/package.json ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "no frontend/package.json; skipping"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.run == 'true'
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: install
+        if: steps.check.outputs.run == 'true'
+        working-directory: frontend
+        # `npm ci` when there is a lockfile, `npm install` when there is not.
+        # The first is reproducible and the second is what an early frontend has.
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: lint
+        if: steps.check.outputs.run == 'true'
+        working-directory: frontend
+        run: |
+          if npm run | grep -qE '^  lint$'; then npm run lint; else echo "no lint script"; fi
+
+      - name: build
+        if: steps.check.outputs.run == 'true'
+        working-directory: frontend
+        run: |
+          if npm run | grep -qE '^  build$'; then npm run build; else echo "no build script"; fi
+
+  # ------------------------------------------------------------ manifests ---
+  manifests:
+    name: kustomize and helm render
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.15.2
+
+      - name: kustomize
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh \
+            | bash -s -- 5.4.3 /usr/local/bin
+
+      - name: build both overlays
+        run: |
+          for overlay in dev prod; do
+            echo "--- $overlay"
+            kustomize build "infra/kubernetes/overlays/${overlay}" > "/tmp/${overlay}.yaml"
+          done
+
+      - name: no literal secrets in the rendered manifests
+        # The manifests reference AWS Secrets Manager and never carry a value.
+        # A rendered Secret with a data: block means someone committed one.
+        run: |
+          if grep -nE '^kind: Secret$' /tmp/dev.yaml /tmp/prod.yaml; then
+            echo "a rendered manifest contains a Secret; secrets are references only"
+            exit 1
+          fi
+
+      - name: helm lint
+        run: |
+          helm lint infra/helm/quantos
+          helm lint infra/helm/quantos -f infra/helm/quantos/values-dev.yaml
+          helm lint infra/helm/quantos -f infra/helm/quantos/values-prod.yaml
+
+      - name: helm template in every mode
+        # The mode switch changes what renders. A template that only works for
+        # `cluster` is a chart that lies about supporting three modes.
+        run: |
+          for mode in embedded compose cluster; do
+            echo "--- mode=$mode"
+            helm template quantos infra/helm/quantos \
+              --kube-version 1.30.0 --set mode="$mode" > "/tmp/helm-${mode}.yaml"
+          done
+          helm template quantos infra/helm/quantos --kube-version 1.30.0 \
+            -f infra/helm/quantos/values-prod.yaml > /tmp/helm-prod.yaml
+
+      - name: kubeconform
+        run: |
+          curl -sSfL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /usr/local/bin kubeconform
+          # -ignore-missing-schemas so the CRDs this cluster supplies
+          # (ExternalSecret, ServiceMonitor, PrometheusRule) do not fail a check
+          # that is about the built-in kinds.
+          kubeconform -strict -summary -ignore-missing-schemas \
+            -kubernetes-version 1.30.0 \
+            /tmp/dev.yaml /tmp/prod.yaml /tmp/helm-prod.yaml
+
+  # ---------------------------------------------------------------- shell ---
+  scripts:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends shellcheck
+          shellcheck scripts/*.sh deploy/kafka/create-topics.sh
+
+      - name: every script parses
+        run: |
+          for f in scripts/*.sh; do bash -n "$f"; done

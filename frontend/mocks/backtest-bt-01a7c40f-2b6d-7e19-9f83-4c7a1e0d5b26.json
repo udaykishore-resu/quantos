@@ -1,0 +1,2647 @@
+{
+ "data": {
+  "id": "bt-01a7c40f-2b6d-7e19-9f83-4c7a1e0d5b26",
+  "name": "breakout-30d",
+  "status": "COMPLETED",
+  "strategy_id": "breakout",
+  "universe": [
+   "BA",
+   "NOW",
+   "XLI",
+   "DUK",
+   "AAPL",
+   "GS",
+   "META",
+   "BAC",
+   "XLK",
+   "V",
+   "ACN",
+   "LLY"
+  ],
+  "start": "2026-07-28T13:30:00Z",
+  "end": "2026-08-27T20:00:00Z",
+  "interval": "1m",
+  "seed": 42,
+  "config_hash": "eec4f7c3477d3e59",
+  "model_version": "v1.000339040",
+  "code_version": "dev",
+  "starting_cash": 100000.0,
+  "costs": {
+   "commission_bps": 1.0,
+   "commission_per_share": 0.0,
+   "min_commission": 0.0,
+   "spread_cost_bps": 2.0,
+   "slippage_model": "sqrt_impact",
+   "slippage_bps": 1.5,
+   "impact_coefficient": 0.35,
+   "borrow_rate_annual": 0.03,
+   "participation_cap": 0.05
+  },
+  "metrics": {
+   "total_return": 0.088542,
+   "cagr": 1.80725,
+   "sharpe": 0.9142,
+   "sortino": 1.6791,
+   "calmar": 0.9837,
+   "max_drawdown": 0.090011,
+   "max_drawdown_days": 10.74,
+   "volatility": 0.282975,
+   "win_rate": 0.546875,
+   "profit_factor": 1.4436,
+   "expectancy": 88.422,
+   "turnover": 2.4046,
+   "avg_exposure": 0.4668,
+   "trades": 64,
+   "avg_hold_hours": 14.496,
+   "total_costs": 928.55,
+   "deflated_sharpe": 0.1873,
+   "trials_considered": 48
+  },
+  "regime_metrics": {
+   "RANGE": {
+    "total_return": 0.007381,
+    "cagr": 0.093602,
+    "sharpe": 0.5414,
+    "sortino": 0.667,
+    "calmar": 0.082,
+    "max_drawdown": 0.090011,
+    "max_drawdown_days": 8.91,
+    "volatility": 0.277692,
+    "win_rate": 0.5,
+    "profit_factor": 1.1274,
+    "expectancy": 46.1337,
+    "turnover": 3.2529,
+    "avg_exposure": 0.4668,
+    "trades": 16,
+    "avg_hold_hours": 15.38,
+    "total_costs": 220.75
+   },
+   "BULL_TREND": {
+    "total_return": 0.00119,
+    "cagr": 0.01458,
+    "sharpe": 0.8887,
+    "sortino": 1.1425,
+    "calmar": 0.0132,
+    "max_drawdown": 0.090011,
+    "max_drawdown_days": 2.73,
+    "volatility": 0.283914,
+    "win_rate": 0.5,
+    "profit_factor": 1.0331,
+    "expectancy": 7.44,
+    "turnover": 3.5655,
+    "avg_exposure": 0.4668,
+    "trades": 16,
+    "avg_hold_hours": 14.733,
+    "total_costs": 254.72
+   },
+   "HIGH_VOLATILITY": {
+    "total_return": 0.032498,
+    "cagr": 0.475652,
+    "sharpe": 0.3968,
+    "sortino": 0.9867,
+    "calmar": 0.361,
+    "max_drawdown": 0.090011,
+    "max_drawdown_days": 6.46,
+    "volatility": 0.164762,
+    "win_rate": 0.4375,
+    "profit_factor": 2.7241,
+    "expectancy": 203.1106,
+    "turnover": 3.6245,
+    "avg_exposure": 0.4668,
+    "trades": 16,
+    "avg_hold_hours": 14.238,
+    "total_costs": 239.19
+   },
+   "LOW_VOLATILITY": {
+    "total_return": 0.015521,
+    "cagr": 0.20609,
+    "sharpe": 0.8309,
+    "sortino": 1.3623,
+    "calmar": 0.1724,
+    "max_drawdown": 0.090011,
+    "max_drawdown_days": 8.06,
+    "volatility": 0.289164,
+    "win_rate": 0.75,
+    "profit_factor": 2.0443,
+    "expectancy": 97.0037,
+    "turnover": 2.1319,
+    "avg_exposure": 0.4668,
+    "trades": 16,
+    "avg_hold_hours": 13.633,
+    "total_costs": 213.89
+   }
+  },
+  "equity_curve": [
+   {
+    "at": "2026-07-28T13:30:00Z",
+    "equity": 100513.29,
+    "cash": 56307.32,
+    "drawdown": 0.0,
+    "exposure": 0.423
+   },
+   {
+    "at": "2026-07-28T16:48:00Z",
+    "equity": 100279.16,
+    "cash": 81388.77,
+    "drawdown": -0.002329,
+    "exposure": 0.5125
+   },
+   {
+    "at": "2026-07-28T20:06:00Z",
+    "equity": 100714.99,
+    "cash": 82003.45,
+    "drawdown": 0.0,
+    "exposure": 0.6567
+   },
+   {
+    "at": "2026-07-28T23:24:00Z",
+    "equity": 100576.62,
+    "cash": 56180.4,
+    "drawdown": -0.001374,
+    "exposure": 0.3775
+   },
+   {
+    "at": "2026-07-29T02:42:00Z",
+    "equity": 99363.77,
+    "cash": 89884.14,
+    "drawdown": -0.013416,
+    "exposure": 0.2259
+   },
+   {
+    "at": "2026-07-29T06:00:00Z",
+    "equity": 98851.8,
+    "cash": 88465.58,
+    "drawdown": -0.0185,
+    "exposure": 0.2952
+   },
+   {
+    "at": "2026-07-29T09:18:00Z",
+    "equity": 98629.19,
+    "cash": 63093.31,
+    "drawdown": -0.02071,
+    "exposure": 0.3781
+   },
+   {
+    "at": "2026-07-29T12:36:00Z",
+    "equity": 98555.25,
+    "cash": 75916.91,
+    "drawdown": -0.021444,
+    "exposure": 0.3359
+   },
+   {
+    "at": "2026-07-29T15:54:00Z",
+    "equity": 99447.26,
+    "cash": 76595.68,
+    "drawdown": -0.012587,
+    "exposure": 0.5278
+   },
+   {
+    "at": "2026-07-29T19:12:00Z",
+    "equity": 99256.35,
+    "cash": 42754.42,
+    "drawdown": -0.014483,
+    "exposure": 0.5114
+   },
+   {
+    "at": "2026-07-29T22:30:00Z",
+    "equity": 98778.57,
+    "cash": 79136.22,
+    "drawdown": -0.019227,
+    "exposure": 0.227
+   },
+   {
+    "at": "2026-07-30T01:48:00Z",
+    "equity": 98880.12,
+    "cash": 86509.21,
+    "drawdown": -0.018218,
+    "exposure": 0.2731
+   },
+   {
+    "at": "2026-07-30T05:06:00Z",
+    "equity": 99105.52,
+    "cash": 75592.93,
+    "drawdown": -0.01598,
+    "exposure": 0.6351
+   },
+   {
+    "at": "2026-07-30T08:24:00Z",
+    "equity": 99191.79,
+    "cash": 86209.43,
+    "drawdown": -0.015124,
+    "exposure": 0.4766
+   },
+   {
+    "at": "2026-07-30T11:42:00Z",
+    "equity": 99792.38,
+    "cash": 60481.53,
+    "drawdown": -0.009161,
+    "exposure": 0.5792
+   },
+   {
+    "at": "2026-07-30T15:00:00Z",
+    "equity": 98817.76,
+    "cash": 80133.66,
+    "drawdown": -0.018838,
+    "exposure": 0.4708
+   },
+   {
+    "at": "2026-07-30T18:18:00Z",
+    "equity": 99529.06,
+    "cash": 44836.92,
+    "drawdown": -0.011775,
+    "exposure": 0.6464
+   },
+   {
+    "at": "2026-07-30T21:36:00Z",
+    "equity": 99500.76,
+    "cash": 75052.7,
+    "drawdown": -0.012056,
+    "exposure": 0.4417
+   },
+   {
+    "at": "2026-07-31T00:54:00Z",
+    "equity": 99956.09,
+    "cash": 61430.45,
+    "drawdown": -0.007535,
+    "exposure": 0.2095
+   },
+   {
+    "at": "2026-07-31T04:12:00Z",
+    "equity": 99849.37,
+    "cash": 49395.8,
+    "drawdown": -0.008595,
+    "exposure": 0.3346
+   },
+   {
+    "at": "2026-07-31T07:30:00Z",
+    "equity": 99807.71,
+    "cash": 43514.58,
+    "drawdown": -0.009008,
+    "exposure": 0.4028
+   },
+   {
+    "at": "2026-07-31T10:48:00Z",
+    "equity": 100736.52,
+    "cash": 45802.71,
+    "drawdown": 0.0,
+    "exposure": 0.4576
+   },
+   {
+    "at": "2026-07-31T14:06:00Z",
+    "equity": 100554.72,
+    "cash": 65684.18,
+    "drawdown": -0.001805,
+    "exposure": 0.49
+   },
+   {
+    "at": "2026-07-31T17:24:00Z",
+    "equity": 100224.42,
+    "cash": 43382.7,
+    "drawdown": -0.005084,
+    "exposure": 0.423
+   },
+   {
+    "at": "2026-07-31T20:42:00Z",
+    "equity": 100542.97,
+    "cash": 84008.74,
+    "drawdown": -0.001921,
+    "exposure": 0.5775
+   },
+   {
+    "at": "2026-08-01T00:00:00Z",
+    "equity": 101047.78,
+    "cash": 77725.01,
+    "drawdown": 0.0,
+    "exposure": 0.4978
+   },
+   {
+    "at": "2026-08-01T03:18:00Z",
+    "equity": 100601.75,
+    "cash": 78192.61,
+    "drawdown": -0.004414,
+    "exposure": 0.6428
+   },
+   {
+    "at": "2026-08-01T06:36:00Z",
+    "equity": 100560.95,
+    "cash": 64025.02,
+    "drawdown": -0.004818,
+    "exposure": 0.4845
+   },
+   {
+    "at": "2026-08-01T09:54:00Z",
+    "equity": 101075.75,
+    "cash": 85218.0,
+    "drawdown": 0.0,
+    "exposure": 0.4268
+   },
+   {
+    "at": "2026-08-01T13:12:00Z",
+    "equity": 101213.08,
+    "cash": 61234.53,
+    "drawdown": 0.0,
+    "exposure": 0.6316
+   },
+   {
+    "at": "2026-08-01T16:30:00Z",
+    "equity": 100084.54,
+    "cash": 48430.69,
+    "drawdown": -0.01115,
+    "exposure": 0.6118
+   },
+   {
+    "at": "2026-08-01T19:48:00Z",
+    "equity": 99827.03,
+    "cash": 72922.93,
+    "drawdown": -0.013694,
+    "exposure": 0.5988
+   },
+   {
+    "at": "2026-08-01T23:06:00Z",
+    "equity": 99667.76,
+    "cash": 89219.72,
+    "drawdown": -0.015268,
+    "exposure": 0.5078
+   },
+   {
+    "at": "2026-08-02T02:24:00Z",
+    "equity": 99756.89,
+    "cash": 80737.19,
+    "drawdown": -0.014387,
+    "exposure": 0.5324
+   },
+   {
+    "at": "2026-08-02T05:42:00Z",
+    "equity": 100113.72,
+    "cash": 59171.56,
+    "drawdown": -0.010862,
+    "exposure": 0.5389
+   },
+   {
+    "at": "2026-08-02T09:00:00Z",
+    "equity": 100516.16,
+    "cash": 92882.02,
+    "drawdown": -0.006886,
+    "exposure": 0.6682
+   },
+   {
+    "at": "2026-08-02T12:18:00Z",
+    "equity": 100632.46,
+    "cash": 70458.31,
+    "drawdown": -0.005737,
+    "exposure": 0.4925
+   },
+   {
+    "at": "2026-08-02T15:36:00Z",
+    "equity": 99506.5,
+    "cash": 45609.52,
+    "drawdown": -0.016861,
+    "exposure": 0.308
+   },
+   {
+    "at": "2026-08-02T18:54:00Z",
+    "equity": 100017.9,
+    "cash": 52866.79,
+    "drawdown": -0.011809,
+    "exposure": 0.2138
+   },
+   {
+    "at": "2026-08-02T22:12:00Z",
+    "equity": 100394.48,
+    "cash": 80081.38,
+    "drawdown": -0.008088,
+    "exposure": 0.4618
+   },
+   {
+    "at": "2026-08-03T01:30:00Z",
+    "equity": 99523.58,
+    "cash": 58228.7,
+    "drawdown": -0.016692,
+    "exposure": 0.585
+   },
+   {
+    "at": "2026-08-03T04:48:00Z",
+    "equity": 98763.02,
+    "cash": 41715.71,
+    "drawdown": -0.024207,
+    "exposure": 0.4523
+   },
+   {
+    "at": "2026-08-03T08:06:00Z",
+    "equity": 99378.29,
+    "cash": 68783.0,
+    "drawdown": -0.018128,
+    "exposure": 0.4444
+   },
+   {
+    "at": "2026-08-03T11:24:00Z",
+    "equity": 99453.4,
+    "cash": 78047.35,
+    "drawdown": -0.017386,
+    "exposure": 0.2562
+   },
+   {
+    "at": "2026-08-03T14:42:00Z",
+    "equity": 99673.88,
+    "cash": 76473.41,
+    "drawdown": -0.015208,
+    "exposure": 0.4375
+   },
+   {
+    "at": "2026-08-03T18:00:00Z",
+    "equity": 98372.61,
+    "cash": 48949.78,
+    "drawdown": -0.028064,
+    "exposure": 0.6847
+   },
+   {
+    "at": "2026-08-03T21:18:00Z",
+    "equity": 98998.03,
+    "cash": 55539.58,
+    "drawdown": -0.021885,
+    "exposure": 0.5336
+   },
+   {
+    "at": "2026-08-04T00:36:00Z",
+    "equity": 100587.07,
+    "cash": 92950.8,
+    "drawdown": -0.006185,
+    "exposure": 0.3568
+   },
+   {
+    "at": "2026-08-04T03:54:00Z",
+    "equity": 102172.13,
+    "cash": 92284.6,
+    "drawdown": 0.0,
+    "exposure": 0.3545
+   },
+   {
+    "at": "2026-08-04T07:12:00Z",
+    "equity": 103476.98,
+    "cash": 51203.2,
+    "drawdown": 0.0,
+    "exposure": 0.5767
+   },
+   {
+    "at": "2026-08-04T10:30:00Z",
+    "equity": 102820.23,
+    "cash": 95144.93,
+    "drawdown": -0.006347,
+    "exposure": 0.6029
+   },
+   {
+    "at": "2026-08-04T13:48:00Z",
+    "equity": 103465.57,
+    "cash": 60145.83,
+    "drawdown": -0.00011,
+    "exposure": 0.5501
+   },
+   {
+    "at": "2026-08-04T17:06:00Z",
+    "equity": 103410.77,
+    "cash": 44877.63,
+    "drawdown": -0.00064,
+    "exposure": 0.5836
+   },
+   {
+    "at": "2026-08-04T20:24:00Z",
+    "equity": 102894.84,
+    "cash": 61130.54,
+    "drawdown": -0.005626,
+    "exposure": 0.4857
+   },
+   {
+    "at": "2026-08-04T23:42:00Z",
+    "equity": 102339.92,
+    "cash": 53692.73,
+    "drawdown": -0.010988,
+    "exposure": 0.447
+   },
+   {
+    "at": "2026-08-05T03:00:00Z",
+    "equity": 102301.17,
+    "cash": 46568.0,
+    "drawdown": -0.011363,
+    "exposure": 0.6748
+   },
+   {
+    "at": "2026-08-05T06:18:00Z",
+    "equity": 103216.01,
+    "cash": 61122.59,
+    "drawdown": -0.002522,
+    "exposure": 0.4611
+   },
+   {
+    "at": "2026-08-05T09:36:00Z",
+    "equity": 103634.16,
+    "cash": 95946.75,
+    "drawdown": 0.0,
+    "exposure": 0.4366
+   },
+   {
+    "at": "2026-08-05T12:54:00Z",
+    "equity": 103869.0,
+    "cash": 52889.77,
+    "drawdown": 0.0,
+    "exposure": 0.1856
+   },
+   {
+    "at": "2026-08-05T16:12:00Z",
+    "equity": 103515.28,
+    "cash": 73969.18,
+    "drawdown": -0.003405,
+    "exposure": 0.2383
+   },
+   {
+    "at": "2026-08-05T19:30:00Z",
+    "equity": 104107.8,
+    "cash": 67196.75,
+    "drawdown": 0.0,
+    "exposure": 0.6123
+   },
+   {
+    "at": "2026-08-05T22:48:00Z",
+    "equity": 104333.81,
+    "cash": 44448.94,
+    "drawdown": 0.0,
+    "exposure": 0.6878
+   },
+   {
+    "at": "2026-08-06T02:06:00Z",
+    "equity": 102945.5,
+    "cash": 56718.92,
+    "drawdown": -0.013306,
+    "exposure": 0.6638
+   },
+   {
+    "at": "2026-08-06T05:24:00Z",
+    "equity": 103384.69,
+    "cash": 68487.87,
+    "drawdown": -0.009097,
+    "exposure": 0.674
+   },
+   {
+    "at": "2026-08-06T08:42:00Z",
+    "equity": 103600.91,
+    "cash": 53241.68,
+    "drawdown": -0.007025,
+    "exposure": 0.4864
+   },
+   {
+    "at": "2026-08-06T12:00:00Z",
+    "equity": 104368.62,
+    "cash": 50493.44,
+    "drawdown": 0.0,
+    "exposure": 0.6839
+   },
+   {
+    "at": "2026-08-06T15:18:00Z",
+    "equity": 103735.21,
+    "cash": 57665.29,
+    "drawdown": -0.006069,
+    "exposure": 0.3638
+   },
+   {
+    "at": "2026-08-06T18:36:00Z",
+    "equity": 104443.32,
+    "cash": 73969.15,
+    "drawdown": 0.0,
+    "exposure": 0.5203
+   },
+   {
+    "at": "2026-08-06T21:54:00Z",
+    "equity": 104154.11,
+    "cash": 70411.59,
+    "drawdown": -0.002769,
+    "exposure": 0.2564
+   },
+   {
+    "at": "2026-08-07T01:12:00Z",
+    "equity": 103700.62,
+    "cash": 45252.66,
+    "drawdown": -0.007111,
+    "exposure": 0.6982
+   },
+   {
+    "at": "2026-08-07T04:30:00Z",
+    "equity": 104201.59,
+    "cash": 73098.7,
+    "drawdown": -0.002314,
+    "exposure": 0.6175
+   },
+   {
+    "at": "2026-08-07T07:48:00Z",
+    "equity": 104649.19,
+    "cash": 85192.93,
+    "drawdown": 0.0,
+    "exposure": 0.4809
+   },
+   {
+    "at": "2026-08-07T11:06:00Z",
+    "equity": 103139.48,
+    "cash": 44817.3,
+    "drawdown": -0.014426,
+    "exposure": 0.6715
+   },
+   {
+    "at": "2026-08-07T14:24:00Z",
+    "equity": 102518.11,
+    "cash": 91491.98,
+    "drawdown": -0.020364,
+    "exposure": 0.7021
+   },
+   {
+    "at": "2026-08-07T17:42:00Z",
+    "equity": 102610.92,
+    "cash": 45253.07,
+    "drawdown": -0.019477,
+    "exposure": 0.7072
+   },
+   {
+    "at": "2026-08-07T21:00:00Z",
+    "equity": 102512.28,
+    "cash": 78866.36,
+    "drawdown": -0.02042,
+    "exposure": 0.5518
+   },
+   {
+    "at": "2026-08-08T00:18:00Z",
+    "equity": 102774.31,
+    "cash": 85137.38,
+    "drawdown": -0.017916,
+    "exposure": 0.4078
+   },
+   {
+    "at": "2026-08-08T03:36:00Z",
+    "equity": 102726.14,
+    "cash": 43277.14,
+    "drawdown": -0.018376,
+    "exposure": 0.3326
+   },
+   {
+    "at": "2026-08-08T06:54:00Z",
+    "equity": 101928.72,
+    "cash": 89964.96,
+    "drawdown": -0.025996,
+    "exposure": 0.3735
+   },
+   {
+    "at": "2026-08-08T10:12:00Z",
+    "equity": 102526.1,
+    "cash": 66398.77,
+    "drawdown": -0.020288,
+    "exposure": 0.5653
+   },
+   {
+    "at": "2026-08-08T13:30:00Z",
+    "equity": 103244.32,
+    "cash": 45831.06,
+    "drawdown": -0.013425,
+    "exposure": 0.4954
+   },
+   {
+    "at": "2026-08-08T16:48:00Z",
+    "equity": 103614.96,
+    "cash": 87324.25,
+    "drawdown": -0.009883,
+    "exposure": 0.48
+   },
+   {
+    "at": "2026-08-08T20:06:00Z",
+    "equity": 103088.37,
+    "cash": 90166.26,
+    "drawdown": -0.014915,
+    "exposure": 0.3272
+   },
+   {
+    "at": "2026-08-08T23:24:00Z",
+    "equity": 102894.15,
+    "cash": 88025.15,
+    "drawdown": -0.016771,
+    "exposure": 0.534
+   },
+   {
+    "at": "2026-08-09T02:42:00Z",
+    "equity": 104144.78,
+    "cash": 96082.38,
+    "drawdown": -0.00482,
+    "exposure": 0.2656
+   },
+   {
+    "at": "2026-08-09T06:00:00Z",
+    "equity": 102816.13,
+    "cash": 43915.21,
+    "drawdown": -0.017516,
+    "exposure": 0.5187
+   },
+   {
+    "at": "2026-08-09T09:18:00Z",
+    "equity": 102467.97,
+    "cash": 77568.52,
+    "drawdown": -0.020843,
+    "exposure": 0.2287
+   },
+   {
+    "at": "2026-08-09T12:36:00Z",
+    "equity": 102377.54,
+    "cash": 50083.96,
+    "drawdown": -0.021707,
+    "exposure": 0.2279
+   },
+   {
+    "at": "2026-08-09T15:54:00Z",
+    "equity": 102043.76,
+    "cash": 84998.03,
+    "drawdown": -0.024897,
+    "exposure": 0.692
+   },
+   {
+    "at": "2026-08-09T19:12:00Z",
+    "equity": 101971.78,
+    "cash": 51934.99,
+    "drawdown": -0.025585,
+    "exposure": 0.6009
+   },
+   {
+    "at": "2026-08-09T22:30:00Z",
+    "equity": 102039.2,
+    "cash": 51135.9,
+    "drawdown": -0.02494,
+    "exposure": 0.4922
+   },
+   {
+    "at": "2026-08-10T01:48:00Z",
+    "equity": 103162.33,
+    "cash": 60647.53,
+    "drawdown": -0.014208,
+    "exposure": 0.3704
+   },
+   {
+    "at": "2026-08-10T05:06:00Z",
+    "equity": 102784.66,
+    "cash": 64626.75,
+    "drawdown": -0.017817,
+    "exposure": 0.5661
+   },
+   {
+    "at": "2026-08-10T08:24:00Z",
+    "equity": 102368.03,
+    "cash": 71373.69,
+    "drawdown": -0.021798,
+    "exposure": 0.211
+   },
+   {
+    "at": "2026-08-10T11:42:00Z",
+    "equity": 101615.92,
+    "cash": 75426.58,
+    "drawdown": -0.028985,
+    "exposure": 0.6918
+   },
+   {
+    "at": "2026-08-10T15:00:00Z",
+    "equity": 101379.46,
+    "cash": 74025.92,
+    "drawdown": -0.031245,
+    "exposure": 0.519
+   },
+   {
+    "at": "2026-08-10T18:18:00Z",
+    "equity": 101407.49,
+    "cash": 50830.54,
+    "drawdown": -0.030977,
+    "exposure": 0.3884
+   },
+   {
+    "at": "2026-08-10T21:36:00Z",
+    "equity": 100399.57,
+    "cash": 50736.11,
+    "drawdown": -0.040608,
+    "exposure": 0.4312
+   },
+   {
+    "at": "2026-08-11T00:54:00Z",
+    "equity": 101083.66,
+    "cash": 81625.77,
+    "drawdown": -0.034071,
+    "exposure": 0.6258
+   },
+   {
+    "at": "2026-08-11T04:12:00Z",
+    "equity": 100405.69,
+    "cash": 44673.67,
+    "drawdown": -0.04055,
+    "exposure": 0.3088
+   },
+   {
+    "at": "2026-08-11T07:30:00Z",
+    "equity": 100251.26,
+    "cash": 88230.59,
+    "drawdown": -0.042025,
+    "exposure": 0.1873
+   },
+   {
+    "at": "2026-08-11T10:48:00Z",
+    "equity": 100294.44,
+    "cash": 43109.33,
+    "drawdown": -0.041613,
+    "exposure": 0.2479
+   },
+   {
+    "at": "2026-08-11T14:06:00Z",
+    "equity": 99283.01,
+    "cash": 84577.93,
+    "drawdown": -0.051278,
+    "exposure": 0.1927
+   },
+   {
+    "at": "2026-08-11T17:24:00Z",
+    "equity": 98896.57,
+    "cash": 42910.51,
+    "drawdown": -0.05497,
+    "exposure": 0.6324
+   },
+   {
+    "at": "2026-08-11T20:42:00Z",
+    "equity": 97989.85,
+    "cash": 87924.9,
+    "drawdown": -0.063635,
+    "exposure": 0.6453
+   },
+   {
+    "at": "2026-08-12T00:00:00Z",
+    "equity": 96731.29,
+    "cash": 78708.07,
+    "drawdown": -0.075661,
+    "exposure": 0.6797
+   },
+   {
+    "at": "2026-08-12T03:18:00Z",
+    "equity": 96196.09,
+    "cash": 64696.45,
+    "drawdown": -0.080776,
+    "exposure": 0.4342
+   },
+   {
+    "at": "2026-08-12T06:36:00Z",
+    "equity": 95964.44,
+    "cash": 67685.66,
+    "drawdown": -0.082989,
+    "exposure": 0.6345
+   },
+   {
+    "at": "2026-08-12T09:54:00Z",
+    "equity": 96283.11,
+    "cash": 53382.78,
+    "drawdown": -0.079944,
+    "exposure": 0.4472
+   },
+   {
+    "at": "2026-08-12T13:12:00Z",
+    "equity": 96620.75,
+    "cash": 42136.16,
+    "drawdown": -0.076718,
+    "exposure": 0.4051
+   },
+   {
+    "at": "2026-08-12T16:30:00Z",
+    "equity": 96954.72,
+    "cash": 76341.92,
+    "drawdown": -0.073526,
+    "exposure": 0.4685
+   },
+   {
+    "at": "2026-08-12T19:48:00Z",
+    "equity": 97751.95,
+    "cash": 88671.69,
+    "drawdown": -0.065908,
+    "exposure": 0.4322
+   },
+   {
+    "at": "2026-08-12T23:06:00Z",
+    "equity": 98076.7,
+    "cash": 80543.39,
+    "drawdown": -0.062805,
+    "exposure": 0.673
+   },
+   {
+    "at": "2026-08-13T02:24:00Z",
+    "equity": 97361.44,
+    "cash": 43697.71,
+    "drawdown": -0.06964,
+    "exposure": 0.1924
+   },
+   {
+    "at": "2026-08-13T05:42:00Z",
+    "equity": 98493.45,
+    "cash": 46441.72,
+    "drawdown": -0.058823,
+    "exposure": 0.5793
+   },
+   {
+    "at": "2026-08-13T09:00:00Z",
+    "equity": 98429.56,
+    "cash": 67071.78,
+    "drawdown": -0.059433,
+    "exposure": 0.4454
+   },
+   {
+    "at": "2026-08-13T12:18:00Z",
+    "equity": 98205.72,
+    "cash": 52988.72,
+    "drawdown": -0.061572,
+    "exposure": 0.7046
+   },
+   {
+    "at": "2026-08-13T15:36:00Z",
+    "equity": 98165.94,
+    "cash": 89410.28,
+    "drawdown": -0.061952,
+    "exposure": 0.2031
+   },
+   {
+    "at": "2026-08-13T18:54:00Z",
+    "equity": 98119.51,
+    "cash": 83018.68,
+    "drawdown": -0.062396,
+    "exposure": 0.256
+   },
+   {
+    "at": "2026-08-13T22:12:00Z",
+    "equity": 98968.79,
+    "cash": 84059.74,
+    "drawdown": -0.05428,
+    "exposure": 0.5288
+   },
+   {
+    "at": "2026-08-14T01:30:00Z",
+    "equity": 98321.48,
+    "cash": 52332.4,
+    "drawdown": -0.060466,
+    "exposure": 0.6405
+   },
+   {
+    "at": "2026-08-14T04:48:00Z",
+    "equity": 97601.9,
+    "cash": 62918.94,
+    "drawdown": -0.067342,
+    "exposure": 0.5414
+   },
+   {
+    "at": "2026-08-14T08:06:00Z",
+    "equity": 96543.86,
+    "cash": 70150.66,
+    "drawdown": -0.077452,
+    "exposure": 0.4469
+   },
+   {
+    "at": "2026-08-14T11:24:00Z",
+    "equity": 97894.68,
+    "cash": 53828.48,
+    "drawdown": -0.064544,
+    "exposure": 0.6432
+   },
+   {
+    "at": "2026-08-14T14:42:00Z",
+    "equity": 97550.1,
+    "cash": 65879.27,
+    "drawdown": -0.067837,
+    "exposure": 0.6988
+   },
+   {
+    "at": "2026-08-14T18:00:00Z",
+    "equity": 96480.56,
+    "cash": 78204.89,
+    "drawdown": -0.078057,
+    "exposure": 0.1943
+   },
+   {
+    "at": "2026-08-14T21:18:00Z",
+    "equity": 97552.57,
+    "cash": 78593.53,
+    "drawdown": -0.067813,
+    "exposure": 0.5678
+   },
+   {
+    "at": "2026-08-15T00:36:00Z",
+    "equity": 97296.63,
+    "cash": 69734.47,
+    "drawdown": -0.070259,
+    "exposure": 0.543
+   },
+   {
+    "at": "2026-08-15T03:54:00Z",
+    "equity": 97172.02,
+    "cash": 54709.15,
+    "drawdown": -0.07145,
+    "exposure": 0.2671
+   },
+   {
+    "at": "2026-08-15T07:12:00Z",
+    "equity": 96473.38,
+    "cash": 85507.76,
+    "drawdown": -0.078126,
+    "exposure": 0.655
+   },
+   {
+    "at": "2026-08-15T10:30:00Z",
+    "equity": 95488.53,
+    "cash": 63982.61,
+    "drawdown": -0.087537,
+    "exposure": 0.4506
+   },
+   {
+    "at": "2026-08-15T13:48:00Z",
+    "equity": 96747.48,
+    "cash": 76482.94,
+    "drawdown": -0.075507,
+    "exposure": 0.2771
+   },
+   {
+    "at": "2026-08-15T17:06:00Z",
+    "equity": 96899.37,
+    "cash": 73685.8,
+    "drawdown": -0.074055,
+    "exposure": 0.1939
+   },
+   {
+    "at": "2026-08-15T20:24:00Z",
+    "equity": 96466.38,
+    "cash": 40516.27,
+    "drawdown": -0.078193,
+    "exposure": 0.637
+   },
+   {
+    "at": "2026-08-15T23:42:00Z",
+    "equity": 96949.34,
+    "cash": 44795.83,
+    "drawdown": -0.073578,
+    "exposure": 0.2734
+   },
+   {
+    "at": "2026-08-16T03:00:00Z",
+    "equity": 96737.31,
+    "cash": 60474.53,
+    "drawdown": -0.075604,
+    "exposure": 0.6904
+   },
+   {
+    "at": "2026-08-16T06:18:00Z",
+    "equity": 96386.81,
+    "cash": 49261.53,
+    "drawdown": -0.078953,
+    "exposure": 0.5347
+   },
+   {
+    "at": "2026-08-16T09:36:00Z",
+    "equity": 96220.47,
+    "cash": 43214.14,
+    "drawdown": -0.080543,
+    "exposure": 0.6465
+   },
+   {
+    "at": "2026-08-16T12:54:00Z",
+    "equity": 96964.29,
+    "cash": 70736.98,
+    "drawdown": -0.073435,
+    "exposure": 0.6899
+   },
+   {
+    "at": "2026-08-16T16:12:00Z",
+    "equity": 97960.46,
+    "cash": 42961.58,
+    "drawdown": -0.063916,
+    "exposure": 0.3247
+   },
+   {
+    "at": "2026-08-16T19:30:00Z",
+    "equity": 97481.22,
+    "cash": 43791.63,
+    "drawdown": -0.068495,
+    "exposure": 0.4622
+   },
+   {
+    "at": "2026-08-16T22:48:00Z",
+    "equity": 97211.11,
+    "cash": 57715.29,
+    "drawdown": -0.071076,
+    "exposure": 0.636
+   },
+   {
+    "at": "2026-08-17T02:06:00Z",
+    "equity": 96541.39,
+    "cash": 63662.78,
+    "drawdown": -0.077476,
+    "exposure": 0.4087
+   },
+   {
+    "at": "2026-08-17T05:24:00Z",
+    "equity": 97282.43,
+    "cash": 75808.04,
+    "drawdown": -0.070395,
+    "exposure": 0.5407
+   },
+   {
+    "at": "2026-08-17T08:42:00Z",
+    "equity": 97707.62,
+    "cash": 63994.17,
+    "drawdown": -0.066332,
+    "exposure": 0.708
+   },
+   {
+    "at": "2026-08-17T12:00:00Z",
+    "equity": 98026.78,
+    "cash": 50195.83,
+    "drawdown": -0.063282,
+    "exposure": 0.3337
+   },
+   {
+    "at": "2026-08-17T15:18:00Z",
+    "equity": 98765.95,
+    "cash": 71469.22,
+    "drawdown": -0.056219,
+    "exposure": 0.3561
+   },
+   {
+    "at": "2026-08-17T18:36:00Z",
+    "equity": 98793.32,
+    "cash": 91263.57,
+    "drawdown": -0.055957,
+    "exposure": 0.3832
+   },
+   {
+    "at": "2026-08-17T21:54:00Z",
+    "equity": 97498.85,
+    "cash": 43920.66,
+    "drawdown": -0.068327,
+    "exposure": 0.5357
+   },
+   {
+    "at": "2026-08-18T01:12:00Z",
+    "equity": 96778.06,
+    "cash": 59942.87,
+    "drawdown": -0.075214,
+    "exposure": 0.4937
+   },
+   {
+    "at": "2026-08-18T04:30:00Z",
+    "equity": 95809.21,
+    "cash": 41206.3,
+    "drawdown": -0.084472,
+    "exposure": 0.6077
+   },
+   {
+    "at": "2026-08-18T07:48:00Z",
+    "equity": 95229.64,
+    "cash": 50773.93,
+    "drawdown": -0.090011,
+    "exposure": 0.2932
+   },
+   {
+    "at": "2026-08-18T11:06:00Z",
+    "equity": 96504.71,
+    "cash": 53773.3,
+    "drawdown": -0.077826,
+    "exposure": 0.5782
+   },
+   {
+    "at": "2026-08-18T14:24:00Z",
+    "equity": 96244.06,
+    "cash": 51885.4,
+    "drawdown": -0.080317,
+    "exposure": 0.5181
+   },
+   {
+    "at": "2026-08-18T17:42:00Z",
+    "equity": 97019.19,
+    "cash": 55143.35,
+    "drawdown": -0.07291,
+    "exposure": 0.4305
+   },
+   {
+    "at": "2026-08-18T21:00:00Z",
+    "equity": 97261.78,
+    "cash": 77270.27,
+    "drawdown": -0.070592,
+    "exposure": 0.2905
+   },
+   {
+    "at": "2026-08-19T00:18:00Z",
+    "equity": 97767.05,
+    "cash": 85500.97,
+    "drawdown": -0.065764,
+    "exposure": 0.2549
+   },
+   {
+    "at": "2026-08-19T03:36:00Z",
+    "equity": 97185.55,
+    "cash": 55907.36,
+    "drawdown": -0.071321,
+    "exposure": 0.2743
+   },
+   {
+    "at": "2026-08-19T06:54:00Z",
+    "equity": 97719.98,
+    "cash": 60611.36,
+    "drawdown": -0.066214,
+    "exposure": 0.3602
+   },
+   {
+    "at": "2026-08-19T10:12:00Z",
+    "equity": 98442.78,
+    "cash": 70166.08,
+    "drawdown": -0.059307,
+    "exposure": 0.5731
+   },
+   {
+    "at": "2026-08-19T13:30:00Z",
+    "equity": 98902.91,
+    "cash": 62561.84,
+    "drawdown": -0.05491,
+    "exposure": 0.2911
+   },
+   {
+    "at": "2026-08-19T16:48:00Z",
+    "equity": 99265.16,
+    "cash": 79174.5,
+    "drawdown": -0.051448,
+    "exposure": 0.2323
+   },
+   {
+    "at": "2026-08-19T20:06:00Z",
+    "equity": 99569.76,
+    "cash": 83684.35,
+    "drawdown": -0.048538,
+    "exposure": 0.2802
+   },
+   {
+    "at": "2026-08-19T23:24:00Z",
+    "equity": 99653.4,
+    "cash": 73760.44,
+    "drawdown": -0.047738,
+    "exposure": 0.6316
+   },
+   {
+    "at": "2026-08-20T02:42:00Z",
+    "equity": 100160.28,
+    "cash": 48277.62,
+    "drawdown": -0.042895,
+    "exposure": 0.6229
+   },
+   {
+    "at": "2026-08-20T06:00:00Z",
+    "equity": 99915.46,
+    "cash": 64013.16,
+    "drawdown": -0.045234,
+    "exposure": 0.3531
+   },
+   {
+    "at": "2026-08-20T09:18:00Z",
+    "equity": 100793.24,
+    "cash": 91814.76,
+    "drawdown": -0.036846,
+    "exposure": 0.6694
+   },
+   {
+    "at": "2026-08-20T12:36:00Z",
+    "equity": 100948.83,
+    "cash": 48971.63,
+    "drawdown": -0.03536,
+    "exposure": 0.5158
+   },
+   {
+    "at": "2026-08-20T15:54:00Z",
+    "equity": 100853.8,
+    "cash": 80678.18,
+    "drawdown": -0.036268,
+    "exposure": 0.664
+   },
+   {
+    "at": "2026-08-20T19:12:00Z",
+    "equity": 100198.7,
+    "cash": 61992.33,
+    "drawdown": -0.042528,
+    "exposure": 0.2148
+   },
+   {
+    "at": "2026-08-20T22:30:00Z",
+    "equity": 99783.41,
+    "cash": 92430.92,
+    "drawdown": -0.046496,
+    "exposure": 0.3729
+   },
+   {
+    "at": "2026-08-21T01:48:00Z",
+    "equity": 100185.54,
+    "cash": 69320.96,
+    "drawdown": -0.042653,
+    "exposure": 0.7082
+   },
+   {
+    "at": "2026-08-21T05:06:00Z",
+    "equity": 100351.92,
+    "cash": 71240.84,
+    "drawdown": -0.041064,
+    "exposure": 0.4112
+   },
+   {
+    "at": "2026-08-21T08:24:00Z",
+    "equity": 101251.92,
+    "cash": 68259.19,
+    "drawdown": -0.032463,
+    "exposure": 0.4538
+   },
+   {
+    "at": "2026-08-21T11:42:00Z",
+    "equity": 101688.04,
+    "cash": 76940.84,
+    "drawdown": -0.028296,
+    "exposure": 0.5753
+   },
+   {
+    "at": "2026-08-21T15:00:00Z",
+    "equity": 103129.27,
+    "cash": 51560.82,
+    "drawdown": -0.014524,
+    "exposure": 0.422
+   },
+   {
+    "at": "2026-08-21T18:18:00Z",
+    "equity": 104859.83,
+    "cash": 45708.27,
+    "drawdown": 0.0,
+    "exposure": 0.6042
+   },
+   {
+    "at": "2026-08-21T21:36:00Z",
+    "equity": 105003.83,
+    "cash": 91818.87,
+    "drawdown": 0.0,
+    "exposure": 0.6009
+   },
+   {
+    "at": "2026-08-22T00:54:00Z",
+    "equity": 105378.27,
+    "cash": 82709.6,
+    "drawdown": 0.0,
+    "exposure": 0.4393
+   },
+   {
+    "at": "2026-08-22T04:12:00Z",
+    "equity": 104923.33,
+    "cash": 75121.62,
+    "drawdown": -0.004317,
+    "exposure": 0.4737
+   },
+   {
+    "at": "2026-08-22T07:30:00Z",
+    "equity": 104570.76,
+    "cash": 68653.1,
+    "drawdown": -0.007663,
+    "exposure": 0.694
+   },
+   {
+    "at": "2026-08-22T10:48:00Z",
+    "equity": 105009.14,
+    "cash": 68505.55,
+    "drawdown": -0.003503,
+    "exposure": 0.6027
+   },
+   {
+    "at": "2026-08-22T14:06:00Z",
+    "equity": 104096.1,
+    "cash": 82275.02,
+    "drawdown": -0.012167,
+    "exposure": 0.4812
+   },
+   {
+    "at": "2026-08-22T17:24:00Z",
+    "equity": 104300.03,
+    "cash": 44679.02,
+    "drawdown": -0.010232,
+    "exposure": 0.2978
+   },
+   {
+    "at": "2026-08-22T20:42:00Z",
+    "equity": 104432.13,
+    "cash": 61557.31,
+    "drawdown": -0.008978,
+    "exposure": 0.399
+   },
+   {
+    "at": "2026-08-23T00:00:00Z",
+    "equity": 104221.33,
+    "cash": 80414.89,
+    "drawdown": -0.010979,
+    "exposure": 0.5905
+   },
+   {
+    "at": "2026-08-23T03:18:00Z",
+    "equity": 103851.0,
+    "cash": 74739.14,
+    "drawdown": -0.014493,
+    "exposure": 0.6416
+   },
+   {
+    "at": "2026-08-23T06:36:00Z",
+    "equity": 104230.42,
+    "cash": 55474.32,
+    "drawdown": -0.010893,
+    "exposure": 0.2348
+   },
+   {
+    "at": "2026-08-23T09:54:00Z",
+    "equity": 105658.22,
+    "cash": 71672.97,
+    "drawdown": 0.0,
+    "exposure": 0.2586
+   },
+   {
+    "at": "2026-08-23T13:12:00Z",
+    "equity": 106107.88,
+    "cash": 98673.46,
+    "drawdown": 0.0,
+    "exposure": 0.6963
+   },
+   {
+    "at": "2026-08-23T16:30:00Z",
+    "equity": 106676.75,
+    "cash": 44968.3,
+    "drawdown": 0.0,
+    "exposure": 0.6662
+   },
+   {
+    "at": "2026-08-23T19:48:00Z",
+    "equity": 106517.56,
+    "cash": 50265.31,
+    "drawdown": -0.001492,
+    "exposure": 0.418
+   },
+   {
+    "at": "2026-08-23T23:06:00Z",
+    "equity": 104809.51,
+    "cash": 70395.43,
+    "drawdown": -0.017504,
+    "exposure": 0.6338
+   },
+   {
+    "at": "2026-08-24T02:24:00Z",
+    "equity": 104795.67,
+    "cash": 82262.53,
+    "drawdown": -0.017633,
+    "exposure": 0.1891
+   },
+   {
+    "at": "2026-08-24T05:42:00Z",
+    "equity": 104434.88,
+    "cash": 54774.99,
+    "drawdown": -0.021016,
+    "exposure": 0.2142
+   },
+   {
+    "at": "2026-08-24T09:00:00Z",
+    "equity": 104187.62,
+    "cash": 59843.07,
+    "drawdown": -0.023333,
+    "exposure": 0.2237
+   },
+   {
+    "at": "2026-08-24T12:18:00Z",
+    "equity": 104023.34,
+    "cash": 84666.33,
+    "drawdown": -0.024873,
+    "exposure": 0.4965
+   },
+   {
+    "at": "2026-08-24T15:36:00Z",
+    "equity": 103091.52,
+    "cash": 58062.31,
+    "drawdown": -0.033608,
+    "exposure": 0.4176
+   },
+   {
+    "at": "2026-08-24T18:54:00Z",
+    "equity": 103440.31,
+    "cash": 73141.99,
+    "drawdown": -0.030339,
+    "exposure": 0.377
+   },
+   {
+    "at": "2026-08-24T22:12:00Z",
+    "equity": 104428.92,
+    "cash": 83868.72,
+    "drawdown": -0.021071,
+    "exposure": 0.5423
+   },
+   {
+    "at": "2026-08-25T01:30:00Z",
+    "equity": 104194.25,
+    "cash": 81202.95,
+    "drawdown": -0.023271,
+    "exposure": 0.282
+   },
+   {
+    "at": "2026-08-25T04:48:00Z",
+    "equity": 105234.12,
+    "cash": 63051.77,
+    "drawdown": -0.013523,
+    "exposure": 0.345
+   },
+   {
+    "at": "2026-08-25T08:06:00Z",
+    "equity": 104252.09,
+    "cash": 66725.47,
+    "drawdown": -0.022729,
+    "exposure": 0.315
+   },
+   {
+    "at": "2026-08-25T11:24:00Z",
+    "equity": 103985.0,
+    "cash": 93305.13,
+    "drawdown": -0.025233,
+    "exposure": 0.453
+   },
+   {
+    "at": "2026-08-25T14:42:00Z",
+    "equity": 104121.21,
+    "cash": 52121.75,
+    "drawdown": -0.023956,
+    "exposure": 0.4945
+   },
+   {
+    "at": "2026-08-25T18:00:00Z",
+    "equity": 105177.22,
+    "cash": 56637.01,
+    "drawdown": -0.014057,
+    "exposure": 0.3377
+   },
+   {
+    "at": "2026-08-25T21:18:00Z",
+    "equity": 105215.64,
+    "cash": 87970.32,
+    "drawdown": -0.013697,
+    "exposure": 0.1873
+   },
+   {
+    "at": "2026-08-26T00:36:00Z",
+    "equity": 104761.59,
+    "cash": 86585.5,
+    "drawdown": -0.017953,
+    "exposure": 0.706
+   },
+   {
+    "at": "2026-08-26T03:54:00Z",
+    "equity": 104709.26,
+    "cash": 52674.62,
+    "drawdown": -0.018443,
+    "exposure": 0.7019
+   },
+   {
+    "at": "2026-08-26T07:12:00Z",
+    "equity": 105242.85,
+    "cash": 57440.43,
+    "drawdown": -0.013442,
+    "exposure": 0.34
+   },
+   {
+    "at": "2026-08-26T10:30:00Z",
+    "equity": 106418.63,
+    "cash": 64152.98,
+    "drawdown": -0.00242,
+    "exposure": 0.503
+   },
+   {
+    "at": "2026-08-26T13:48:00Z",
+    "equity": 105728.72,
+    "cash": 84685.25,
+    "drawdown": -0.008887,
+    "exposure": 0.3404
+   },
+   {
+    "at": "2026-08-26T17:06:00Z",
+    "equity": 106709.87,
+    "cash": 71491.59,
+    "drawdown": 0.0,
+    "exposure": 0.6019
+   },
+   {
+    "at": "2026-08-26T20:24:00Z",
+    "equity": 107091.13,
+    "cash": 59860.16,
+    "drawdown": 0.0,
+    "exposure": 0.2984
+   },
+   {
+    "at": "2026-08-26T23:42:00Z",
+    "equity": 106021.77,
+    "cash": 85829.3,
+    "drawdown": -0.009986,
+    "exposure": 0.5967
+   },
+   {
+    "at": "2026-08-27T03:00:00Z",
+    "equity": 106205.73,
+    "cash": 58258.76,
+    "drawdown": -0.008268,
+    "exposure": 0.3924
+   },
+   {
+    "at": "2026-08-27T06:18:00Z",
+    "equity": 106908.13,
+    "cash": 74920.29,
+    "drawdown": -0.001709,
+    "exposure": 0.5004
+   },
+   {
+    "at": "2026-08-27T09:36:00Z",
+    "equity": 107754.97,
+    "cash": 85820.71,
+    "drawdown": 0.0,
+    "exposure": 0.3614
+   },
+   {
+    "at": "2026-08-27T12:54:00Z",
+    "equity": 108180.13,
+    "cash": 79267.95,
+    "drawdown": 0.0,
+    "exposure": 0.2142
+   },
+   {
+    "at": "2026-08-27T16:12:00Z",
+    "equity": 108854.16,
+    "cash": 72230.29,
+    "drawdown": 0.0,
+    "exposure": 0.2849
+   }
+  ],
+  "trades": [
+   {
+    "ticker": "BA",
+    "side": "LONG",
+    "entry_at": "2026-07-28T19:30:00Z",
+    "exit_at": "2026-07-29T03:14:31Z",
+    "entry_price": 178.8246,
+    "exit_price": 178.9161,
+    "quantity": 153,
+    "pnl": 4.42,
+    "return_pct": 0.000512,
+    "costs": 9.58,
+    "hold_period": 27871454370113,
+    "regime": "RANGE",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "NOW",
+    "side": "LONG",
+    "entry_at": "2026-07-29T05:58:32Z",
+    "exit_at": "2026-07-29T07:42:53Z",
+    "entry_price": 900.3886,
+    "exit_price": 888.5052,
+    "quantity": 154,
+    "pnl": -1878.57,
+    "return_pct": -0.013198,
+    "costs": 48.53,
+    "hold_period": 6261068663902,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "XLI",
+    "side": "LONG",
+    "entry_at": "2026-07-29T14:15:57Z",
+    "exit_at": "2026-07-30T04:03:20Z",
+    "entry_price": 132.1396,
+    "exit_price": 129.2562,
+    "quantity": 175,
+    "pnl": -512.68,
+    "return_pct": -0.021821,
+    "costs": 8.09,
+    "hold_period": 49642448029580,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "DUK",
+    "side": "LONG",
+    "entry_at": "2026-07-30T02:45:30Z",
+    "exit_at": "2026-07-30T14:57:27Z",
+    "entry_price": 108.1265,
+    "exit_price": 107.8045,
+    "quantity": 141,
+    "pnl": -50.74,
+    "return_pct": -0.002978,
+    "costs": 5.34,
+    "hold_period": 43917026539933,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "AAPL",
+    "side": "SHORT",
+    "entry_at": "2026-07-30T14:03:39Z",
+    "exit_at": "2026-07-31T11:01:39Z",
+    "entry_price": 233.7163,
+    "exit_price": 237.6991,
+    "quantity": 45,
+    "pnl": -182.91,
+    "return_pct": 0.017041,
+    "costs": 3.68,
+    "hold_period": 75479233521290,
+    "regime": "RANGE",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "GS",
+    "side": "LONG",
+    "entry_at": "2026-07-30T19:40:48Z",
+    "exit_at": "2026-07-31T07:01:00Z",
+    "entry_price": 536.011,
+    "exit_price": 541.6477,
+    "quantity": 219,
+    "pnl": 1193.35,
+    "return_pct": 0.010516,
+    "costs": 41.09,
+    "hold_period": 40811957335067,
+    "regime": "BULL_TREND",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "META",
+    "side": "SHORT",
+    "entry_at": "2026-07-31T04:03:35Z",
+    "exit_at": "2026-07-31T21:50:35Z",
+    "entry_price": 564.6817,
+    "exit_price": 559.3081,
+    "quantity": 209,
+    "pnl": 1081.77,
+    "return_pct": -0.009516,
+    "costs": 41.31,
+    "hold_period": 64019609498670,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "BAC",
+    "side": "LONG",
+    "entry_at": "2026-07-31T14:45:09Z",
+    "exit_at": "2026-08-01T06:38:03Z",
+    "entry_price": 41.4021,
+    "exit_price": 41.8598,
+    "quantity": 181,
+    "pnl": 80.22,
+    "return_pct": 0.011055,
+    "costs": 2.62,
+    "hold_period": 57173996593013,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "XLK",
+    "side": "LONG",
+    "entry_at": "2026-07-31T21:49:14Z",
+    "exit_at": "2026-08-01T20:06:44Z",
+    "entry_price": 227.8455,
+    "exit_price": 234.5473,
+    "quantity": 233,
+    "pnl": 1542.94,
+    "return_pct": 0.029414,
+    "costs": 18.58,
+    "hold_period": 80250134858667,
+    "regime": "RANGE",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "V",
+    "side": "LONG",
+    "entry_at": "2026-08-01T05:43:12Z",
+    "exit_at": "2026-08-01T20:09:59Z",
+    "entry_price": 276.0779,
+    "exit_price": 274.9207,
+    "quantity": 192,
+    "pnl": -240.73,
+    "return_pct": -0.004192,
+    "costs": 18.55,
+    "hold_period": 52007546349206,
+    "regime": "BULL_TREND",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "ACN",
+    "side": "LONG",
+    "entry_at": "2026-08-01T18:25:50Z",
+    "exit_at": "2026-08-02T02:50:50Z",
+    "entry_price": 342.0762,
+    "exit_price": 339.0952,
+    "quantity": 107,
+    "pnl": -331.78,
+    "return_pct": -0.008714,
+    "costs": 12.81,
+    "hold_period": 30300472106644,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "LLY",
+    "side": "LONG",
+    "entry_at": "2026-08-02T03:10:46Z",
+    "exit_at": "2026-08-03T04:21:37Z",
+    "entry_price": 826.3855,
+    "exit_price": 805.6054,
+    "quantity": 49,
+    "pnl": -1032.39,
+    "return_pct": -0.025146,
+    "costs": 14.17,
+    "hold_period": 90651405829129,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "LMT",
+    "side": "LONG",
+    "entry_at": "2026-08-02T16:51:04Z",
+    "exit_at": "2026-08-03T01:23:36Z",
+    "entry_price": 541.2787,
+    "exit_price": 547.452,
+    "quantity": 181,
+    "pnl": 1083.08,
+    "return_pct": 0.011405,
+    "costs": 34.29,
+    "hold_period": 30751358142849,
+    "regime": "RANGE",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "WFC",
+    "side": "SHORT",
+    "entry_at": "2026-08-03T06:45:42Z",
+    "exit_at": "2026-08-04T04:08:29Z",
+    "entry_price": 64.0949,
+    "exit_price": 63.1351,
+    "quantity": 31,
+    "pnl": 29.05,
+    "return_pct": -0.014974,
+    "costs": 0.7,
+    "hold_period": 76967427321229,
+    "regime": "BULL_TREND",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "C",
+    "side": "LONG",
+    "entry_at": "2026-08-03T12:11:32Z",
+    "exit_at": "2026-08-04T14:04:36Z",
+    "entry_price": 66.0032,
+    "exit_price": 65.3646,
+    "quantity": 211,
+    "pnl": -139.61,
+    "return_pct": -0.009675,
+    "costs": 4.87,
+    "hold_period": 93184061143350,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "MA",
+    "side": "LONG",
+    "entry_at": "2026-08-04T01:08:34Z",
+    "exit_at": "2026-08-05T01:04:31Z",
+    "entry_price": 483.7203,
+    "exit_price": 484.9567,
+    "quantity": 154,
+    "pnl": 164.34,
+    "return_pct": 0.002556,
+    "costs": 26.07,
+    "hold_period": 86156593356280,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "XLF",
+    "side": "LONG",
+    "entry_at": "2026-08-04T08:27:44Z",
+    "exit_at": "2026-08-04T21:58:33Z",
+    "entry_price": 45.5419,
+    "exit_price": 46.6958,
+    "quantity": 166,
+    "pnl": 188.9,
+    "return_pct": 0.025336,
+    "costs": 2.65,
+    "hold_period": 48649393976831,
+    "regime": "RANGE",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "GOOGL",
+    "side": "LONG",
+    "entry_at": "2026-08-04T15:23:58Z",
+    "exit_at": "2026-08-05T02:11:31Z",
+    "entry_price": 174.8867,
+    "exit_price": 175.6684,
+    "quantity": 207,
+    "pnl": 149.14,
+    "return_pct": 0.00447,
+    "costs": 12.67,
+    "hold_period": 38852910051078,
+    "regime": "BULL_TREND",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "RTX",
+    "side": "LONG",
+    "entry_at": "2026-08-05T00:08:32Z",
+    "exit_at": "2026-08-05T16:01:42Z",
+    "entry_price": 116.4798,
+    "exit_price": 116.9079,
+    "quantity": 140,
+    "pnl": 54.22,
+    "return_pct": 0.003675,
+    "costs": 5.71,
+    "hold_period": 57190339740325,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "WMT",
+    "side": "LONG",
+    "entry_at": "2026-08-05T12:36:12Z",
+    "exit_at": "2026-08-06T07:17:16Z",
+    "entry_price": 81.0795,
+    "exit_price": 79.217,
+    "quantity": 119,
+    "pnl": -225.02,
+    "return_pct": -0.022971,
+    "costs": 3.38,
+    "hold_period": 67264507958798,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "FCX",
+    "side": "SHORT",
+    "entry_at": "2026-08-05T19:46:18Z",
+    "exit_at": "2026-08-06T18:14:50Z",
+    "entry_price": 44.2871,
+    "exit_price": 44.4341,
+    "quantity": 120,
+    "pnl": -19.5,
+    "return_pct": 0.003319,
+    "costs": 1.86,
+    "hold_period": 80912441958860,
+    "regime": "RANGE",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "TMUS",
+    "side": "LONG",
+    "entry_at": "2026-08-06T01:38:18Z",
+    "exit_at": "2026-08-06T17:20:01Z",
+    "entry_price": 224.5953,
+    "exit_price": 223.8523,
+    "quantity": 41,
+    "pnl": -33.68,
+    "return_pct": -0.003308,
+    "costs": 3.22,
+    "hold_period": 56503553424554,
+    "regime": "BULL_TREND",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "GE",
+    "side": "LONG",
+    "entry_at": "2026-08-06T11:24:01Z",
+    "exit_at": "2026-08-06T17:01:37Z",
+    "entry_price": 176.5776,
+    "exit_price": 175.3269,
+    "quantity": 58,
+    "pnl": -76.12,
+    "return_pct": -0.007083,
+    "costs": 3.58,
+    "hold_period": 20255862900428,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "CRM",
+    "side": "LONG",
+    "entry_at": "2026-08-06T17:44:10Z",
+    "exit_at": "2026-08-07T07:59:39Z",
+    "entry_price": 265.3647,
+    "exit_price": 266.7442,
+    "quantity": 76,
+    "pnl": 97.78,
+    "return_pct": 0.005199,
+    "costs": 7.06,
+    "hold_period": 51328909145612,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "INTC",
+    "side": "SHORT",
+    "entry_at": "2026-08-07T00:06:16Z",
+    "exit_at": "2026-08-08T00:11:28Z",
+    "entry_price": 21.6389,
+    "exit_price": 21.9653,
+    "quantity": 57,
+    "pnl": -19.03,
+    "return_pct": 0.015082,
+    "costs": 0.43,
+    "hold_period": 86711058117576,
+    "regime": "RANGE",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "BA",
+    "side": "LONG",
+    "entry_at": "2026-08-07T11:05:26Z",
+    "exit_at": "2026-08-08T01:19:11Z",
+    "entry_price": 173.1351,
+    "exit_price": 170.1503,
+    "quantity": 128,
+    "pnl": -389.81,
+    "return_pct": -0.017239,
+    "costs": 7.76,
+    "hold_period": 51225344077106,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "NOW",
+    "side": "LONG",
+    "entry_at": "2026-08-07T22:00:00Z",
+    "exit_at": "2026-08-08T00:57:45Z",
+    "entry_price": 917.0624,
+    "exit_price": 931.8934,
+    "quantity": 189,
+    "pnl": 2742.4,
+    "return_pct": 0.016172,
+    "costs": 60.66,
+    "hold_period": 10665667734688,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "XLI",
+    "side": "SHORT",
+    "entry_at": "2026-08-08T07:30:42Z",
+    "exit_at": "2026-08-08T16:10:01Z",
+    "entry_price": 135.2884,
+    "exit_price": 134.3559,
+    "quantity": 238,
+    "pnl": 210.67,
+    "return_pct": -0.006893,
+    "costs": 11.27,
+    "hold_period": 31158898542279,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "DUK",
+    "side": "LONG",
+    "entry_at": "2026-08-08T21:00:35Z",
+    "exit_at": "2026-08-09T06:55:34Z",
+    "entry_price": 111.1262,
+    "exit_price": 110.149,
+    "quantity": 83,
+    "pnl": -84.34,
+    "return_pct": -0.008794,
+    "costs": 3.23,
+    "hold_period": 35699440611486,
+    "regime": "RANGE",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "AAPL",
+    "side": "LONG",
+    "entry_at": "2026-08-09T04:08:55Z",
+    "exit_at": "2026-08-09T22:15:15Z",
+    "entry_price": 236.4885,
+    "exit_price": 237.8305,
+    "quantity": 184,
+    "pnl": 231.7,
+    "return_pct": 0.005675,
+    "costs": 15.23,
+    "hold_period": 65179869058727,
+    "regime": "BULL_TREND",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "GS",
+    "side": "SHORT",
+    "entry_at": "2026-08-09T14:02:17Z",
+    "exit_at": "2026-08-10T02:20:22Z",
+    "entry_price": 507.5171,
+    "exit_price": 502.6386,
+    "quantity": 61,
+    "pnl": 286.75,
+    "return_pct": -0.009613,
+    "costs": 10.84,
+    "hold_period": 44284720662795,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "META",
+    "side": "LONG",
+    "entry_at": "2026-08-10T00:06:20Z",
+    "exit_at": "2026-08-10T23:40:45Z",
+    "entry_price": 544.4764,
+    "exit_price": 548.0215,
+    "quantity": 162,
+    "pnl": 543.44,
+    "return_pct": 0.006511,
+    "costs": 30.87,
+    "hold_period": 84865462452588,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "BAC",
+    "side": "SHORT",
+    "entry_at": "2026-08-10T09:00:14Z",
+    "exit_at": "2026-08-11T03:54:47Z",
+    "entry_price": 42.1954,
+    "exit_price": 42.011,
+    "quantity": 177,
+    "pnl": 30.03,
+    "return_pct": -0.004371,
+    "costs": 2.61,
+    "hold_period": 68072923718857,
+    "regime": "RANGE",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "XLK",
+    "side": "SHORT",
+    "entry_at": "2026-08-10T19:28:14Z",
+    "exit_at": "2026-08-11T16:54:56Z",
+    "entry_price": 227.9502,
+    "exit_price": 226.6315,
+    "quantity": 79,
+    "pnl": 97.88,
+    "return_pct": -0.005785,
+    "costs": 6.3,
+    "hold_period": 77202196336592,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "V",
+    "side": "LONG",
+    "entry_at": "2026-08-10T23:46:10Z",
+    "exit_at": "2026-08-11T07:56:21Z",
+    "entry_price": 285.3413,
+    "exit_price": 284.9184,
+    "quantity": 163,
+    "pnl": -85.21,
+    "return_pct": -0.001482,
+    "costs": 16.28,
+    "hold_period": 29411083449151,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "ACN",
+    "side": "LONG",
+    "entry_at": "2026-08-11T08:59:26Z",
+    "exit_at": "2026-08-12T04:27:25Z",
+    "entry_price": 331.2541,
+    "exit_price": 333.4633,
+    "quantity": 235,
+    "pnl": 491.91,
+    "return_pct": 0.006669,
+    "costs": 27.25,
+    "hold_period": 70078859546426,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "LLY",
+    "side": "LONG",
+    "entry_at": "2026-08-11T19:54:35Z",
+    "exit_at": "2026-08-12T15:36:41Z",
+    "entry_price": 847.9388,
+    "exit_price": 823.7774,
+    "quantity": 208,
+    "pnl": -5087.3,
+    "return_pct": -0.028494,
+    "costs": 61.73,
+    "hold_period": 70925966297688,
+    "regime": "RANGE",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "LMT",
+    "side": "LONG",
+    "entry_at": "2026-08-12T08:03:13Z",
+    "exit_at": "2026-08-13T01:03:44Z",
+    "entry_price": 539.3841,
+    "exit_price": 551.1784,
+    "quantity": 155,
+    "pnl": 1798.86,
+    "return_pct": 0.021866,
+    "costs": 29.26,
+    "hold_period": 61231039150161,
+    "regime": "BULL_TREND",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "WFC",
+    "side": "LONG",
+    "entry_at": "2026-08-12T16:05:15Z",
+    "exit_at": "2026-08-13T14:46:04Z",
+    "entry_price": 64.3459,
+    "exit_price": 63.6057,
+    "quantity": 170,
+    "pnl": -129.66,
+    "return_pct": -0.011504,
+    "costs": 3.83,
+    "hold_period": 81648720784745,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "C",
+    "side": "SHORT",
+    "entry_at": "2026-08-13T04:43:10Z",
+    "exit_at": "2026-08-13T05:20:51Z",
+    "entry_price": 65.2673,
+    "exit_price": 64.5392,
+    "quantity": 77,
+    "pnl": 54.3,
+    "return_pct": -0.011155,
+    "costs": 1.76,
+    "hold_period": 2261252068102,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "MA",
+    "side": "LONG",
+    "entry_at": "2026-08-13T07:43:36Z",
+    "exit_at": "2026-08-14T00:55:29Z",
+    "entry_price": 499.7646,
+    "exit_price": 519.1491,
+    "quantity": 67,
+    "pnl": 1287.04,
+    "return_pct": 0.038787,
+    "costs": 11.72,
+    "hold_period": 61912932477665,
+    "regime": "RANGE",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "XLF",
+    "side": "LONG",
+    "entry_at": "2026-08-13T18:40:46Z",
+    "exit_at": "2026-08-14T15:13:57Z",
+    "entry_price": 44.6786,
+    "exit_price": 43.897,
+    "quantity": 170,
+    "pnl": -135.53,
+    "return_pct": -0.017493,
+    "costs": 2.66,
+    "hold_period": 73991094405465,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "GOOGL",
+    "side": "LONG",
+    "entry_at": "2026-08-14T03:20:26Z",
+    "exit_at": "2026-08-15T01:40:38Z",
+    "entry_price": 178.2402,
+    "exit_price": 183.9461,
+    "quantity": 33,
+    "pnl": 186.23,
+    "return_pct": 0.032013,
+    "costs": 2.06,
+    "hold_period": 80412682328410,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "RTX",
+    "side": "LONG",
+    "entry_at": "2026-08-14T17:09:56Z",
+    "exit_at": "2026-08-15T06:27:51Z",
+    "entry_price": 124.2745,
+    "exit_price": 124.5993,
+    "quantity": 204,
+    "pnl": 57.39,
+    "return_pct": 0.002614,
+    "costs": 8.87,
+    "hold_period": 47874876183301,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "WMT",
+    "side": "LONG",
+    "entry_at": "2026-08-14T22:31:41Z",
+    "exit_at": "2026-08-15T23:31:48Z",
+    "entry_price": 79.029,
+    "exit_price": 78.1459,
+    "quantity": 212,
+    "pnl": -193.08,
+    "return_pct": -0.011174,
+    "costs": 5.86,
+    "hold_period": 90007070784673,
+    "regime": "RANGE",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "FCX",
+    "side": "LONG",
+    "entry_at": "2026-08-15T02:02:11Z",
+    "exit_at": "2026-08-15T08:23:39Z",
+    "entry_price": 45.1577,
+    "exit_price": 45.0949,
+    "quantity": 109,
+    "pnl": -8.57,
+    "return_pct": -0.001391,
+    "costs": 1.72,
+    "hold_period": 22887720930774,
+    "regime": "BULL_TREND",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "TMUS",
+    "side": "SHORT",
+    "entry_at": "2026-08-15T09:18:38Z",
+    "exit_at": "2026-08-15T14:45:55Z",
+    "entry_price": 209.3755,
+    "exit_price": 205.8688,
+    "quantity": 171,
+    "pnl": 587.12,
+    "return_pct": -0.016748,
+    "costs": 12.53,
+    "hold_period": 19637364579315,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "GE",
+    "side": "LONG",
+    "entry_at": "2026-08-15T16:56:44Z",
+    "exit_at": "2026-08-15T22:12:01Z",
+    "entry_price": 168.4032,
+    "exit_price": 170.6042,
+    "quantity": 222,
+    "pnl": 475.54,
+    "return_pct": 0.01307,
+    "costs": 13.08,
+    "hold_period": 18916879844833,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "CRM",
+    "side": "SHORT",
+    "entry_at": "2026-08-15T20:34:44Z",
+    "exit_at": "2026-08-16T13:45:06Z",
+    "entry_price": 269.0598,
+    "exit_price": 263.0505,
+    "quantity": 202,
+    "pnl": 1194.86,
+    "return_pct": -0.022335,
+    "costs": 19.02,
+    "hold_period": 61821389862808,
+    "regime": "RANGE",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "INTC",
+    "side": "LONG",
+    "entry_at": "2026-08-16T04:01:35Z",
+    "exit_at": "2026-08-16T16:55:39Z",
+    "entry_price": 22.2796,
+    "exit_price": 22.2844,
+    "quantity": 200,
+    "pnl": -0.6,
+    "return_pct": 0.000214,
+    "costs": 1.56,
+    "hold_period": 46443932503905,
+    "regime": "BULL_TREND",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "BA",
+    "side": "LONG",
+    "entry_at": "2026-08-16T07:13:12Z",
+    "exit_at": "2026-08-16T23:25:09Z",
+    "entry_price": 179.3126,
+    "exit_price": 178.922,
+    "quantity": 156,
+    "pnl": -70.72,
+    "return_pct": -0.002178,
+    "costs": 9.79,
+    "hold_period": 58317787677272,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "NOW",
+    "side": "SHORT",
+    "entry_at": "2026-08-16T20:34:11Z",
+    "exit_at": "2026-08-16T21:18:26Z",
+    "entry_price": 954.962,
+    "exit_price": 951.1259,
+    "quantity": 100,
+    "pnl": 350.19,
+    "return_pct": -0.004017,
+    "costs": 33.42,
+    "hold_period": 2655338358353,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "XLI",
+    "side": "SHORT",
+    "entry_at": "2026-08-17T08:07:09Z",
+    "exit_at": "2026-08-17T19:06:20Z",
+    "entry_price": 132.6526,
+    "exit_price": 133.5968,
+    "quantity": 209,
+    "pnl": -207.04,
+    "return_pct": 0.007118,
+    "costs": 9.7,
+    "hold_period": 39551466057113,
+    "regime": "RANGE",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "DUK",
+    "side": "LONG",
+    "entry_at": "2026-08-17T16:05:12Z",
+    "exit_at": "2026-08-18T17:40:22Z",
+    "entry_price": 107.9023,
+    "exit_price": 109.0041,
+    "quantity": 194,
+    "pnl": 206.42,
+    "return_pct": 0.010211,
+    "costs": 7.33,
+    "hold_period": 92109973912699,
+    "regime": "BULL_TREND",
+    "exit_reason": "time_expiry"
+   },
+   {
+    "ticker": "AAPL",
+    "side": "SHORT",
+    "entry_at": "2026-08-17T21:59:24Z",
+    "exit_at": "2026-08-18T08:39:23Z",
+    "entry_price": 228.855,
+    "exit_price": 230.5534,
+    "quantity": 184,
+    "pnl": -327.25,
+    "return_pct": 0.007421,
+    "costs": 14.74,
+    "hold_period": 38399785967218,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "GS",
+    "side": "SHORT",
+    "entry_at": "2026-08-18T03:18:41Z",
+    "exit_at": "2026-08-18T16:41:16Z",
+    "entry_price": 513.9973,
+    "exit_price": 508.5291,
+    "quantity": 33,
+    "pnl": 174.51,
+    "return_pct": -0.010639,
+    "costs": 5.94,
+    "hold_period": 48154833368523,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "META",
+    "side": "LONG",
+    "entry_at": "2026-08-18T16:28:02Z",
+    "exit_at": "2026-08-18T20:49:43Z",
+    "entry_price": 558.6724,
+    "exit_price": 558.8118,
+    "quantity": 34,
+    "pnl": -1.91,
+    "return_pct": 0.00025,
+    "costs": 6.65,
+    "hold_period": 15701208428168,
+    "regime": "RANGE",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "BAC",
+    "side": "LONG",
+    "entry_at": "2026-08-18T21:46:40Z",
+    "exit_at": "2026-08-19T11:26:32Z",
+    "entry_price": 41.4121,
+    "exit_price": 41.5276,
+    "quantity": 46,
+    "pnl": 4.64,
+    "return_pct": 0.002789,
+    "costs": 0.67,
+    "hold_period": 49191861319717,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "XLK",
+    "side": "LONG",
+    "entry_at": "2026-08-19T01:14:44Z",
+    "exit_at": "2026-08-20T00:47:13Z",
+    "entry_price": 223.6979,
+    "exit_price": 219.5392,
+    "quantity": 50,
+    "pnl": -211.85,
+    "return_pct": -0.018591,
+    "costs": 3.91,
+    "hold_period": 84748892761606,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "V",
+    "side": "LONG",
+    "entry_at": "2026-08-19T14:59:45Z",
+    "exit_at": "2026-08-19T21:39:55Z",
+    "entry_price": 282.0984,
+    "exit_price": 283.939,
+    "quantity": 194,
+    "pnl": 337.93,
+    "return_pct": 0.006525,
+    "costs": 19.15,
+    "hold_period": 24009809531327,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "stop_hit"
+   },
+   {
+    "ticker": "ACN",
+    "side": "SHORT",
+    "entry_at": "2026-08-20T02:25:04Z",
+    "exit_at": "2026-08-20T05:38:16Z",
+    "entry_price": 354.5467,
+    "exit_price": 349.3078,
+    "quantity": 235,
+    "pnl": 1201.98,
+    "return_pct": -0.014776,
+    "costs": 29.16,
+    "hold_period": 11592192915737,
+    "regime": "RANGE",
+    "exit_reason": "target_reached"
+   },
+   {
+    "ticker": "LLY",
+    "side": "LONG",
+    "entry_at": "2026-08-20T06:36:27Z",
+    "exit_at": "2026-08-20T17:05:36Z",
+    "entry_price": 868.8379,
+    "exit_price": 864.3562,
+    "quantity": 189,
+    "pnl": -904.51,
+    "return_pct": -0.005158,
+    "costs": 57.47,
+    "hold_period": 37748891983373,
+    "regime": "BULL_TREND",
+    "exit_reason": "regime_change"
+   },
+   {
+    "ticker": "LMT",
+    "side": "LONG",
+    "entry_at": "2026-08-20T13:26:30Z",
+    "exit_at": "2026-08-21T05:32:50Z",
+    "entry_price": 544.0525,
+    "exit_price": 545.5683,
+    "quantity": 148,
+    "pnl": 196.16,
+    "return_pct": 0.002786,
+    "costs": 28.18,
+    "hold_period": 57980175677808,
+    "regime": "HIGH_VOLATILITY",
+    "exit_reason": "invalidated"
+   },
+   {
+    "ticker": "WFC",
+    "side": "SHORT",
+    "entry_at": "2026-08-21T02:50:57Z",
+    "exit_at": "2026-08-21T19:10:55Z",
+    "entry_price": 60.464,
+    "exit_price": 61.4778,
+    "quantity": 172,
+    "pnl": -178.01,
+    "return_pct": 0.016766,
+    "costs": 3.64,
+    "hold_period": 58798578950444,
+    "regime": "LOW_VOLATILITY",
+    "exit_reason": "regime_change"
+   }
+  ],
+  "created_at": "2026-08-28T00:11:00Z",
+  "started_at": "2026-08-28T00:11:02Z",
+  "completed_at": "2026-08-28T00:23:00Z",
+  "events_processed": 1284416,
+  "result_hash": "9f2c71ad4b830e5617c9f04ab28d3e615a70cf9284d1b6e037a5c8291fb40d63"
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

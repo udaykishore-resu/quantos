@@ -1,0 +1,261 @@
+# Security scanning.
+#
+# Separate from ci.yml because these checks have a different failure meaning: a
+# CI failure says "this change is wrong", a security failure often says "the
+# world changed under a change that was fine yesterday". They also run on a
+# schedule, which CI does not.
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 04:00 UTC daily. A vulnerability disclosed against a dependency that was
+    # clean at merge time is only found by a run that is not tied to a commit.
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  GO_VERSION: "1.24"
+
+jobs:
+  # -------------------------------------------------------------- go vulns --
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: govulncheck
+        # Reachability-based: it reports a CVE only when the vulnerable symbol
+        # is actually called. That is the difference between a finding worth
+        # acting on and a dependency-graph alert nobody reads.
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+  # ------------------------------------------------------------- secrets ----
+  secrets:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: a key committed and then removed in a follow-up is
+          # still a key that was published, and a shallow clone cannot see it.
+          fetch-depth: 0
+
+      - name: gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks detect --source . --redact --no-banner --exit-code 1
+
+      - name: no plaintext secret material in the infrastructure tree
+        # A narrower, cheaper check that catches the specific mistake this
+        # repository is most exposed to: a real value where a reference belongs.
+        # infra/ carries only pointers - Secrets Manager ARNs, env-var names -
+        # and any of the patterns below appearing there is a defect.
+        run: |
+          set -euo pipefail
+          # The pattern is assembled from fragments rather than written out, so
+          # that this file does not match its own scan. A checker that reports
+          # itself is a checker people learn to ignore.
+          patterns="sk-""ant-|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|aws_secret_access""_key[[:space:]]*="
+          if grep -rInE "$patterns" infra/ scripts/; then
+            echo "plaintext credential material found; infra/ holds references only"
+            exit 1
+          fi
+          # A rendered Secret with data: would mean a literal value reached a
+          # manifest. The manifests reference External Secrets and nothing else.
+          if grep -rn '^kind: Secret$' infra/kubernetes infra/helm; then
+            echo "a manifest declares a Secret; secrets are references only"
+            exit 1
+          fi
+
+  # --------------------------------------------------------------- image ----
+  image:
+    name: trivy and hadolint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      # Findings go to the Security tab rather than only into a log nobody
+      # reads after the run is green.
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: deploy/Dockerfile
+          # DL3008 (pin apt versions) does not apply: the runtime stage is
+          # distroless and has no package manager, and the build stage installs
+          # nothing.
+          ignore: DL3008
+          failure-threshold: warning
+
+      - name: build the image
+        # api-gateway is representative: deploy/Dockerfile builds all nine from
+        # the same stages with a different SERVICE arg, so the layers Trivy
+        # scans are identical across services.
+        run: |
+          docker build \
+            -f deploy/Dockerfile \
+            --build-arg SERVICE=api-gateway \
+            --build-arg VERSION=ci \
+            --build-arg COMMIT="${GITHUB_SHA::7}" \
+            -t quantos/api-gateway:ci .
+
+      - name: trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: quantos/api-gateway:ci
+          format: sarif
+          output: trivy.sarif
+          severity: CRITICAL,HIGH
+          # The base is distroless/static, so a finding here is almost always in
+          # a Go dependency compiled into the binary rather than in an OS
+          # package. That makes it actionable, which is why this fails the job.
+          exit-code: "1"
+          ignore-unfixed: true
+
+      - name: upload trivy results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
+          category: trivy-image
+
+      - name: trivy filesystem
+        # Catches what the image scan cannot: a vulnerable dependency in
+        # ml/requirements.txt and anything in the repository that is not
+        # compiled into the binary.
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "0"
+
+  # ----------------------------------------------------------- terraform ----
+  terraform:
+    name: terraform validate, tflint, tfsec
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: terraform validate
+        # -backend=false so validation needs no S3 bucket, no credentials and no
+        # network beyond the provider registry. Each module is initialised on its
+        # own, which is what catches a module that only validates because a
+        # sibling happened to declare a provider it uses.
+        run: |
+          set -euo pipefail
+          for dir in infra/terraform/modules/*/ infra/terraform/environments/*/; do
+            echo "--- ${dir}"
+            terraform -chdir="${dir}" init -backend=false -input=false -no-color
+            terraform -chdir="${dir}" validate -no-color
+          done
+
+      - name: tflint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --init --chdir=infra/terraform
+          tflint --recursive --chdir=infra/terraform --minimum-failure-severity=warning
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          working_directory: infra/terraform
+          sarif_file: tfsec.sarif
+
+      - name: upload tfsec results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: tfsec.sarif
+          category: tfsec
+
+  # -------------------------------------------------------------- policy ----
+  policy:
+    name: repository invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: no real-money order routing
+        # internal/paper panics at start-up if QUANTOS_ALLOW_REAL_MONEY is set,
+        # and nothing in the infrastructure may hand it a reason to. This is the
+        # infrastructure-side half of that guarantee: no manifest, chart, script
+        # or workflow may set the variable.
+        run: |
+          set -euo pipefail
+          # The invariant is that nothing *sets* it. Prose that explains why it
+          # must never be set is the documentation working, so the check looks
+          # for the assignment forms - a shell export, a YAML env entry, a
+          # Terraform or Docker variable - rather than for the name.
+          if grep -rnE \
+               '(export[[:space:]]+QUANTOS_ALLOW_REAL_MONEY|QUANTOS_ALLOW_REAL_MONEY[[:space:]]*[:=]|name:[[:space:]]*QUANTOS_ALLOW_REAL_MONEY)' \
+               infra/ .github/ scripts/ deploy/ 2>/dev/null; then
+            echo "QUANTOS_ALLOW_REAL_MONEY is being set; this platform routes no real-money orders"
+            echo "internal/paper panics at start-up when it is set, and no manifest, chart,"
+            echo "script or workflow may hand it a reason to."
+            exit 1
+          fi
+
+      - name: workflows have an explicit permissions block
+        # The repository default is often write-all. A workflow that does not
+        # narrow it inherits that, and an inherited permission is one nobody
+        # decided to grant.
+        run: |
+          set -euo pipefail
+          fail=0
+          for f in .github/workflows/*.yml; do
+            if ! grep -qE '^permissions:' "$f"; then
+              echo "$f has no top-level permissions: block"
+              fail=1
+            fi
+          done
+          exit "$fail"
+
+      - name: no long-lived AWS keys in any workflow
+        # OIDC only. A workflow that reads AWS_SECRET_ACCESS_KEY from secrets is
+        # a workflow holding a credential that cannot be rotated by revoking a
+        # trust policy.
+        run: |
+          set -euo pipefail
+          if grep -rnE 'secrets\.AWS_(SECRET_ACCESS_KEY|ACCESS_KEY_ID)' .github/workflows/; then
+            echo "use OIDC (aws-actions/configure-aws-credentials with role-to-assume), not static keys"
+            exit 1
+          fi

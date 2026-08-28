@@ -1,0 +1,15 @@
+{
+    "data": {
+        "as_of": "2026-08-28T02:42:00Z",
+        "instruments": 115,
+        "regime": "RANGE",
+        "regime_confidence": 0.6798096833919487,
+        "stale_instruments": 0
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "b899aae8b218dd8c",
+    "served_at": "2026-08-28T01:52:22.943611048Z"
+}

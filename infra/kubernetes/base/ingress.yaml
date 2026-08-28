@@ -1,0 +1,59 @@
+# The only route into the cluster, and it reaches api-gateway alone.
+#
+# Every binary mounts the same API routes (cli.Spec.WithHTTP is true for all
+# nine), so "which service is exposed" is a real decision rather than a
+# formality: signal-service serves /api/v1/signals too, and it must not be
+# reachable from outside. The NetworkPolicy in networkpolicy.yaml says the same
+# thing at the network layer.
+#
+# The host and the certificate ARN are placeholders. Overlays patch both; DNS
+# and ACM are deliberately not automated (see infra/terraform/README.md).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quantos-api
+  labels:
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: quantos
+  annotations:
+    # AWS Load Balancer Controller, internet-facing ALB terminating TLS.
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    # No HTTP listener at all, rather than an HTTP listener that redirects. A
+    # redirect still accepts the request, and the request may carry the bearer
+    # token that /api/v1/stream passes as a query parameter.
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:000000000000:certificate/REPLACE-ME
+    alb.ingress.kubernetes.io/healthcheck-path: /readyz
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/success-codes: "200"
+    # SSE connections are long-lived by design; the default 60s idle timeout
+    # would cut every /api/v1/stream client once a minute.
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+    alb.ingress.kubernetes.io/wafv2-acl-arn: ""
+spec:
+  ingressClassName: alb
+  tls:
+    - hosts:
+        - quantos.example.internal
+  rules:
+    - host: quantos.example.internal
+      http:
+        paths:
+          # /api/v1 only, not "/".
+          #
+          # internal/api.Mount puts /healthz, /readyz and /metrics on the same
+          # router as the API, so a "/" prefix would publish the metrics
+          # endpoint to the internet. quantos_risk_decisions_total by reason and
+          # quantos_signals_generated_total by strategy describe the platform's
+          # behaviour in enough detail to be worth not handing out. The ALB
+          # health check reaches /readyz on the target directly and does not go
+          # through this rule.
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http

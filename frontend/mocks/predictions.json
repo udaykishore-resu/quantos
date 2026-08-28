@@ -1,0 +1,795 @@
+{
+    "data": [
+        {
+            "id": "01a04611-174b-7b76-8292-1bc675a5ee34",
+            "ticker": "XOM",
+            "created_at": "2026-08-28T01:52:00.331033074Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.3248729875474013,
+                        "flat": 0.3502540249051974,
+                        "down": 0.3248729875474013
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 44.9,
+                    "confidence": 0.0254,
+                    "uncertainty": 0.9994
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.37899516272618683,
+                        "flat": 0.24200967454762634,
+                        "down": 0.37899516272618683
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 89.9,
+                    "confidence": 0.0685,
+                    "uncertainty": 0.982
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.4214620531492184,
+                        "flat": 0.1570758937015632,
+                        "down": 0.4214620531492184
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 440.2,
+                    "confidence": 0.1322,
+                    "uncertainty": 0.9276
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "dc8d4ff317a832def603b5b458793b6fa03338efa90f147d00ae545a25e7a1a2",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-174a-7003-b75d-56666559e382",
+            "ticker": "XLY",
+            "created_at": "2026-08-28T01:52:00.33083361Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.1644027665776473,
+                        "flat": 0.6711944668447054,
+                        "down": 0.1644027665776473
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 11.8,
+                    "confidence": 0.5068,
+                    "uncertainty": 0.7839
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.2762563046092907,
+                        "flat": 0.44748739078141864,
+                        "down": 0.2762563046092907
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 23.6,
+                    "confidence": 0.1712,
+                    "uncertainty": 0.9745
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.3994870360087292,
+                        "flat": 0.20102592798254157,
+                        "down": 0.3994870360087292
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 115.6,
+                    "confidence": 0.0992,
+                    "uncertainty": 0.9609
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "d3b19daf6c4aa9fdaa7cd3ebecedc91cb7b366511c28a65c88bf5139a2bad86c",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-174a-7b1a-b76f-d4830788fab4",
+            "ticker": "XLV",
+            "created_at": "2026-08-28T01:52:00.330660642Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.2015079242516844,
+                        "flat": 0.5969841514966312,
+                        "down": 0.2015079242516844
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 15.3,
+                    "confidence": 0.3955,
+                    "uncertainty": 0.868
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3060458401650507,
+                        "flat": 0.3879083196698986,
+                        "down": 0.3060458401650507
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 30.6,
+                    "confidence": 0.0819,
+                    "uncertainty": 0.994
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40656835682562464,
+                        "flat": 0.18686328634875068,
+                        "down": 0.40656835682562464
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 150,
+                    "confidence": 0.1099,
+                    "uncertainty": 0.9514
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "fad53936bf1e123869127ad769041a33b95be465976adf93f71e97dc5f3782e7",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-174a-70d7-bee5-6c77be503ea3",
+            "ticker": "XLU",
+            "created_at": "2026-08-28T01:52:00.330344195Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.22109027621377775,
+                        "flat": 0.5578194475724445,
+                        "down": 0.22109027621377775
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 17.5,
+                    "confidence": 0.3367,
+                    "uncertainty": 0.9038
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3194697963630895,
+                        "flat": 0.361060407273821,
+                        "down": 0.3194697963630895
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 35.1,
+                    "confidence": 0.0416,
+                    "uncertainty": 0.9984
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40959950940836226,
+                        "flat": 0.1808009811832755,
+                        "down": 0.40959950940836226
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 171.9,
+                    "confidence": 0.1144,
+                    "uncertainty": 0.947
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "cc5add895ee0456c7df07f2c88b25d2e25ab4a2127ac355a1b879634e97444c8",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-174a-7615-a2cb-f364dd207a7e",
+            "ticker": "XLRE",
+            "created_at": "2026-08-28T01:52:00.330187141Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.1991473345475976,
+                        "flat": 0.6017053309048048,
+                        "down": 0.1991473345475976
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 15.1,
+                    "confidence": 0.4026,
+                    "uncertainty": 0.8633
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.30434418957013654,
+                        "flat": 0.3913116208597269,
+                        "down": 0.30434418957013654
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 30.1,
+                    "confidence": 0.087,
+                    "uncertainty": 0.9933
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.4061779500404103,
+                        "flat": 0.1876440999191794,
+                        "down": 0.4061779500404103
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 147.6,
+                    "confidence": 0.1093,
+                    "uncertainty": 0.952
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "831530f29dda8038084fbaf6b67f920bc58576a9832fdaa2cd1b2f19d7d8d04c",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-174a-758c-99bb-ff6f5784e7b0",
+            "ticker": "XLP",
+            "created_at": "2026-08-28T01:52:00.33004849Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.21461490656977888,
+                        "flat": 0.5707701868604422,
+                        "down": 0.21461490656977888
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 16.8,
+                    "confidence": 0.3562,
+                    "uncertainty": 0.8926
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.31515566404765283,
+                        "flat": 0.36968867190469434,
+                        "down": 0.31515566404765283
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 33.5,
+                    "confidence": 0.0545,
+                    "uncertainty": 0.9973
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40863431878085943,
+                        "flat": 0.18273136243828114,
+                        "down": 0.40863431878085943
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 164.3,
+                    "confidence": 0.113,
+                    "uncertainty": 0.9485
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "7ded264c9140486b796abad183e3b1a8699d9339633f155f3fabae4a01e4b3ff",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1749-7a3c-a752-6a61b3ca6a4e",
+            "ticker": "XLK",
+            "created_at": "2026-08-28T01:52:00.329852994Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.18805402888867928,
+                        "flat": 0.6238919422226414,
+                        "down": 0.18805402888867928
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 14,
+                    "confidence": 0.4358,
+                    "uncertainty": 0.84
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.2960537658822853,
+                        "flat": 0.40789246823542935,
+                        "down": 0.2960537658822853
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 27.9,
+                    "confidence": 0.1118,
+                    "uncertainty": 0.989
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40425372525103176,
+                        "flat": 0.19149254949793654,
+                        "down": 0.40425372525103176
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 136.7,
+                    "confidence": 0.1064,
+                    "uncertainty": 0.9547
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "9ed7b28f722354b87676611c20a62ad8e48358b936d8f691d8201cf619f7ebc3",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1749-79c2-80ca-032ce80fa8ef",
+            "ticker": "XLI",
+            "created_at": "2026-08-28T01:52:00.32969435Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.1732556542708205,
+                        "flat": 0.653488691458359,
+                        "down": 0.1732556542708205
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 10.1,
+                    "confidence": 0.4802,
+                    "uncertainty": 0.806
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.2565735558274899,
+                        "flat": 0.48685288834502016,
+                        "down": 0.2565735558274899
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 20.3,
+                    "confidence": 0.2303,
+                    "uncertainty": 0.9544
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.3944458993865733,
+                        "flat": 0.21110820122685345,
+                        "down": 0.3944458993865733
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 99.3,
+                    "confidence": 0.0917,
+                    "uncertainty": 0.9669
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "445bae9737d6991602f9b66011962297c804388e7cefa436e6f57662e2e289f6",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1749-7835-aeb5-668e9096012a",
+            "ticker": "XLF",
+            "created_at": "2026-08-28T01:52:00.329528187Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.2036435878078231,
+                        "flat": 0.5927128243843538,
+                        "down": 0.2036435878078231
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 15.5,
+                    "confidence": 0.3891,
+                    "uncertainty": 0.8722
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3075682581117641,
+                        "flat": 0.38486348377647184,
+                        "down": 0.3075682581117641
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 31.1,
+                    "confidence": 0.0773,
+                    "uncertainty": 0.9947
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40691639886503905,
+                        "flat": 0.1861672022699219,
+                        "down": 0.40691639886503905
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 152.2,
+                    "confidence": 0.1104,
+                    "uncertainty": 0.9509
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "28e9724461f2af747181016ff1f46534eab81d8fcdf18f00f1df50579376bcbc",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1749-795a-84fb-34fa13da26e0",
+            "ticker": "XLE",
+            "created_at": "2026-08-28T01:52:00.329366736Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.15128266843093596,
+                        "flat": 0.6974346631381281,
+                        "down": 0.15128266843093596
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 10.7,
+                    "confidence": 0.5462,
+                    "uncertainty": 0.7489
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.26342105161364393,
+                        "flat": 0.47315789677271214,
+                        "down": 0.26342105161364393
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 21.3,
+                    "confidence": 0.2097,
+                    "uncertainty": 0.962
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.39623950607536423,
+                        "flat": 0.20752098784927162,
+                        "down": 0.39623950607536423
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 104.6,
+                    "confidence": 0.0944,
+                    "uncertainty": 0.9648
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "a21e80b8aac2ef9a967aed7f654e3fcf264af353f61faeb9196db13c735723b3",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1749-7066-8010-0065247a5b2a",
+            "ticker": "XLC",
+            "created_at": "2026-08-28T01:52:00.329139517Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.20520465328230175,
+                        "flat": 0.5895906934353965,
+                        "down": 0.20520465328230175
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 15.7,
+                    "confidence": 0.3844,
+                    "uncertainty": 0.8752
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.308671172551443,
+                        "flat": 0.382657654897114,
+                        "down": 0.308671172551443
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 31.4,
+                    "confidence": 0.074,
+                    "uncertainty": 0.9951
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.40716781878672453,
+                        "flat": 0.18566436242655093,
+                        "down": 0.40716781878672453
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 153.9,
+                    "confidence": 0.1108,
+                    "uncertainty": 0.9506
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "048bf23f210c7be51855ae303b4c319986307aa07af19d16919af9d59f2fceed",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        {
+            "id": "01a04611-1748-7447-9134-336113bb7207",
+            "ticker": "XLB",
+            "created_at": "2026-08-28T01:52:00.328951088Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.1633333333333333,
+                        "flat": 0.6733333333333335,
+                        "down": 0.1633333333333333
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 8.4,
+                    "confidence": 0.51,
+                    "uncertainty": 0.7812
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.22980304029780874,
+                        "flat": 0.5403939194043825,
+                        "down": 0.22980304029780874
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 16.7,
+                    "confidence": 0.3106,
+                    "uncertainty": 0.9179
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.3869130809009682,
+                        "flat": 0.22617383819806358,
+                        "down": 0.3869130809009682
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 82,
+                    "confidence": 0.0804,
+                    "uncertainty": 0.9749
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "83b26b6d784f48a03e545544b534af327b3549c88e5768085f12eb8b7743e9e4",
+            "feature_as_of": "2026-08-28T02:42:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6798096833919487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        }
+    ],
+    "meta": {
+        "count": 12,
+        "limit": 12,
+        "as_of": "0001-01-01T00:00:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "5f98220e2bbcb7ea",
+    "served_at": "2026-08-28T01:52:23.027700235Z"
+}

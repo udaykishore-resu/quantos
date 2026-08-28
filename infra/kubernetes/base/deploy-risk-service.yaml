@@ -1,0 +1,142 @@
+# risk-service
+#
+# RoleSweeper. Re-runs the invalidation conditions on a timer so a signal dies
+# from the passage of time or a regime change, not only from its own
+# instrument printing a new bar (ADR-009).
+#
+# Exactly one replica: the sweep is a timer over shared state, and two
+# sweepers would publish two signal.invalidated events for one invalidation.
+#
+# Generated from one table with the other eight (ADR-011: the binaries differ
+# only in which roles they name), then committed. Edit this file, not a
+# generator.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-service
+  labels:
+    app.kubernetes.io/name: risk-service
+    app.kubernetes.io/part-of: quantos
+    app.kubernetes.io/component: platform
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: risk-service
+  strategy:
+    # A singleton must stop before its replacement starts, or two instances
+    # briefly publish the same events.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: risk-service
+        app.kubernetes.io/part-of: quantos
+        app.kubernetes.io/component: platform
+    spec:
+      serviceAccountName: quantos-risk-service
+      automountServiceAccountToken: true
+      # Distroless nonroot is uid 65532 (deploy/Dockerfile).
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      nodeSelector:
+        quantos.io/pool: platform
+      # cli.Main installs a SIGTERM handler and drains; give it more than the
+      # 15s http.shutdown_timeout so the drain finishes before SIGKILL.
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: risk-service
+          # Overwritten by the kustomize images: transformer. deploy/Dockerfile
+          # builds one image per service from the same multi-stage build.
+          image: quantos/risk-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            # /metrics is served on this same port: internal/api.Mount registers
+            # it on the main router, and telemetry.metrics_addr starts no second
+            # listener. deploy/prometheus/prometheus.yml scrapes the same way.
+            - name: http
+              containerPort: 8083
+              protocol: TCP
+          env:
+            - name: QUANTOS_SERVICE
+              value: risk-service
+            - name: QUANTOS_HTTP_ADDR
+              value: ":8083"
+          envFrom:
+            # QUANTOS_CONFIG, QUANTOS_MODE, QUANTOS_ENV, QUANTOS_LOG_* and the
+            # model-artifact coordinates. Non-secret, patched per overlay.
+            - configMapRef:
+                name: quantos-env
+            # QUANTOS_POSTGRES_DSN, QUANTOS_REDIS_ADDR, QUANTOS_JWT_SECRET.
+            - secretRef:
+                name: quantos-store
+            # QUANTOS_KAFKA_BROKERS.
+            - secretRef:
+                name: quantos-bus
+          livenessProbe:
+            # /healthz answers "the process is up". It reports degraded
+            # subsystems in the body but still returns 200, so a degraded
+            # service is not killed - degradation is a state this platform is
+            # designed to run in, not a crash.
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            # /readyz answers "this instance can serve its purpose", and returns
+            # 503 when the universe is empty, no strategies loaded, or
+            # App.CanEmitSignals is false. That last one is the important case:
+            # when the provenance store is unwritable the platform suspends
+            # emission, and this probe takes the pod out of the Service so the
+            # suppression is visible rather than silent.
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            # Feature warm-up reads history before the first bar
+            # (features.warmup_bars). Until it finishes the service is not
+            # ready, and without this the readiness failures would restart it.
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/quantos
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: quantos-config
+        # The distroless image has a read-only root filesystem; anything the
+        # process writes needs an explicit volume.
+        - name: tmp
+          emptyDir: {}

@@ -1,0 +1,287 @@
+{
+  "title": "QuantOS — Platform",
+  "uid": "quantos-platform",
+  "tags": ["quantos"],
+  "timezone": "utc",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(quantos_http_requests_total, service)",
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Service level objectives",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "Market event processing — P99 (SLO < 100 ms)",
+      "description": "Ingest to features.updated. This is the platform's tightest latency budget; see docs/operations/slo.md.",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.08 },
+              { "color": "red", "value": 0.1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(quantos_market_event_processing_duration_seconds_bucket[5m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "API read — P99 (SLO < 300 ms)",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.25 },
+              { "color": "red", "value": 0.3 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(quantos_http_server_duration_seconds_bucket{method=\"GET\"}[5m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Prediction — P95 (SLO < 1 s)",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.8 },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(quantos_prediction_latency_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Alert generation — P99 (SLO < 500 ms)",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.4 },
+              { "color": "red", "value": 0.5 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(quantos_alert_generation_latency_seconds_bucket[5m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Decision path",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Events through the pipeline",
+      "description": "Market events accepted, feature snapshots produced, predictions generated, signals emitted. A widening gap between stages is where to look first.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "datasource": "Prometheus",
+      "fieldConfig": { "defaults": { "unit": "ops" } },
+      "targets": [
+        { "expr": "sum(rate(quantos_market_events_processed_total[1m]))", "legendFormat": "market events" },
+        { "expr": "sum(rate(quantos_feature_snapshots_total[1m]))", "legendFormat": "feature snapshots" },
+        { "expr": "sum(rate(quantos_predictions_total[1m]))", "legendFormat": "predictions" },
+        { "expr": "sum(rate(quantos_signals_generated_total[1m]))", "legendFormat": "signals" },
+        { "expr": "sum(rate(quantos_alerts_generated_total[1m]))", "legendFormat": "alerts" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Risk engine verdicts",
+      "description": "ALLOW / WATCH_ONLY / BLOCK. A sustained block rate above 80% usually means a threshold needs review rather than that the market is uniquely dangerous.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "datasource": "Prometheus",
+      "fieldConfig": { "defaults": { "unit": "ops" } },
+      "targets": [
+        {
+          "expr": "sum by (decision) (rate(quantos_risk_decisions_total[5m]))",
+          "legendFormat": "{{decision}}"
+        }
+      ]
+    },
+    {
+      "type": "piechart",
+      "title": "Why the risk engine blocked",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (reason) (increase(quantos_risk_decisions_total{decision=\"BLOCK\"}[1h]))",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Signal lifecycle",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "sum(increase(quantos_signals_generated_total[5m]))", "legendFormat": "generated" },
+        { "expr": "sum by (kind) (increase(quantos_signals_invalidated_total[5m]))", "legendFormat": "invalidated: {{kind}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Rejected market data",
+      "description": "Prints quarantined by the validator, by reason. A rising rejection rate is a data-quality incident, not a QuantOS bug.",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(quantos_market_events_rejected_total[5m]))",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Model health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Prediction accuracy by regime",
+      "description": "A model that is excellent in a trend and useless in a range is not one 60%-accurate model. Watch the lines separately.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "datasource": "Prometheus",
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } },
+      "targets": [
+        {
+          "expr": "avg by (regime) (quantos_prediction_accuracy)",
+          "legendFormat": "{{regime}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Brier score and drift",
+      "description": "Lower Brier is better. Drift is an ordinal: 0 none, 1 mild, 2 moderate, 3 severe.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "avg by (model) (quantos_prediction_brier_score)", "legendFormat": "brier {{model}}" },
+        { "expr": "max by (kind) (quantos_model_drift)", "legendFormat": "drift {{kind}}" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Infrastructure",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Consumer lag",
+      "description": "Lag turns into silence, not stale action: events older than max_event_age are recorded and dropped rather than acted on.",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 33 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "max by (topic, group) (quantos_kafka_lag)", "legendFormat": "{{topic}} / {{group}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Idempotency: duplicates suppressed",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 33 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "sum by (topic) (rate(quantos_bus_duplicates_total[5m]))", "legendFormat": "bus dedup {{topic}}" },
+        { "expr": "sum by (reason) (rate(quantos_alerts_suppressed_total[5m]))", "legendFormat": "alert {{reason}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Degraded components and circuit breakers",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 33 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "quantos_degraded_component", "legendFormat": "degraded {{component}}" },
+        { "expr": "quantos_circuit_state", "legendFormat": "circuit {{name}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Language model: calls, failures and grounding rejections",
+      "description": "Grounding rejections fall back to the deterministic template. A high rejection rate means the prompt or the model has drifted, not that the platform is broken.",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 40 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "sum(rate(quantos_llm_calls_total[5m]))", "legendFormat": "calls" },
+        { "expr": "sum by (reason) (rate(quantos_llm_failures_total[5m]))", "legendFormat": "failures: {{reason}}" },
+        { "expr": "sum by (reason) (rate(quantos_analyst_grounding_rejections_total[5m]))", "legendFormat": "rejected: {{reason}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP by status",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 40 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "sum by (status) (rate(quantos_http_requests_total[5m]))", "legendFormat": "{{status}}" },
+        { "expr": "sum(rate(quantos_rate_limited_total[5m]))", "legendFormat": "rate limited" }
+      ]
+    }
+  ]
+}

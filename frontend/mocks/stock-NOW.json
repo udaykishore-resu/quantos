@@ -1,0 +1,427 @@
+{
+    "data": {
+        "stock": {
+            "ticker": "NOW",
+            "company": "ServiceNow, Inc.",
+            "sector": "Technology",
+            "industry": "Software",
+            "exchange": "NYSE",
+            "asset_class": "EQUITY",
+            "currency": "USD",
+            "market_cap": 190000000000,
+            "shares_outstanding": 206521739.13043478,
+            "avg_volume_30d": 2000000,
+            "reference_price": 920,
+            "avg_notional_30d": 1840000000,
+            "beta": 1.2,
+            "listed_at": "2010-01-01T00:00:00Z",
+            "tags": [
+                "fixture"
+            ]
+        },
+        "features": {
+            "ticker": "NOW",
+            "as_of": "2026-08-28T02:45:00Z",
+            "interval": "1m",
+            "values": {
+                "adx_14": 30.082367081283962,
+                "atr_14": 1.3135298290114978,
+                "atr_pct": 0.001413395097003937,
+                "bb_lower": 923.4906061577476,
+                "bb_percent_b": 0.752008868179696,
+                "bb_upper": 931.273883842252,
+                "bb_width": 0.008392739591973057,
+                "breakout_down": 0,
+                "breakout_up": 0,
+                "dist_resistance_bps": 21.99186372060232,
+                "dist_support_bps": 36.78079487707246,
+                "ema_21": 927.7239815376311,
+                "ema_9": 929.0495538322195,
+                "gap_pct": 9.437502266565291e-05,
+                "last": 929.3437,
+                "macd": 1.3332974316886066,
+                "macd_hist": 2.5189574632670277,
+                "macd_signal": 1.0991997067830872,
+                "minus_di_14": 13.428095665703934,
+                "momentum_10": 0.0036227208290033897,
+                "momentum_60": 0.007025659363283809,
+                "plus_di_14": 26.345438719971895,
+                "realized_vol_20": 0.27800893117436176,
+                "rel_strength_20": 0.0016895042315567383,
+                "resistance": 931.3875,
+                "ret_log_1": 7.790747415331967e-05,
+                "ret_log_5": 0.00022373128233859002,
+                "rsi_14": 61.93020784091867,
+                "sma_20": 927.3822449999998,
+                "sma_200": 924.1414788235294,
+                "sma_50": 925.5793679999997,
+                "support": 925.9255,
+                "trend_slope_20": 2.8388284855430377,
+                "vol_of_vol_20": 0.00015175878301472168,
+                "volume_ratio_20": 0.9660960119579833,
+                "volume_z_20": -1.366605311016487,
+                "vwap": 924.0954504569199,
+                "vwap_dist_bps": 56.793370646777625,
+                "zscore_20": 1.0080354726064926
+            },
+            "warm": {
+                "adx_14": true,
+                "atr_14": true,
+                "atr_pct": true,
+                "bb_lower": true,
+                "bb_percent_b": true,
+                "bb_upper": true,
+                "bb_width": true,
+                "breakout_down": true,
+                "breakout_up": true,
+                "dist_resistance_bps": true,
+                "dist_support_bps": true,
+                "ema_21": true,
+                "ema_9": true,
+                "gap_pct": true,
+                "last": true,
+                "macd": true,
+                "macd_hist": true,
+                "macd_signal": true,
+                "minus_di_14": true,
+                "momentum_10": true,
+                "momentum_60": true,
+                "plus_di_14": true,
+                "realized_vol_20": true,
+                "rel_strength_20": true,
+                "resistance": true,
+                "ret_log_1": true,
+                "ret_log_5": true,
+                "rsi_14": true,
+                "sma_20": true,
+                "sma_200": false,
+                "sma_50": true,
+                "support": true,
+                "trend_slope_20": true,
+                "vol_of_vol_20": true,
+                "volume_ratio_20": true,
+                "volume_z_20": true,
+                "vwap": true,
+                "vwap_dist_bps": true,
+                "zscore_20": true
+            },
+            "last": 929.3437,
+            "bid": 0,
+            "ask": 0,
+            "volume": 75491,
+            "spread_bps": 0,
+            "stale": false,
+            "last_tick_at": "2026-08-28T02:45:00Z",
+            "schema_version": 1,
+            "hash": "209a9d56645eefe51b3fb3ae4e9b3e347100fb05806cae19155dd03e19f7f529"
+        },
+        "score": {
+            "ticker": "NOW",
+            "created_at": "2026-08-28T01:55:00.346200887Z",
+            "fundamental_score": 84.6,
+            "growth_score": 77.8,
+            "quality_score": 94.2,
+            "valuation_score": 25.1,
+            "technical_score": 70.4,
+            "momentum_score": 56.7,
+            "sector_score": 73.6,
+            "market_regime_score": 37.3,
+            "risk_score": 81,
+            "event_risk_score": 100,
+            "final_score": 68.1,
+            "classification": "NEUTRAL",
+            "weights": {
+                "event_risk": 1,
+                "fundamental": 0.5,
+                "growth": 0.5,
+                "market_regime": 1.5,
+                "momentum": 2,
+                "quality": 0.5,
+                "risk": 1,
+                "sector": 0.75,
+                "technical": 2,
+                "valuation": 0.25
+            },
+            "strategy_id": "momentum",
+            "config_hash": "029e25cd01e9ede3",
+            "evidence": [
+                "gross margin of 68.4%",
+                "operating margin of 28.9%",
+                "return on equity of 80.7%",
+                "return on invested capital of 38.6%",
+                "accruals at -1.3% of assets",
+                "revenue growth of 17.8%",
+                "earnings growth of 15.2%",
+                "positive year-over-year earnings in 100% of comparable periods",
+                "debt-to-equity of 1.42",
+                "current ratio of 1.44",
+                "free-cash-flow margin of 23.3%",
+                "PEG of 66.95 against a policy maximum of 2.00; P/E of 1019.7 against a policy maximum of 35; EV/EBITDA of 708.5 (D&A assumed at 4% of revenue); free-cash-flow yield of 0.1%",
+                "price 929.34 against 20-period 927.38 and 50-period 925.58",
+                "ADX at 30.1",
+                "57 bps from session VWAP",
+                "10-period momentum 0.36%",
+                "60-period momentum 0.70%",
+                "relative strength 0.17% against the benchmark",
+                "Technology sector ranks 3 on relative strength",
+                "regime RANGE at confidence 0.68, not supporting the FLAT setup",
+                "risk warnings: model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "prediction": {
+            "id": "01a04613-d67a-708b-b254-ba52e5356017",
+            "ticker": "NOW",
+            "created_at": "2026-08-28T01:55:00.34625367Z",
+            "scenarios": [
+                {
+                    "horizon": "15m",
+                    "distribution": {
+                        "up": 0.2999052479451349,
+                        "flat": 0.4001895041097302,
+                        "down": 0.2999052479451349
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 33.6,
+                    "confidence": 0.1003,
+                    "uncertainty": 0.9911
+                },
+                {
+                    "horizon": "60m",
+                    "distribution": {
+                        "up": 0.3657736065566801,
+                        "flat": 0.26845278688663976,
+                        "down": 0.3657736065566801
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 67.2,
+                    "confidence": 0.0487,
+                    "uncertainty": 0.9911
+                },
+                {
+                    "horizon": "1d",
+                    "distribution": {
+                        "up": 0.41955785707169957,
+                        "flat": 0.16088428585660083,
+                        "down": 0.41955785707169957
+                    },
+                    "flat_band_bps": 15,
+                    "expected_move_bps": 329.2,
+                    "confidence": 0.1293,
+                    "uncertainty": 0.931
+                }
+            ],
+            "model_id": "direction-3class",
+            "model_version": "rules-fallback",
+            "source": "rules-fallback",
+            "feature_hash": "209a9d56645eefe51b3fb3ae4e9b3e347100fb05806cae19155dd03e19f7f529",
+            "feature_as_of": "2026-08-28T02:45:00Z",
+            "regime": "RANGE",
+            "regime_confidence": 0.6789996312169487,
+            "rule_prior": {
+                "up": 0.25833333333333336,
+                "flat": 0.48333333333333334,
+                "down": 0.25833333333333336
+            },
+            "model_output": {
+                "up": 0,
+                "flat": 0,
+                "down": 0
+            },
+            "blend_weight": 0,
+            "degraded": [
+                "model_unavailable"
+            ],
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "risk": {
+            "id": "01a04613-d67a-7e64-b4d0-e96fcf6d6936",
+            "ticker": "NOW",
+            "created_at": "2026-08-28T01:55:00.346200887Z",
+            "decision": "WATCH_ONLY",
+            "level": "LOW",
+            "score": 19,
+            "checks": [
+                {
+                    "name": "data_freshness",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": -2999.653799113,
+                    "threshold": 30,
+                    "reason": "market data is current (-49m59s old)"
+                },
+                {
+                    "name": "liquidity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 1840000000,
+                    "threshold": 20000000,
+                    "reason": "average daily notional of $1840.0M"
+                },
+                {
+                    "name": "spread",
+                    "status": "SKIP",
+                    "decision": "WATCH_ONLY",
+                    "value": 0,
+                    "threshold": 0,
+                    "reason": "spread could not be evaluated: no two-sided quote available",
+                    "skipped_reason": "no two-sided quote available"
+                },
+                {
+                    "name": "volatility",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.27800893117436176,
+                    "threshold": 0.45,
+                    "reason": "annualised realised volatility of 28%"
+                },
+                {
+                    "name": "event_proximity",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 24,
+                    "reason": "no scheduled events within the monitored window"
+                },
+                {
+                    "name": "model_confidence",
+                    "status": "WARN",
+                    "decision": "WATCH_ONLY",
+                    "value": 0.1003,
+                    "threshold": 0.3,
+                    "reason": "model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+                },
+                {
+                    "name": "model_health",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 3,
+                    "reason": "model rules-fallback is healthy"
+                },
+                {
+                    "name": "market_regime",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.6789996312169487,
+                    "threshold": 0.35,
+                    "reason": "regime RANGE at confidence 0.68"
+                },
+                {
+                    "name": "portfolio_concentration",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.07,
+                    "reason": "resulting position weight of 6.0%"
+                },
+                {
+                    "name": "correlation_exposure",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0.06,
+                    "threshold": 0.35,
+                    "reason": "correlation-adjusted exposure of 6.0%"
+                },
+                {
+                    "name": "portfolio_drawdown",
+                    "status": "PASS",
+                    "decision": "ALLOW_PAPER_SIGNAL",
+                    "value": 0,
+                    "threshold": 0.12,
+                    "reason": "portfolio drawdown of 0.0%"
+                }
+            ],
+            "warnings": [
+                "model confidence of 0.10 is below the 0.30 minimum for a paper signal"
+            ],
+            "config_hash": "72193c9606026c01",
+            "regime": "RANGE",
+            "feature_hash": "209a9d56645eefe51b3fb3ae4e9b3e347100fb05806cae19155dd03e19f7f529",
+            "prediction_id": "01a04613-d67a-708b-b254-ba52e5356017",
+            "evaluated_at": "2026-08-28T01:55:00.346200887Z"
+        },
+        "opportunity": {
+            "ticker": "NOW",
+            "created_at": "2026-08-28T01:55:00.346200887Z",
+            "score": 47.9,
+            "bias": "FLAT",
+            "confidence": 0.05,
+            "risk": "LOW",
+            "components": {
+                "directional_edge": 0,
+                "event_headroom": 3,
+                "liquidity": 8,
+                "model_confidence": 0.7,
+                "regime_alignment": 6,
+                "risk_headroom": 6.5,
+                "risk_reward": 3.2,
+                "stock_score": 17.7,
+                "volatility_fit": 2.8
+            },
+            "risk_reward": 1.67,
+            "expected_move_bps": 67.2,
+            "stop_distance_bps": 21.2,
+            "target_distance_bps": 35.3,
+            "prediction_id": "01a04613-d67a-708b-b254-ba52e5356017",
+            "regime": "RANGE",
+            "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed."
+        },
+        "news": [
+            {
+                "id": "sim-20260827-21",
+                "ticker": "NOW",
+                "timestamp": "2026-08-28T01:48:03.306500638Z",
+                "ingested_at": "2026-08-28T01:48:03.306520469Z",
+                "source": "quantos-sim-wire",
+                "headline": "ServiceNow, Inc. announces a buyback and a dividend increase",
+                "category": "GENERAL",
+                "sentiment": "positive",
+                "sentiment_score": 0.55,
+                "materiality": "low",
+                "materiality_score": 0.33,
+                "confidence": 0.35,
+                "affected_sector": "Technology",
+                "expected_horizon": "60m",
+                "stage": "deterministic",
+                "matched_terms": [
+                    "buyback",
+                    "dividend increase"
+                ],
+                "cluster_id": "9c2c180b0a50f366"
+            },
+            {
+                "id": "sim-20260827-17",
+                "ticker": "NOW",
+                "timestamp": "2026-08-28T01:43:33.306499796Z",
+                "ingested_at": "2026-08-28T01:43:33.306519961Z",
+                "source": "quantos-sim-wire",
+                "headline": "Analysts downgrade ServiceNow, Inc. to underweight on valuation concerns",
+                "category": "ANALYST_ACTION",
+                "sentiment": "negative",
+                "sentiment_score": -0.6,
+                "materiality": "medium",
+                "materiality_score": 0.49,
+                "confidence": 0.83,
+                "affected_sector": "Technology",
+                "expected_horizon": "60m",
+                "stage": "deterministic",
+                "matched_terms": [
+                    "downgrade",
+                    "underweight"
+                ],
+                "cluster_id": "a5fc32df05b9bc90"
+            }
+        ],
+        "updated_at": "2026-08-28T02:45:00Z"
+    },
+    "meta": {
+        "as_of": "2026-08-28T02:45:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "ed525913d163070d",
+    "served_at": "2026-08-28T01:55:22.329797936Z"
+}

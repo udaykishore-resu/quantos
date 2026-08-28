@@ -1,0 +1,57 @@
+# Build output
+/bin/
+/dist/
+quantos
+*.exe
+*.test
+*.out
+
+# Go
+vendor/
+
+# Python research environment
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Generated research data and reports. The trainer is deterministic and the
+# exporter is reproducible from a seed, so checking these in would add megabytes
+# that anyone can regenerate with `make export-features` and `make train`.
+/ml/data/
+/ml/reports/
+
+# Model artifacts are deliberately NOT ignored: mlinfer refuses to load an
+# artifact without its held-out report card, so the artifact in the tree is the
+# record of what the shipped model was measured to do.
+
+# Local runtime state
+/data/
+/wal/
+*.db
+*.log
+
+# Frontend
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars.local
+.terraform.lock.hcl
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

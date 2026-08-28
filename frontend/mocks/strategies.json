@@ -1,0 +1,1083 @@
+{
+    "data": [
+        {
+            "id": "breakout",
+            "name": "Volume-Confirmed Breakout",
+            "version": "1.1.0",
+            "description": "Trades expansion out of consolidation, and only when volume confirms. The volume requirement is the discriminating condition: price poking above a twenty-bar high on thin volume is noise, and a breakout rule without volume confirmation is mostly a wick detector. The strategy also requires that the band width was compressed recently, so it is trading expansion rather than chasing a move that is already extended.\n",
+            "enabled": true,
+            "interval": "1m",
+            "regimes": [
+                "BREAKOUT",
+                "BULL_TREND",
+                "HIGH_VOLATILITY",
+                "RISK_ON"
+            ],
+            "rules": [
+                {
+                    "id": "breakout_up_confirmed",
+                    "description": "Close beyond the prior twenty-bar high with volume confirmation",
+                    "side": "LONG",
+                    "weight": 3,
+                    "all": [
+                        {
+                            "feature": "breakout_up",
+                            "op": "is_true",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "volume_surge",
+                    "description": "Volume is at least twice its twenty period average",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "volume_ratio_20",
+                            "op": "gte",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "volume_zscore",
+                    "description": "Volume is more than two standard deviations above its recent mean",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "volume_z_20",
+                            "op": "gte",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "band_expansion",
+                    "description": "Bollinger band width is expanding out of compression",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "bb_width",
+                            "op": "gt",
+                            "value": 0.012
+                        },
+                        {
+                            "feature": "bb_percent_b",
+                            "op": "gt",
+                            "value": 0.9
+                        }
+                    ]
+                },
+                {
+                    "id": "above_vwap_strongly",
+                    "description": "Price is more than twenty basis points above the session VWAP",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "vwap_dist_bps",
+                            "op": "gt",
+                            "value": 20
+                        }
+                    ]
+                },
+                {
+                    "id": "directional_strength",
+                    "description": "Directional movement favours the upside",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "plus_di_14",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "minus_di_14",
+                            "scale": 1.15
+                        }
+                    ]
+                },
+                {
+                    "id": "exhaustion_risk",
+                    "description": "RSI is extremely stretched, raising the risk of an immediate failure",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "rsi_14",
+                            "op": "gt",
+                            "value": 85
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "gap_open",
+                    "description": "The bar opened with a large gap, so the breakout may already be exhausted",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "gap_pct",
+                            "op": "gt",
+                            "value": 0.03
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "thin_liquidity_move",
+                    "description": "Volatility is high while volume participation is only average",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "realized_vol_20",
+                            "op": "gt",
+                            "value": 0.6
+                        },
+                        {
+                            "feature": "volume_ratio_20",
+                            "op": "lt",
+                            "value": 1.2
+                        }
+                    ],
+                    "counter": true
+                }
+            ],
+            "weights": {
+                "fundamental": 0.25,
+                "growth": 0.5,
+                "quality": 0.5,
+                "valuation": 0.25,
+                "technical": 2.5,
+                "momentum": 1.75,
+                "sector": 0.75,
+                "market_regime": 1.25,
+                "risk": 1.5,
+                "event_risk": 1.25
+            },
+            "policy": {
+                "min_rule_score": 45,
+                "min_final_score": 62,
+                "min_confidence": 0.32,
+                "min_directional_edge": 0.12,
+                "min_risk_reward": 1.8,
+                "horizon": "60m",
+                "stop_atr_multiple": 1.2,
+                "target_atr_multiple": 3,
+                "max_weight": 0.05,
+                "cooldown_minutes": 60,
+                "allow_short": false
+            },
+            "invalidation": [
+                {
+                    "kind": "PRICE_BELOW",
+                    "ref": "entry",
+                    "multiple": 1.2,
+                    "description": "Price falls back below the breakout level by more than 1.2 ATR, a failed breakout"
+                },
+                {
+                    "kind": "VWAP_CROSS",
+                    "ref": "vwap",
+                    "description": "Price closes back below the session VWAP"
+                },
+                {
+                    "kind": "REGIME_CHANGE",
+                    "description": "The regime leaves the breakout or trending set"
+                },
+                {
+                    "kind": "VOLATILITY_ABOVE",
+                    "ref": "atr",
+                    "value": 1,
+                    "description": "Volatility exceeds the calibrated range"
+                },
+                {
+                    "kind": "CONFIDENCE_BELOW",
+                    "ref": "confidence",
+                    "value": 0.22,
+                    "description": "Model confidence falls below the level that justified the signal"
+                },
+                {
+                    "kind": "TIME_EXPIRY",
+                    "minutes": 180,
+                    "description": "The breakout does not follow through within the expected window"
+                }
+            ],
+            "fundamental": {},
+            "source_path": "strategies/breakout.yaml",
+            "hash": "eec4f7c3477d3e59",
+            "modified_at": "2026-08-27T23:16:40.983670466Z"
+        },
+        {
+            "id": "mean_reversion",
+            "name": "Range Mean Reversion",
+            "version": "1.1.0",
+            "description": "Fades stretched moves back toward the twenty period mean, and only in a range or low-volatility regime. The restriction is the whole point: mean reversion in a strong trend is a way of losing money slowly and then quickly. The rules additionally require that the trend measure is weak, so that a range classification with a strong underlying drift does not trigger a fade.\n",
+            "enabled": true,
+            "interval": "1m",
+            "regimes": [
+                "RANGE",
+                "LOW_VOLATILITY"
+            ],
+            "rules": [
+                {
+                    "id": "stretched_below_band",
+                    "description": "Price is at or below the lower Bollinger band",
+                    "side": "LONG",
+                    "weight": 2.5,
+                    "all": [
+                        {
+                            "feature": "bb_percent_b",
+                            "op": "lt",
+                            "value": 0.05
+                        }
+                    ]
+                },
+                {
+                    "id": "oversold_oscillator",
+                    "description": "RSI is oversold",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "rsi_14",
+                            "op": "lt",
+                            "value": 28
+                        }
+                    ]
+                },
+                {
+                    "id": "weak_trend",
+                    "description": "ADX is below the trending threshold, so the range premise holds",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "adx_14",
+                            "op": "lt",
+                            "value": 20
+                        }
+                    ]
+                },
+                {
+                    "id": "near_support",
+                    "description": "Price is within fifty basis points of identified support",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "dist_support_bps",
+                            "op": "between",
+                            "value": 0,
+                            "value2": 50
+                        }
+                    ]
+                },
+                {
+                    "id": "negative_zscore",
+                    "description": "Price is more than two standard deviations below its twenty period mean",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "zscore_20",
+                            "op": "lt",
+                            "value": -2
+                        }
+                    ]
+                },
+                {
+                    "id": "stretched_above_band",
+                    "description": "Price is at or above the upper Bollinger band",
+                    "side": "SHORT",
+                    "weight": 2.5,
+                    "all": [
+                        {
+                            "feature": "bb_percent_b",
+                            "op": "gt",
+                            "value": 0.95
+                        }
+                    ]
+                },
+                {
+                    "id": "overbought_oscillator",
+                    "description": "RSI is overbought",
+                    "side": "SHORT",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "rsi_14",
+                            "op": "gt",
+                            "value": 72
+                        }
+                    ]
+                },
+                {
+                    "id": "positive_zscore",
+                    "description": "Price is more than two standard deviations above its twenty period mean",
+                    "side": "SHORT",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "zscore_20",
+                            "op": "gt",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "id": "breakout_in_progress",
+                    "description": "A volume-confirmed breakout is under way, which invalidates the range premise",
+                    "side": "LONG",
+                    "weight": 3,
+                    "any": [
+                        {
+                            "feature": "breakout_up",
+                            "op": "is_true",
+                            "value": 0
+                        },
+                        {
+                            "feature": "breakout_down",
+                            "op": "is_true",
+                            "value": 0
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "trend_emerging",
+                    "description": "ADX is rising through the trending threshold",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "adx_14",
+                            "op": "gte",
+                            "value": 25
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "volatility_regime_shift",
+                    "description": "Realised volatility has expanded beyond the range assumption",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "realized_vol_20",
+                            "op": "gt",
+                            "value": 0.45
+                        }
+                    ],
+                    "counter": true
+                }
+            ],
+            "weights": {
+                "fundamental": 0.5,
+                "growth": 0.25,
+                "quality": 0.75,
+                "valuation": 0.5,
+                "technical": 2,
+                "momentum": 0.5,
+                "sector": 0.5,
+                "market_regime": 1.5,
+                "risk": 1.5,
+                "event_risk": 1.25
+            },
+            "policy": {
+                "min_rule_score": 40,
+                "min_final_score": 58,
+                "min_confidence": 0.32,
+                "min_directional_edge": 0.08,
+                "min_risk_reward": 1.2,
+                "horizon": "15m",
+                "stop_atr_multiple": 1,
+                "target_atr_multiple": 1.5,
+                "max_weight": 0.04,
+                "cooldown_minutes": 45,
+                "allow_short": false
+            },
+            "invalidation": [
+                {
+                    "kind": "PRICE_BELOW",
+                    "ref": "entry",
+                    "multiple": 1,
+                    "description": "Price closes below the entry reference less 1.0 ATR, meaning the level did not hold"
+                },
+                {
+                    "kind": "REGIME_CHANGE",
+                    "description": "The market leaves the range or low-volatility regime this strategy requires"
+                },
+                {
+                    "kind": "VOLATILITY_ABOVE",
+                    "ref": "atr",
+                    "value": 0.5,
+                    "description": "Volatility expands past the range assumption"
+                },
+                {
+                    "kind": "CONFIDENCE_BELOW",
+                    "ref": "confidence",
+                    "value": 0.24,
+                    "description": "Model confidence falls below the level that justified the signal"
+                },
+                {
+                    "kind": "TIME_EXPIRY",
+                    "minutes": 90,
+                    "description": "The reversion does not occur within the expected window"
+                }
+            ],
+            "fundamental": {
+                "prefer_low_valuation": true
+            },
+            "source_path": "strategies/mean_reversion.yaml",
+            "hash": "25310a78b2457ed5",
+            "modified_at": "2026-08-27T23:16:40.983578262Z"
+        },
+        {
+            "id": "momentum",
+            "name": "Trend Momentum",
+            "version": "1.2.0",
+            "description": "Buys established up-trends that are still being confirmed by participation. The thesis is that a trend with rising relative strength, an ADX above the trending threshold and above-average volume is more likely to persist over an intraday-to-daily horizon than to reverse. It is deliberately restricted to trending and breakout regimes: the same rules in a range produce a stream of losing signals, which is the classic failure of applying indicators blindly.\n",
+            "enabled": true,
+            "interval": "1m",
+            "regimes": [
+                "BULL_TREND",
+                "BREAKOUT",
+                "RISK_ON"
+            ],
+            "rules": [
+                {
+                    "id": "price_above_fast_and_slow",
+                    "description": "Price is above both the 20 and 50 period moving averages",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "last",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "sma_20"
+                        },
+                        {
+                            "feature": "last",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "sma_50"
+                        }
+                    ]
+                },
+                {
+                    "id": "trend_is_directional",
+                    "description": "ADX confirms a directional market rather than chop",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "adx_14",
+                            "op": "gte",
+                            "value": 22
+                        },
+                        {
+                            "feature": "plus_di_14",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "minus_di_14"
+                        }
+                    ]
+                },
+                {
+                    "id": "above_vwap",
+                    "description": "Price is trading above the session VWAP",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "vwap_dist_bps",
+                            "op": "gt",
+                            "value": 5
+                        }
+                    ]
+                },
+                {
+                    "id": "momentum_positive",
+                    "description": "Ten and sixty period momentum are both positive",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "momentum_10",
+                            "op": "gt",
+                            "value": 0.001
+                        },
+                        {
+                            "feature": "momentum_60",
+                            "op": "gt",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "relative_strength",
+                    "description": "Outperforming the benchmark over the last twenty bars",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "rel_strength_20",
+                            "op": "gt",
+                            "value": 0.001
+                        }
+                    ]
+                },
+                {
+                    "id": "macd_confirms",
+                    "description": "MACD histogram is positive and expanding",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "macd_hist",
+                            "op": "gt",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "volume_participation",
+                    "description": "Volume is above its twenty period average",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "volume_ratio_20",
+                            "op": "gte",
+                            "value": 1.1
+                        }
+                    ]
+                },
+                {
+                    "id": "overbought_stretch",
+                    "description": "RSI is in overbought territory and price is stretched above the upper band",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "rsi_14",
+                            "op": "gt",
+                            "value": 78
+                        },
+                        {
+                            "feature": "bb_percent_b",
+                            "op": "gt",
+                            "value": 1
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "volatility_expansion",
+                    "description": "Realised volatility is elevated, which widens the plausible adverse move",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "realized_vol_20",
+                            "op": "gt",
+                            "value": 0.55
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "resistance_overhead",
+                    "description": "A resistance level sits within thirty basis points overhead",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "dist_resistance_bps",
+                            "op": "lt",
+                            "value": 30
+                        },
+                        {
+                            "feature": "dist_resistance_bps",
+                            "op": "gt",
+                            "value": 0
+                        }
+                    ],
+                    "counter": true
+                }
+            ],
+            "weights": {
+                "fundamental": 0.5,
+                "growth": 0.5,
+                "quality": 0.5,
+                "valuation": 0.25,
+                "technical": 2,
+                "momentum": 2,
+                "sector": 0.75,
+                "market_regime": 1.5,
+                "risk": 1,
+                "event_risk": 1
+            },
+            "policy": {
+                "min_rule_score": 35,
+                "min_final_score": 60,
+                "min_confidence": 0.3,
+                "min_directional_edge": 0.1,
+                "min_risk_reward": 1.5,
+                "horizon": "60m",
+                "stop_atr_multiple": 1.5,
+                "target_atr_multiple": 2.5,
+                "max_weight": 0.06,
+                "cooldown_minutes": 30,
+                "allow_short": false
+            },
+            "invalidation": [
+                {
+                    "kind": "PRICE_BELOW",
+                    "ref": "entry",
+                    "multiple": 1.5,
+                    "description": "Price closes below the entry reference less 1.5 ATR"
+                },
+                {
+                    "kind": "VWAP_CROSS",
+                    "ref": "vwap",
+                    "description": "Price closes below the session VWAP, removing the intraday trend premise"
+                },
+                {
+                    "kind": "REGIME_CHANGE",
+                    "description": "The market regime leaves the trending or breakout set the strategy requires"
+                },
+                {
+                    "kind": "VOLATILITY_ABOVE",
+                    "ref": "atr",
+                    "value": 0.9,
+                    "description": "Realised volatility exceeds the level at which the model was calibrated"
+                },
+                {
+                    "kind": "CONFIDENCE_BELOW",
+                    "ref": "confidence",
+                    "value": 0.22,
+                    "description": "Model confidence falls below the level that justified the signal"
+                },
+                {
+                    "kind": "TIME_EXPIRY",
+                    "minutes": 240,
+                    "description": "The signal horizon elapses without the thesis resolving"
+                }
+            ],
+            "fundamental": {
+                "min_revenue_growth": 0.03,
+                "min_operating_margin": 0.05,
+                "max_debt_to_equity": 2.5
+            },
+            "source_path": "strategies/momentum.yaml",
+            "hash": "029e25cd01e9ede3",
+            "modified_at": "2026-08-27T23:16:40.983418799Z"
+        },
+        {
+            "id": "quality_growth",
+            "name": "Quality Growth",
+            "version": "1.0.0",
+            "description": "Looks for durable businesses whose price action is not fighting the thesis. The fundamental weighting dominates the composite score, while the technical rules exist only to avoid buying into an active breakdown. This strategy is regime-agnostic by design: quality is a slow-moving property and gating it on an intraday regime would add noise rather than remove it. The risk engine still applies in full.\n",
+            "enabled": true,
+            "interval": "1m",
+            "rules": [
+                {
+                    "id": "constructive_trend",
+                    "description": "Price is above the 50 period average, so the tape is not fighting the thesis",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "last",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "sma_50"
+                        }
+                    ]
+                },
+                {
+                    "id": "not_extended",
+                    "description": "Price is not stretched to the top of its Bollinger range",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "bb_percent_b",
+                            "op": "lt",
+                            "value": 0.9
+                        }
+                    ]
+                },
+                {
+                    "id": "stable_volatility",
+                    "description": "Realised volatility is within a normal band for a quality name",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "realized_vol_20",
+                            "op": "lt",
+                            "value": 0.4
+                        }
+                    ]
+                },
+                {
+                    "id": "positive_longer_momentum",
+                    "description": "Sixty period momentum is positive",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "momentum_60",
+                            "op": "gt",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "no_active_breakdown",
+                    "description": "No volume-confirmed downside breakout is in progress",
+                    "side": "LONG",
+                    "weight": 1,
+                    "none": [
+                        {
+                            "feature": "breakout_down",
+                            "op": "is_true",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "relative_weakness",
+                    "description": "Underperforming the benchmark over the last twenty bars",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "rel_strength_20",
+                            "op": "lt",
+                            "value": -0.01
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "momentum_deterioration",
+                    "description": "MACD histogram has turned negative",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "macd_hist",
+                            "op": "lt",
+                            "value": 0
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "below_long_average",
+                    "description": "Price is below the 200 period average",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "last",
+                            "op": "lt",
+                            "value": 0,
+                            "other": "sma_200"
+                        }
+                    ],
+                    "counter": true
+                }
+            ],
+            "weights": {
+                "fundamental": 2.5,
+                "growth": 2,
+                "quality": 2.5,
+                "valuation": 1,
+                "technical": 1,
+                "momentum": 1,
+                "sector": 0.75,
+                "market_regime": 1,
+                "risk": 1.25,
+                "event_risk": 1.25
+            },
+            "policy": {
+                "min_rule_score": 30,
+                "min_final_score": 65,
+                "min_confidence": 0.28,
+                "min_directional_edge": 0.06,
+                "min_risk_reward": 1.4,
+                "horizon": "1d",
+                "stop_atr_multiple": 2,
+                "target_atr_multiple": 3,
+                "max_weight": 0.08,
+                "cooldown_minutes": 240,
+                "allow_short": false
+            },
+            "invalidation": [
+                {
+                    "kind": "PRICE_BELOW",
+                    "ref": "entry",
+                    "multiple": 2,
+                    "description": "Price closes below the entry reference less 2.0 ATR"
+                },
+                {
+                    "kind": "REGIME_CHANGE",
+                    "description": "The market moves into a risk-off regime, which changes the horizon assumptions"
+                },
+                {
+                    "kind": "MATERIAL_NEWS",
+                    "description": "A high-materiality negative news event arrives for the instrument"
+                },
+                {
+                    "kind": "CONFIDENCE_BELOW",
+                    "ref": "confidence",
+                    "value": 0.2,
+                    "description": "Model confidence falls below the level that justified the signal"
+                },
+                {
+                    "kind": "TIME_EXPIRY",
+                    "minutes": 1440,
+                    "description": "The daily horizon elapses"
+                }
+            ],
+            "fundamental": {
+                "min_revenue_growth": 0.08,
+                "min_eps_growth": 0.08,
+                "min_gross_margin": 0.4,
+                "min_operating_margin": 0.15,
+                "min_roe": 0.15,
+                "min_roic": 0.12,
+                "max_debt_to_equity": 1.2,
+                "min_current_ratio": 1.2,
+                "max_pe": 45,
+                "max_peg": 2.5
+            },
+            "source_path": "strategies/quality_growth.yaml",
+            "hash": "4cc9de83e8909f31",
+            "modified_at": "2026-08-27T23:16:40.983757139Z"
+        },
+        {
+            "id": "value",
+            "name": "Contrarian Value",
+            "version": "1.0.0",
+            "description": "Weights cheapness relative to an instrument's own history and its sector, and waits for the tape to stop deteriorating before treating cheapness as an opportunity. The stabilisation requirement matters: buying a falling price purely because a multiple is low is how a value screen accumulates the names that deserved to be cheap. Counter-evidence explicitly flags an active downtrend, which is the situation this strategy most needs to be warned about.\n",
+            "enabled": true,
+            "interval": "1m",
+            "regimes": [
+                "RANGE",
+                "LOW_VOLATILITY",
+                "BULL_TREND",
+                "REVERSAL"
+            ],
+            "rules": [
+                {
+                    "id": "stabilising_above_short_average",
+                    "description": "Price has reclaimed the 20 period average",
+                    "side": "LONG",
+                    "weight": 2,
+                    "all": [
+                        {
+                            "feature": "last",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "sma_20"
+                        }
+                    ]
+                },
+                {
+                    "id": "not_oversold_panic",
+                    "description": "RSI has recovered out of deeply oversold territory",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "rsi_14",
+                            "op": "between",
+                            "value": 35,
+                            "value2": 62
+                        }
+                    ]
+                },
+                {
+                    "id": "momentum_turning",
+                    "description": "MACD histogram has turned positive",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "macd_hist",
+                            "op": "gt",
+                            "value": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "volatility_contained",
+                    "description": "Realised volatility is not elevated",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "realized_vol_20",
+                            "op": "lt",
+                            "value": 0.45
+                        }
+                    ]
+                },
+                {
+                    "id": "support_nearby",
+                    "description": "Identified support sits within one hundred basis points below",
+                    "side": "LONG",
+                    "weight": 1,
+                    "all": [
+                        {
+                            "feature": "dist_support_bps",
+                            "op": "between",
+                            "value": 0,
+                            "value2": 100
+                        }
+                    ]
+                },
+                {
+                    "id": "active_downtrend",
+                    "description": "An established downtrend is in force, so cheapness may be justified",
+                    "side": "LONG",
+                    "weight": 2.5,
+                    "all": [
+                        {
+                            "feature": "adx_14",
+                            "op": "gte",
+                            "value": 25
+                        },
+                        {
+                            "feature": "minus_di_14",
+                            "op": "gt",
+                            "value": 0,
+                            "other": "plus_di_14"
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "below_long_average",
+                    "description": "Price is below the 200 period average",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "last",
+                            "op": "lt",
+                            "value": 0,
+                            "other": "sma_200"
+                        }
+                    ],
+                    "counter": true
+                },
+                {
+                    "id": "distribution",
+                    "description": "Heavy volume on a down bar suggests distribution rather than accumulation",
+                    "side": "LONG",
+                    "weight": 1.5,
+                    "all": [
+                        {
+                            "feature": "volume_ratio_20",
+                            "op": "gt",
+                            "value": 1.8
+                        },
+                        {
+                            "feature": "ret_log_1",
+                            "op": "lt",
+                            "value": -0.002
+                        }
+                    ],
+                    "counter": true
+                }
+            ],
+            "weights": {
+                "fundamental": 2,
+                "growth": 0.75,
+                "quality": 1.75,
+                "valuation": 3,
+                "technical": 1,
+                "momentum": 0.5,
+                "sector": 0.5,
+                "market_regime": 0.75,
+                "risk": 1.5,
+                "event_risk": 1.25
+            },
+            "policy": {
+                "min_rule_score": 32,
+                "min_final_score": 62,
+                "min_confidence": 0.28,
+                "min_directional_edge": 0.06,
+                "min_risk_reward": 1.6,
+                "horizon": "1d",
+                "stop_atr_multiple": 2,
+                "target_atr_multiple": 3.5,
+                "max_weight": 0.07,
+                "cooldown_minutes": 240,
+                "allow_short": false
+            },
+            "invalidation": [
+                {
+                    "kind": "PRICE_BELOW",
+                    "ref": "entry",
+                    "multiple": 2,
+                    "description": "Price closes below the entry reference less 2.0 ATR"
+                },
+                {
+                    "kind": "REGIME_CHANGE",
+                    "description": "The market moves into a bear-trend or risk-off regime"
+                },
+                {
+                    "kind": "MATERIAL_NEWS",
+                    "description": "A high-materiality negative news event arrives for the instrument"
+                },
+                {
+                    "kind": "CONFIDENCE_BELOW",
+                    "ref": "confidence",
+                    "value": 0.2,
+                    "description": "Model confidence falls below the level that justified the signal"
+                },
+                {
+                    "kind": "TIME_EXPIRY",
+                    "minutes": 1440,
+                    "description": "The daily horizon elapses"
+                }
+            ],
+            "fundamental": {
+                "min_operating_margin": 0.06,
+                "min_roe": 0.08,
+                "max_debt_to_equity": 1.5,
+                "min_current_ratio": 1.1,
+                "max_pe": 20,
+                "max_peg": 1.5,
+                "max_ev_to_ebitda": 12,
+                "prefer_low_valuation": true
+            },
+            "source_path": "strategies/value.yaml",
+            "hash": "f505289be1c97ca7",
+            "modified_at": "2026-08-27T23:16:40.983843998Z"
+        }
+    ],
+    "meta": {
+        "count": 5,
+        "as_of": "0001-01-01T00:00:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "c3413cc3e6b9c807",
+    "served_at": "2026-08-28T01:52:23.170181708Z"
+}

@@ -1,0 +1,86 @@
+# The QuantOS AppProject.
+#
+# A project rather than the `default` one because `default` permits every
+# destination, every source repository and every cluster-scoped resource. That
+# is the correct setting for a cluster with one team and the wrong one for a
+# platform that provisions IRSA-bound ServiceAccounts: an Application that can
+# create a ServiceAccount in an arbitrary namespace can assume an arbitrary
+# IRSA role, which undoes the namespace pinning in every trust policy in
+# infra/terraform/modules/iam.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: quantos
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: QuantOS — research and paper-trading platform
+
+  sourceRepos:
+    - https://github.com/udaykishoreresu/quantos.git
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: quantos
+    - server: https://kubernetes.default.svc
+      namespace: quantos-dev
+
+  # PriorityClass is the only cluster-scoped kind the platform creates, and only
+  # in prod. Nothing else here should ever be cluster-scoped.
+  clusterResourceWhitelist:
+    - group: scheduling.k8s.io
+      kind: PriorityClass
+
+  namespaceResourceWhitelist:
+    - {group: "", kind: ConfigMap}
+    - {group: "", kind: Service}
+    - {group: "", kind: ServiceAccount}
+    - {group: apps, kind: Deployment}
+    - {group: batch, kind: Job}
+    - {group: policy, kind: PodDisruptionBudget}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: networking.k8s.io, kind: NetworkPolicy}
+    - {group: networking.k8s.io, kind: Ingress}
+    - {group: external-secrets.io, kind: SecretStore}
+    - {group: external-secrets.io, kind: ExternalSecret}
+    - {group: monitoring.coreos.com, kind: ServiceMonitor}
+    - {group: monitoring.coreos.com, kind: PrometheusRule}
+
+  # Secret is deliberately absent from the whitelist above and denied here as
+  # well. Argo has no reason to create one: every secret in this platform is
+  # materialised by the External Secrets operator from AWS Secrets Manager, so a
+  # Secret appearing in a manifest would mean someone committed a literal value.
+  namespaceResourceBlacklist:
+    - {group: "", kind: Secret}
+    - {group: rbac.authorization.k8s.io, kind: ClusterRole}
+    - {group: rbac.authorization.k8s.io, kind: ClusterRoleBinding}
+
+  roles:
+    - name: read-only
+      description: Read the platform's sync state without being able to change it
+      policies:
+        - p, proj:quantos:read-only, applications, get, quantos/*, allow
+        - p, proj:quantos:read-only, logs, get, quantos/*, allow
+
+    - name: deployer
+      description: Trigger a sync of dev; prod is gated by the CD workflow's approval environment
+      policies:
+        - p, proj:quantos:deployer, applications, get, quantos/*, allow
+        - p, proj:quantos:deployer, applications, sync, quantos/quantos-dev, allow
+
+  syncWindows:
+    # No automated sync into prod during US cash hours.
+    #
+    # The platform is paper-trading and a bad deploy costs nothing but data, but
+    # a rollout during the open produces exactly the gap in coverage that the
+    # ingestion-continuity SLO measures, and it does it at the moment the data
+    # is least reproducible. Manual sync stays allowed: this blocks the
+    # unattended path, not the human one.
+    - kind: deny
+      schedule: "30 13 * * 1-5"
+      duration: 7h
+      timeZone: UTC
+      applications:
+        - quantos-prod
+      manualSync: true

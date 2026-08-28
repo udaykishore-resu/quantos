@@ -1,0 +1,11 @@
+{
+    "data": {
+        "status": "ready"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "8ce3ba9bbb8503de",
+    "served_at": "2026-08-28T01:52:22.772764933Z"
+}

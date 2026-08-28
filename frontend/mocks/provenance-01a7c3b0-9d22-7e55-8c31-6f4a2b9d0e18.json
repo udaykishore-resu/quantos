@@ -1,0 +1,350 @@
+{
+ "data": {
+  "signal": {
+   "id": "01a7c3b0-9d22-7e55-8c31-6f4a2b9d0e18",
+   "ticker": "NOW",
+   "created_at": "2026-08-28T00:35:00Z",
+   "expires_at": "2026-08-28T01:35:00Z",
+   "side": "SHORT",
+   "status": "INVALIDATED",
+   "strength": 63.8,
+   "confidence": 0.3714,
+   "horizon": "60m",
+   "entry_reference": 931.0924,
+   "stop_reference": 943.7553,
+   "target_reference": 908.9324,
+   "suggested_weight": 0.035,
+   "invalidations": [
+    {
+     "kind": "PRICE_BELOW",
+     "threshold": 176.5171,
+     "description": "Close below 176.5171 (1.5x ATR under the entry reference) invalidates the setup."
+    },
+    {
+     "kind": "VWAP_CROSS",
+     "threshold": 178.7093,
+     "description": "A sustained cross back below session VWAP removes the participation thesis."
+    },
+    {
+     "kind": "REGIME_CHANGE",
+     "regime_from": "RANGE",
+     "description": "A change out of the RANGE regime invalidates the mean-reversion premise this signal was scored under."
+    },
+    {
+     "kind": "CONFIDENCE_BELOW",
+     "threshold": 0.25,
+     "description": "Model confidence falling below 0.25 on a subsequent prediction invalidates the signal."
+    },
+    {
+     "kind": "TIME_EXPIRY",
+     "deadline": "2026-08-28T03:04:00Z",
+     "description": "The 60-minute horizon elapses without either reference level being reached."
+    }
+   ],
+   "strategy_id": "breakout",
+   "rules_fired": [
+    "vwap_reclaim",
+    "volume_expansion",
+    "adx_trend_intact"
+   ],
+   "evidence": [
+    "Price reclaimed session VWAP 4 bars ago and has held above it since.",
+    "Volume over the last 20 bars is 1.8x the trailing average (volume_z_20 = 2.14).",
+    "ADX(14) at 22.4 with +DI above -DI: the directional structure is intact rather than chopping.",
+    "Relative strength against the sector ETF is in the top quintile of the tracked universe."
+   ],
+   "counter_evidence": [
+    "bb_percent_b is 0.87, near the top of the Bollinger channel: entry is not at a favourable point in the range.",
+    "The regime is RANGE, in which breakout continuation historically resolves FLAT more often than UP."
+   ],
+   "prediction_id": "01a04611-174b-7b76-8292-1bc675a5ee34",
+   "risk_assessment_id": "01a7c3b0-a1f7-7b26-9e40-8d3c5f0b2a91",
+   "score_ref": "score:BA:dc8d4ff317a8",
+   "feature_hash": "dc8d4ff317a832def603b5b458793b6fa03338efa90f147d00ae545a25e7a1a2",
+   "regime": "RANGE",
+   "model_version": "v1.000339040",
+   "config_hash": "eec4f7c3477d3e59",
+   "correlation_id": "01a7c3b0-7c19-7a03-b2d8-4e1f9a6c3b52",
+   "explanation": "",
+   "explanation_source": "",
+   "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+   "invalidated_at": "2026-08-28T01:10:00Z",
+   "invalidation_kind": "PRICE_ABOVE",
+   "invalidation_note": "Price closed above the 1.5x ATR stop reference; the short thesis no longer holds."
+  },
+  "feature_snapshot_error": "store: snapshot not found for hash 7c1f...e93a",
+  "prediction": null,
+  "risk_assessment": null,
+  "regime": {
+   "regime": "RANGE",
+   "confidence": 0.6798096833919487,
+   "secondary": "LOW_VOLATILITY",
+   "secondary_score": 0.6802993150684932,
+   "volatility": 0.077445205479452,
+   "breadth": 0.09615384615384616,
+   "momentum": 0.2109794933363861,
+   "risk_appetite": 0.02608916256081613,
+   "liquidity": 0.500534296049701,
+   "inputs": {
+    "bb_percent_b": 0.649489523579404,
+    "bb_width": 0.002356541659350522,
+    "breadth": 0.09615384615384616,
+    "credit_momentum": -0.00010762654349127931,
+    "dollar_momentum": 0.0002804749634848225,
+    "price_over_sma50": -0.0001050798744489656,
+    "primary_adx": 22.42677507142154,
+    "primary_momentum_60": -0.0009247912451194606,
+    "primary_slope": 8.329090903970817e-05,
+    "rates_momentum": 0.0005497016450695114,
+    "realized_vol": 0.10528700987289068,
+    "risk_appetite": 0.02608916256081613,
+    "rsi": 51.272470246810705,
+    "secondary_slope": 0.00012766066789935605,
+    "sma20_over_sma50": -0.0004571971037864442,
+    "vix": 16.2614,
+    "volume_ratio": 1.001068592099402
+   },
+   "scores": {
+    "BEAR_TREND": 0,
+    "BREAKOUT": 0.1095330258473423,
+    "BULL_TREND": 0.1780382286647622,
+    "HIGH_VOLATILITY": 0,
+    "LOW_VOLATILITY": 0.6802993150684932,
+    "RANGE": 0.8500681240377762,
+    "REVERSAL": 0,
+    "RISK_OFF": 0,
+    "RISK_ON": 0.04010209927942214
+   },
+   "evidence": [
+    "SPY ADX at 22.4 is below the trending threshold of 25",
+    "QQQ confirms the direction of SPY"
+   ],
+   "as_of": "2026-08-28T02:42:00Z",
+   "version": "regime-v1",
+   "changed": false,
+   "previous_regime": "UNDEFINED",
+   "stable_for": 4860000000000
+  },
+  "strategy": {
+   "id": "breakout",
+   "name": "Volume-Confirmed Breakout",
+   "version": "1.1.0",
+   "description": "Trades expansion out of consolidation, and only when volume confirms. The volume requirement is the discriminating condition: price poking above a twenty-bar high on thin volume is noise, and a breakout rule without volume confirmation is mostly a wick detector. The strategy also requires that the band width was compressed recently, so it is trading expansion rather than chasing a move that is already extended.\n",
+   "enabled": true,
+   "interval": "1m",
+   "regimes": [
+    "BREAKOUT",
+    "BULL_TREND",
+    "HIGH_VOLATILITY",
+    "RISK_ON"
+   ],
+   "rules": [
+    {
+     "id": "breakout_up_confirmed",
+     "description": "Close beyond the prior twenty-bar high with volume confirmation",
+     "side": "LONG",
+     "weight": 3,
+     "all": [
+      {
+       "feature": "breakout_up",
+       "op": "is_true",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": "volume_surge",
+     "description": "Volume is at least twice its twenty period average",
+     "side": "LONG",
+     "weight": 2,
+     "all": [
+      {
+       "feature": "volume_ratio_20",
+       "op": "gte",
+       "value": 2
+      }
+     ]
+    },
+    {
+     "id": "volume_zscore",
+     "description": "Volume is more than two standard deviations above its recent mean",
+     "side": "LONG",
+     "weight": 1.5,
+     "all": [
+      {
+       "feature": "volume_z_20",
+       "op": "gte",
+       "value": 2
+      }
+     ]
+    },
+    {
+     "id": "band_expansion",
+     "description": "Bollinger band width is expanding out of compression",
+     "side": "LONG",
+     "weight": 1.5,
+     "all": [
+      {
+       "feature": "bb_width",
+       "op": "gt",
+       "value": 0.012
+      },
+      {
+       "feature": "bb_percent_b",
+       "op": "gt",
+       "value": 0.9
+      }
+     ]
+    },
+    {
+     "id": "above_vwap_strongly",
+     "description": "Price is more than twenty basis points above the session VWAP",
+     "side": "LONG",
+     "weight": 1.5,
+     "all": [
+      {
+       "feature": "vwap_dist_bps",
+       "op": "gt",
+       "value": 20
+      }
+     ]
+    },
+    {
+     "id": "directional_strength",
+     "description": "Directional movement favours the upside",
+     "side": "LONG",
+     "weight": 1,
+     "all": [
+      {
+       "feature": "plus_di_14",
+       "op": "gt",
+       "value": 0,
+       "other": "minus_di_14",
+       "scale": 1.15
+      }
+     ]
+    },
+    {
+     "id": "exhaustion_risk",
+     "description": "RSI is extremely stretched, raising the risk of an immediate failure",
+     "side": "LONG",
+     "weight": 2,
+     "all": [
+      {
+       "feature": "rsi_14",
+       "op": "gt",
+       "value": 85
+      }
+     ],
+     "counter": true
+    },
+    {
+     "id": "gap_open",
+     "description": "The bar opened with a large gap, so the breakout may already be exhausted",
+     "side": "LONG",
+     "weight": 1.5,
+     "all": [
+      {
+       "feature": "gap_pct",
+       "op": "gt",
+       "value": 0.03
+      }
+     ],
+     "counter": true
+    },
+    {
+     "id": "thin_liquidity_move",
+     "description": "Volatility is high while volume participation is only average",
+     "side": "LONG",
+     "weight": 1.5,
+     "all": [
+      {
+       "feature": "realized_vol_20",
+       "op": "gt",
+       "value": 0.6
+      },
+      {
+       "feature": "volume_ratio_20",
+       "op": "lt",
+       "value": 1.2
+      }
+     ],
+     "counter": true
+    }
+   ],
+   "weights": {
+    "fundamental": 0.25,
+    "growth": 0.5,
+    "quality": 0.5,
+    "valuation": 0.25,
+    "technical": 2.5,
+    "momentum": 1.75,
+    "sector": 0.75,
+    "market_regime": 1.25,
+    "risk": 1.5,
+    "event_risk": 1.25
+   },
+   "policy": {
+    "min_rule_score": 45,
+    "min_final_score": 62,
+    "min_confidence": 0.32,
+    "min_directional_edge": 0.12,
+    "min_risk_reward": 1.8,
+    "horizon": "60m",
+    "stop_atr_multiple": 1.2,
+    "target_atr_multiple": 3,
+    "max_weight": 0.05,
+    "cooldown_minutes": 60,
+    "allow_short": false
+   },
+   "invalidation": [
+    {
+     "kind": "PRICE_BELOW",
+     "ref": "entry",
+     "multiple": 1.2,
+     "description": "Price falls back below the breakout level by more than 1.2 ATR, a failed breakout"
+    },
+    {
+     "kind": "VWAP_CROSS",
+     "ref": "vwap",
+     "description": "Price closes back below the session VWAP"
+    },
+    {
+     "kind": "REGIME_CHANGE",
+     "description": "The regime leaves the breakout or trending set"
+    },
+    {
+     "kind": "VOLATILITY_ABOVE",
+     "ref": "atr",
+     "value": 1,
+     "description": "Volatility exceeds the calibrated range"
+    },
+    {
+     "kind": "CONFIDENCE_BELOW",
+     "ref": "confidence",
+     "value": 0.22,
+     "description": "Model confidence falls below the level that justified the signal"
+    },
+    {
+     "kind": "TIME_EXPIRY",
+     "minutes": 180,
+     "description": "The breakout does not follow through within the expected window"
+    }
+   ],
+   "fundamental": {},
+   "source_path": "strategies/breakout.yaml",
+   "hash": "eec4f7c3477d3e59",
+   "modified_at": "2026-08-27T23:16:40.983670466Z"
+  },
+  "reproducible": false,
+  "missing": [
+   "feature_snapshot",
+   "risk_assessment",
+   "prediction"
+  ],
+  "note": "This record is incomplete: the inputs listed under `missing` could not be retrieved, so the decision cannot be fully reproduced from stored state."
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}

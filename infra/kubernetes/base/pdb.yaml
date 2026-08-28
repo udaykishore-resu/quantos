@@ -1,0 +1,116 @@
+# PodDisruptionBudgets.
+#
+# Two shapes, for two kinds of service.
+#
+# The scalable ones (api-gateway, signal-service, alert-service) get
+# minAvailable: 1, so a node drain cannot take the last instance.
+#
+# The singletons (market, risk, portfolio, news, evaluation) get
+# maxUnavailable: 1 instead. minAvailable: 1 on a one-replica Deployment would
+# block every voluntary eviction forever, turning a routine node rotation into a
+# stuck drain. These services are already unavailable for the length of a
+# rollout by construction - they use strategy: Recreate because two instances
+# would double-publish - so the budget documents that rather than pretending to
+# prevent it.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: signal-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  # The decision path. Losing every instance means no signals are produced at
+  # all, which the ingestion-continuity SLO measures directly.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: signal-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: alert-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alert-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: market-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: market-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: risk-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: risk-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: portfolio-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: portfolio-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: news-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: news-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: evaluation-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: evaluation-service
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backtest-service
+  labels: {app.kubernetes.io/part-of: quantos}
+spec:
+  # A drained backtest worker loses in-flight runs, which are resubmittable.
+  # There is nothing here worth blocking a drain for.
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backtest-service

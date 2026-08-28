@@ -1,0 +1,37 @@
+# Dev overlay.
+#
+# Smaller, louder, and cheaper to be wrong in: one replica of everything, debug
+# logging, and the mock LLM provider so no call reaches a paid API from an
+# environment that is redeployed twenty times a day.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: quantos
+
+resources:
+  - ../../base
+
+# The base already uses 10.40.0.0/16 in its NetworkPolicies, which is the dev
+# VPC CIDR from environments/dev/dev.tfvars. Prod patches it; dev does not need
+# to, and a patch that changes nothing is a patch that stops being checked.
+#
+# patchesStrategicMerge rather than the newer `patches:` because each file below
+# is a multi-document patch, and `patches:` requires one document per entry.
+patchesStrategicMerge:
+  - serviceaccounts.yaml
+  - replicas.yaml
+  - env.yaml
+  - ingress.yaml
+  - secretstore.yaml
+  - llm-mock.yaml
+
+images:
+  - {name: quantos/api-gateway, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/api-gateway, newTag: dev}
+  - {name: quantos/market-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/market-service, newTag: dev}
+  - {name: quantos/signal-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/signal-service, newTag: dev}
+  - {name: quantos/risk-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/risk-service, newTag: dev}
+  - {name: quantos/portfolio-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/portfolio-service, newTag: dev}
+  - {name: quantos/news-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/news-service, newTag: dev}
+  - {name: quantos/evaluation-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/evaluation-service, newTag: dev}
+  - {name: quantos/alert-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/alert-service, newTag: dev}
+  - {name: quantos/backtest-service, newName: 111111111111.dkr.ecr.us-east-1.amazonaws.com/quantos/backtest-service, newTag: dev}

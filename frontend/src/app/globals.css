@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 antialiased;
+  }
+
+  /* A visible focus ring on every interactive element. The default outline is
+     removed by Tailwind's preflight, and losing it makes the whole dashboard
+     unusable by keyboard. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-ink-900 ring-offset-ink-50 rounded-sm;
+  }
+
+  th {
+    @apply text-left font-semibold;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply absolute left-2 top-2 z-50 -translate-y-20 rounded bg-ink-900 px-3 py-2 text-sm
+           font-medium text-white transition-transform focus:translate-y-0;
+  }
+
+  .card {
+    @apply rounded-lg border border-ink-200 bg-white shadow-sm;
+  }
+
+  .card-header {
+    @apply flex flex-wrap items-baseline justify-between gap-2 border-b border-ink-200 px-4 py-3;
+  }
+
+  .card-title {
+    @apply text-sm font-semibold uppercase tracking-wide text-ink-600;
+  }
+
+  .card-body {
+    @apply p-4;
+  }
+
+  .metric-value {
+    @apply font-mono text-2xl font-semibold tabular-nums text-ink-900;
+  }
+
+  .metric-label {
+    @apply text-xs font-medium uppercase tracking-wide text-ink-500;
+  }
+
+  .num {
+    @apply font-mono tabular-nums;
+  }
+
+  .table-wrap {
+    @apply w-full overflow-x-auto;
+  }
+
+  .data-table {
+    @apply w-full min-w-[40rem] border-collapse text-sm;
+  }
+
+  .data-table th {
+    @apply whitespace-nowrap border-b border-ink-200 px-3 py-2 text-xs font-semibold
+           uppercase tracking-wide text-ink-500;
+  }
+
+  .data-table td {
+    @apply border-b border-ink-100 px-3 py-2 align-middle;
+  }
+
+  .data-table tbody tr:hover {
+    @apply bg-ink-50;
+  }
+
+  .link {
+    @apply font-medium text-ink-800 underline underline-offset-2 hover:text-ink-950;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-ink-300 bg-white px-3 py-1.5
+           text-sm font-medium text-ink-800 shadow-sm transition-colors
+           hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply border-ink-900 bg-ink-900 text-white hover:bg-ink-800;
+  }
+
+  .field-label {
+    @apply mb-1 block text-xs font-medium uppercase tracking-wide text-ink-600;
+  }
+
+  .field-input {
+    @apply w-full rounded-md border border-ink-300 bg-white px-2.5 py-1.5 text-sm
+           text-ink-900 shadow-sm placeholder:text-ink-400;
+  }
+}
+
+/* Charts are hand-written SVG. These keep them legible when a reader has
+   increased their font size or is printing. */
+.chart-grid {
+  stroke: #d4d8e0;
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: #616b82;
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

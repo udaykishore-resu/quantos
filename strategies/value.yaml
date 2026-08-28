@@ -1,0 +1,156 @@
+id: value
+name: Contrarian Value
+version: "1.0.0"
+description: >
+  Weights cheapness relative to an instrument's own history and its sector, and
+  waits for the tape to stop deteriorating before treating cheapness as an
+  opportunity. The stabilisation requirement matters: buying a falling price
+  purely because a multiple is low is how a value screen accumulates the names
+  that deserved to be cheap. Counter-evidence explicitly flags an active
+  downtrend, which is the situation this strategy most needs to be warned about.
+enabled: true
+interval: 1m
+
+regimes:
+  - RANGE
+  - LOW_VOLATILITY
+  - BULL_TREND
+  - REVERSAL
+
+rules:
+  - id: stabilising_above_short_average
+    description: Price has reclaimed the 20 period average
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: last
+        op: gt
+        other: sma_20
+
+  - id: not_oversold_panic
+    description: RSI has recovered out of deeply oversold territory
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: rsi_14
+        op: between
+        value: 35
+        value2: 62
+
+  - id: momentum_turning
+    description: MACD histogram has turned positive
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: macd_hist
+        op: gt
+        value: 0
+
+  - id: volatility_contained
+    description: Realised volatility is not elevated
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: realized_vol_20
+        op: lt
+        value: 0.45
+
+  - id: support_nearby
+    description: Identified support sits within one hundred basis points below
+    side: LONG
+    weight: 1.0
+    all:
+      - feature: dist_support_bps
+        op: between
+        value: 0
+        value2: 100
+
+  # ---- counter-evidence
+  - id: active_downtrend
+    description: An established downtrend is in force, so cheapness may be justified
+    side: LONG
+    weight: 2.5
+    counter: true
+    all:
+      - feature: adx_14
+        op: gte
+        value: 25
+      - feature: minus_di_14
+        op: gt
+        other: plus_di_14
+
+  - id: below_long_average
+    description: Price is below the 200 period average
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: last
+        op: lt
+        other: sma_200
+
+  - id: distribution
+    description: Heavy volume on a down bar suggests distribution rather than accumulation
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: volume_ratio_20
+        op: gt
+        value: 1.8
+      - feature: ret_log_1
+        op: lt
+        value: -0.002
+
+weights:
+  fundamental: 2.0
+  growth: 0.75
+  quality: 1.75
+  valuation: 3.0
+  technical: 1.0
+  momentum: 0.5
+  sector: 0.5
+  market_regime: 0.75
+  risk: 1.5
+  event_risk: 1.25
+
+policy:
+  min_rule_score: 32
+  min_final_score: 62
+  min_confidence: 0.28
+  min_directional_edge: 0.06
+  min_risk_reward: 1.6
+  horizon: 1d
+  stop_atr_multiple: 2.0
+  target_atr_multiple: 3.5
+  max_weight: 0.07
+  cooldown_minutes: 240
+  allow_short: false
+
+invalidation:
+  - kind: PRICE_BELOW
+    ref: entry
+    multiple: 2.0
+    description: Price closes below the entry reference less 2.0 ATR
+  - kind: REGIME_CHANGE
+    description: The market moves into a bear-trend or risk-off regime
+  - kind: MATERIAL_NEWS
+    description: A high-materiality negative news event arrives for the instrument
+  - kind: CONFIDENCE_BELOW
+    ref: confidence
+    value: 0.20
+    description: Model confidence falls below the level that justified the signal
+  - kind: TIME_EXPIRY
+    minutes: 1440
+    description: The daily horizon elapses
+
+fundamental:
+  min_revenue_growth: 0.0
+  min_operating_margin: 0.06
+  min_roe: 0.08
+  max_debt_to_equity: 1.5
+  min_current_ratio: 1.1
+  max_pe: 20
+  max_peg: 1.5
+  max_ev_to_ebitda: 12
+  prefer_low_valuation: true

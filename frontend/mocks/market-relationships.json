@@ -1,0 +1,217 @@
+{
+    "data": {
+        "as_of": "2026-08-28T02:42:00Z",
+        "correlation": {
+            "GLD|DXY": -0.108,
+            "SPY|HYG": -0.206,
+            "SPY|IWM": -0.041,
+            "SPY|QQQ": 0.286,
+            "SPY|TLT": 0.282,
+            "SPY|VIX": 0.149,
+            "XLK|SPY": 0.019,
+            "XLU|SPY": 0.058
+        },
+        "correlation_change": {
+            "GLD|DXY": 0.049,
+            "SPY|HYG": 0.08,
+            "SPY|IWM": -0.062,
+            "SPY|QQQ": 0.168,
+            "SPY|TLT": -0.066,
+            "SPY|VIX": 0.146,
+            "XLK|SPY": -0.025,
+            "XLU|SPY": -0.44
+        },
+        "sectors": [
+            {
+                "sector": "Technology",
+                "etf": "XLK",
+                "return_1d": 0.00019015679349217534,
+                "return_5d": 0.0009554712258911025,
+                "return_20d": 0.0011715883761820312,
+                "rel_strength": 0.006458463652581847,
+                "breadth": 0,
+                "rank": 1
+            },
+            {
+                "sector": "Financials",
+                "etf": "XLF",
+                "return_1d": 3.677023255427084e-05,
+                "return_5d": 0.0011924769329184502,
+                "return_20d": 0.001978648797423599,
+                "rel_strength": 0.00537196825449604,
+                "breadth": 0,
+                "rank": 2
+            },
+            {
+                "sector": "Industrials",
+                "etf": "XLI",
+                "return_1d": -0.00011959046922531629,
+                "return_5d": -6.274986907673932e-05,
+                "return_20d": -0.00031808751908712907,
+                "rel_strength": 0.005257859137264176,
+                "breadth": 0,
+                "rank": 3
+            },
+            {
+                "sector": "Communication Services",
+                "etf": "XLC",
+                "return_1d": -0.00012071925597005641,
+                "return_5d": -0.0012988036677357676,
+                "return_20d": -0.001845279448239312,
+                "rel_strength": 0.004214088232932345,
+                "breadth": 0,
+                "rank": 4
+            },
+            {
+                "sector": "Utilities",
+                "etf": "XLU",
+                "return_1d": 0.00035753546385550264,
+                "return_5d": 1.0670849639889644e-05,
+                "return_20d": 0.0006219602692847381,
+                "rel_strength": 0.0023058960220857516,
+                "breadth": 0,
+                "rank": 5
+            },
+            {
+                "sector": "Energy",
+                "etf": "XLE",
+                "return_1d": 3.443363611198447e-05,
+                "return_5d": -7.552769426424258e-05,
+                "return_20d": 0.0003811301676193146,
+                "rel_strength": 0.0008759209269514345,
+                "breadth": 0,
+                "rank": 6
+            },
+            {
+                "sector": "Materials",
+                "etf": "XLB",
+                "return_1d": -3.7788022535061577e-05,
+                "return_5d": 0.00017895679352729923,
+                "return_20d": -6.668556090994038e-06,
+                "rel_strength": -0.00010888368576522645,
+                "breadth": 0,
+                "rank": 7
+            },
+            {
+                "sector": "Real Estate",
+                "etf": "XLRE",
+                "return_1d": 0.00022859047877318048,
+                "return_5d": 0.0011410916886727485,
+                "return_20d": 0.0017004531361792807,
+                "rel_strength": -0.0009596875883571832,
+                "breadth": 0,
+                "rank": 8
+            },
+            {
+                "sector": "Consumer Staples",
+                "etf": "XLP",
+                "return_1d": 3.017641889143794e-05,
+                "return_5d": 0.0006829643432334832,
+                "return_20d": 0.0015993652912547063,
+                "rel_strength": -0.0012431678747995,
+                "breadth": 0,
+                "rank": 9
+            },
+            {
+                "sector": "Health Care",
+                "etf": "XLV",
+                "return_1d": -3.481015412545878e-05,
+                "return_5d": -0.0006765725801843619,
+                "return_20d": -0.0013898266560596895,
+                "rel_strength": -0.0013967719764035325,
+                "breadth": 0,
+                "rank": 10
+            },
+            {
+                "sector": "Consumer Discretionary",
+                "etf": "XLY",
+                "return_1d": 0.000503857371492953,
+                "return_5d": 0.0008427403972720447,
+                "return_20d": 5.953077741183144e-05,
+                "rel_strength": -0.0018432950988216401,
+                "breadth": 0,
+                "rank": 11
+            }
+        ],
+        "rotation": "MIXED",
+        "risk_on_score": 0.07764029422567068,
+        "divergences": [
+            {
+                "a": "SPY",
+                "b": "VIX",
+                "expected_correlation": -0.75,
+                "observed_correlation": 0.295,
+                "magnitude": 1.045,
+                "note": "index level and implied volatility are strongly inversely related: observed 0.30 over the last 20 observations against a typical -0.75"
+            },
+            {
+                "a": "SPY",
+                "b": "IWM",
+                "expected_correlation": 0.8,
+                "observed_correlation": -0.103,
+                "magnitude": 0.903,
+                "note": "large and small caps normally move together: observed -0.10 over the last 20 observations against a typical 0.80"
+            },
+            {
+                "a": "XLK",
+                "b": "SPY",
+                "expected_correlation": 0.88,
+                "observed_correlation": -0.006,
+                "magnitude": 0.886,
+                "note": "technology is the dominant index weight: observed -0.01 over the last 20 observations against a typical 0.88"
+            },
+            {
+                "a": "XLU",
+                "b": "SPY",
+                "expected_correlation": 0.45,
+                "observed_correlation": -0.382,
+                "magnitude": 0.832,
+                "note": "utilities are defensive and less correlated in stress: observed -0.38 over the last 20 observations against a typical 0.45"
+            },
+            {
+                "a": "SPY",
+                "b": "HYG",
+                "expected_correlation": 0.65,
+                "observed_correlation": -0.126,
+                "magnitude": 0.776,
+                "note": "equities and high-yield credit normally move together: observed -0.13 over the last 20 observations against a typical 0.65"
+            },
+            {
+                "a": "SPY",
+                "b": "TLT",
+                "expected_correlation": -0.3,
+                "observed_correlation": 0.216,
+                "magnitude": 0.516,
+                "note": "equities and long-duration Treasuries are usually inversely related: observed 0.22 over the last 20 observations against a typical -0.30"
+            },
+            {
+                "a": "SPY",
+                "b": "QQQ",
+                "expected_correlation": 0.9,
+                "observed_correlation": 0.454,
+                "magnitude": 0.446,
+                "note": "large-cap and technology beta normally move together: observed 0.45 over the last 20 observations against a typical 0.90"
+            },
+            {
+                "a": "GLD",
+                "b": "DXY",
+                "expected_correlation": -0.45,
+                "observed_correlation": -0.059,
+                "magnitude": 0.391,
+                "note": "gold and the dollar are usually inversely related: observed -0.06 over the last 20 observations against a typical -0.45"
+            }
+        ],
+        "notes": [
+            "leading sector Technology (0.12% over 20 bars), lagging sector Consumer Discretionary (0.01%)"
+        ]
+    },
+    "meta": {
+        "as_of": "2026-08-28T02:42:00Z"
+    },
+    "degraded": [
+        "model"
+    ],
+    "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+    "request_id": "a864c240c27e9dc9",
+    "served_at": "2026-08-28T01:52:22.903014509Z"
+}

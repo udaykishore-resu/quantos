@@ -1,0 +1,68 @@
+# Production overlay.
+#
+# Differences from the base are all in the direction of "survive a bad day":
+# more replicas, larger requests, a real hostname, and the VPC CIDR corrected so
+# the default-deny policies actually allow the stores they are supposed to.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: quantos
+
+resources:
+  - ../../base
+  - priorityclass.yaml
+
+patchesStrategicMerge:
+  - serviceaccounts.yaml
+  - replicas.yaml
+  - env.yaml
+  - ingress.yaml
+  - secretstore.yaml
+  - priority.yaml
+
+# The NetworkPolicy CIDRs are a JSON patch rather than a strategic merge: a
+# strategic merge on a list of ipBlocks appends rather than replaces, which
+# would leave the dev CIDR allowed alongside the prod one. That is exactly the
+# kind of quiet widening a default-deny policy exists to prevent.
+patchesJson6902:
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: NetworkPolicy
+      name: allow-egress-datastores
+    patch: |-
+      - op: replace
+        path: /spec/egress/0/to/0/ipBlock/cidr
+        value: 10.50.0.0/16
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: NetworkPolicy
+      name: allow-egress-topics-job
+    patch: |-
+      - op: replace
+        path: /spec/egress/0/to/0/ipBlock/cidr
+        value: 10.50.0.0/16
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: NetworkPolicy
+      name: allow-egress-llm
+    patch: |-
+      - op: replace
+        path: /spec/egress/0/to/0/ipBlock/except/0
+        value: 10.50.0.0/16
+
+images:
+  # Tags are set by the release workflow, not by hand. `prod` here is the alias
+  # cd.yml moves after the gated approval; .github/workflows/cd.yml rewrites it
+  # to the immutable release tag before syncing.
+  - {name: quantos/api-gateway, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/api-gateway, newTag: prod}
+  - {name: quantos/market-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/market-service, newTag: prod}
+  - {name: quantos/signal-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/signal-service, newTag: prod}
+  - {name: quantos/risk-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/risk-service, newTag: prod}
+  - {name: quantos/portfolio-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/portfolio-service, newTag: prod}
+  - {name: quantos/news-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/news-service, newTag: prod}
+  - {name: quantos/evaluation-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/evaluation-service, newTag: prod}
+  - {name: quantos/alert-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/alert-service, newTag: prod}
+  - {name: quantos/backtest-service, newName: 222222222222.dkr.ecr.us-east-1.amazonaws.com/quantos/backtest-service, newTag: prod}

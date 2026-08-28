@@ -1,0 +1,143 @@
+id: quality_growth
+name: Quality Growth
+version: "1.0.0"
+description: >
+  Looks for durable businesses whose price action is not fighting the thesis.
+  The fundamental weighting dominates the composite score, while the technical
+  rules exist only to avoid buying into an active breakdown. This strategy is
+  regime-agnostic by design: quality is a slow-moving property and gating it on
+  an intraday regime would add noise rather than remove it. The risk engine
+  still applies in full.
+enabled: true
+interval: 1m
+
+rules:
+  - id: constructive_trend
+    description: Price is above the 50 period average, so the tape is not fighting the thesis
+    side: LONG
+    weight: 2.0
+    all:
+      - feature: last
+        op: gt
+        other: sma_50
+
+  - id: not_extended
+    description: Price is not stretched to the top of its Bollinger range
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: bb_percent_b
+        op: lt
+        value: 0.9
+
+  - id: stable_volatility
+    description: Realised volatility is within a normal band for a quality name
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: realized_vol_20
+        op: lt
+        value: 0.40
+
+  - id: positive_longer_momentum
+    description: Sixty period momentum is positive
+    side: LONG
+    weight: 1.5
+    all:
+      - feature: momentum_60
+        op: gt
+        value: 0
+
+  - id: no_active_breakdown
+    description: No volume-confirmed downside breakout is in progress
+    side: LONG
+    weight: 1.0
+    none:
+      - feature: breakout_down
+        op: is_true
+
+  # ---- counter-evidence
+  - id: relative_weakness
+    description: Underperforming the benchmark over the last twenty bars
+    side: LONG
+    weight: 2.0
+    counter: true
+    all:
+      - feature: rel_strength_20
+        op: lt
+        value: -0.01
+
+  - id: momentum_deterioration
+    description: MACD histogram has turned negative
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: macd_hist
+        op: lt
+        value: 0
+
+  - id: below_long_average
+    description: Price is below the 200 period average
+    side: LONG
+    weight: 1.5
+    counter: true
+    all:
+      - feature: last
+        op: lt
+        other: sma_200
+
+weights:
+  fundamental: 2.5
+  growth: 2.0
+  quality: 2.5
+  valuation: 1.0
+  technical: 1.0
+  momentum: 1.0
+  sector: 0.75
+  market_regime: 1.0
+  risk: 1.25
+  event_risk: 1.25
+
+policy:
+  min_rule_score: 30
+  min_final_score: 65
+  min_confidence: 0.28
+  min_directional_edge: 0.06
+  min_risk_reward: 1.4
+  horizon: 1d
+  stop_atr_multiple: 2.0
+  target_atr_multiple: 3.0
+  max_weight: 0.08
+  cooldown_minutes: 240
+  allow_short: false
+
+invalidation:
+  - kind: PRICE_BELOW
+    ref: entry
+    multiple: 2.0
+    description: Price closes below the entry reference less 2.0 ATR
+  - kind: REGIME_CHANGE
+    description: The market moves into a risk-off regime, which changes the horizon assumptions
+  - kind: MATERIAL_NEWS
+    description: A high-materiality negative news event arrives for the instrument
+  - kind: CONFIDENCE_BELOW
+    ref: confidence
+    value: 0.20
+    description: Model confidence falls below the level that justified the signal
+  - kind: TIME_EXPIRY
+    minutes: 1440
+    description: The daily horizon elapses
+
+fundamental:
+  min_revenue_growth: 0.08
+  min_eps_growth: 0.08
+  min_gross_margin: 0.40
+  min_operating_margin: 0.15
+  min_roe: 0.15
+  min_roic: 0.12
+  max_debt_to_equity: 1.2
+  min_current_ratio: 1.2
+  max_pe: 45
+  max_peg: 2.5
+  prefer_low_valuation: false

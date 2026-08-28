@@ -1,0 +1,67 @@
+{
+ "data": [
+  {
+   "portfolio_id": "pf-paper-001",
+   "ticker": "BA",
+   "quantity": 91.0,
+   "avg_price": 177.2422,
+   "market_price": 178.9598,
+   "market_value": 16285.34,
+   "cost_basis": 16129.04,
+   "unrealized_pnl": 156.3,
+   "realized_pnl": -72.72,
+   "opened_at": "2026-08-27T14:44:34Z",
+   "updated_at": "2026-08-28T02:10:54Z",
+   "sector": "Industrials",
+   "signal_id": "01a7c3d2-4f6b-7a91-b8e2-5c9d1f3a7b04"
+  },
+  {
+   "portfolio_id": "pf-paper-001",
+   "ticker": "NOW",
+   "quantity": 144.0,
+   "avg_price": 923.4398,
+   "market_price": 931.0924,
+   "market_value": 134077.31,
+   "cost_basis": 132975.33,
+   "unrealized_pnl": 1101.97,
+   "realized_pnl": 49.84,
+   "opened_at": "2026-08-26T22:10:46Z",
+   "updated_at": "2026-08-28T02:10:54Z",
+   "sector": "Technology"
+  },
+  {
+   "portfolio_id": "pf-paper-001",
+   "ticker": "XLI",
+   "quantity": -111.0,
+   "avg_price": 136.7718,
+   "market_price": 135.3726,
+   "market_value": -15026.36,
+   "cost_basis": -15181.67,
+   "unrealized_pnl": 155.31,
+   "realized_pnl": 113.56,
+   "opened_at": "2026-08-27T08:09:39Z",
+   "updated_at": "2026-08-28T02:10:54Z",
+   "sector": "Industrials"
+  },
+  {
+   "portfolio_id": "pf-paper-001",
+   "ticker": "DUK",
+   "quantity": 122.0,
+   "avg_price": 110.9985,
+   "market_price": 112.0234,
+   "market_value": 13666.85,
+   "cost_basis": 13541.82,
+   "unrealized_pnl": 125.04,
+   "realized_pnl": 361.2,
+   "opened_at": "2026-08-27T09:58:19Z",
+   "updated_at": "2026-08-28T02:10:54Z",
+   "sector": "Utilities"
+  }
+ ],
+ "meta": {
+  "count": 4
+ },
+ "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+ "request_id": "mockfixture0001",
+ "served_at": "2026-08-28T02:15:00Z"
+}
