@@ -68,6 +68,26 @@ make frontend     # the Next.js dashboard on :3000
 
 Log in with the local development principals in `config/quantos.yaml` (`demo`/`demo`, `operator`/`operator`). They exist in `embedded` and `compose` mode only; `cluster` mode refuses to start without a real OIDC issuer.
 
+### A local Kubernetes cluster
+
+```bash
+brew install kind kubectl kustomize   # plus a running Docker daemon
+make k8s-up
+```
+
+One kind node running PostgreSQL, ClickHouse, Redis, Prometheus, Grafana and
+QuantOS. The API lands on http://localhost:8080, Prometheus on :9091, Grafana
+on :3001. `make k8s-status` prints them again; `make k8s-destroy` removes the
+cluster.
+
+This runs QuantOS as a **single all-roles process**, not the nine-service split
+in `infra/kubernetes/base`. That split needs a broker to carry events between
+pods, and `drivers/kafka` is the one substantial piece of the specification that
+is not built. The WAL driver is a single-process log — it now refuses to start
+if a second process tries to share its directory rather than silently
+interleaving records. `docs/operations/local-kubernetes.md` has the full
+reasoning and the list of what has not been verified.
+
 ### Research and backtesting
 
 ```bash
@@ -102,6 +122,7 @@ These are enforced in code, not documented as intentions:
 - **It will not score a prediction dishonestly.** A prediction resolved more than five minutes after its horizon is *discarded as unresolvable* rather than scored against a price from outside its window, and the discard is counted so a sweeper that has fallen behind is visible.
 - **It will not trust an unmeasured model.** `mlinfer` refuses to load an artifact that does not carry its own held-out accuracy and base rate. A model that did not beat its base rate offline is marked unhealthy and blocked by the risk engine.
 - **It will not take a model's word on a question it has not been measured to answer.** The blend weight scales with the model's measured lift over its base rate, and the *directional* half of the blend scales separately with its measured UP-vs-DOWN AUC. A model that separates quiet tapes from moving ones but cannot tell up from down gets the first job and not the second. Unmeasured counts as no skill.
+- **It will not share a single-writer log between processes.** The WAL bus takes an exclusive lock on its directory and a second writer refuses to start, because two processes appending to the same log interleave partial records and reuse offsets — and the damage only surfaces later as a CRC failure that looks like a disk fault.
 - **It will not report accuracy without a base rate.** 55% accuracy against a 60% base rate is worse than useless, and the platform says so rather than showing you the 55%.
 - **It will not hide what the veto cost.** Blocked predictions are evaluated too, so the veto is falsifiable rather than superstitious.
 
@@ -129,6 +150,7 @@ ml/                   Python training, inference parity, walk-forward evaluation
 frontend/             Next.js + TypeScript dashboard
 infra/                Terraform, Kubernetes, Helm, ArgoCD
 deploy/               docker-compose, Dockerfile, SQL schemas, observability config
+infra/kubernetes/local/  the kind stack: backing stores plus one all-roles pod
 docs/                 architecture, ADRs, runbooks, security governance, SLOs
 tests/                architecture invariants, pipeline integration, failure injection
 ```
@@ -161,6 +183,7 @@ The tests worth knowing about:
 - `docs/security/governance.md` — the G-1..G-10 rules, and where each is enforced
 - `docs/operations/slo.md` — the latency and correctness objectives
 - `docs/operations/deployment.md` — the three runtime modes in practice
+- `docs/operations/local-kubernetes.md` — running the whole stack on kind
 - `docs/runbooks/` — one per realistic failure, with diagnosis and rollback
 - `docs/ml/model-card.md` — what the shipped model does, what it was measured at, and what it cannot do
 

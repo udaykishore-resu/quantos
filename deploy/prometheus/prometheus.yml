@@ -19,6 +19,17 @@ scrape_configs:
   - job_name: quantos
     metrics_path: /metrics
     static_configs:
+      # The default deployment: one container running every role.
+      - targets: ["quantos:8080"]
+        labels: {service: quantos}
+
+  # The nine role services, which only exist under `docker compose --profile
+  # split`. Prometheus reports them down the rest of the time; that is honest
+  # rather than tidy, and hiding them behind a second config file would make
+  # the split profile silently unmonitored.
+  - job_name: quantos-split
+    metrics_path: /metrics
+    static_configs:
       - targets: ["api-gateway:8080"]
         labels: {service: api-gateway}
       - targets: ["market-service:8081"]

@@ -12,6 +12,7 @@ package failure
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -409,4 +410,43 @@ func healthyRiskInput() risk.Input {
 		Health:         &domain.ModelHealth{ModelVersion: "v1", Healthy: true, Drift: domain.DriftNone},
 		ProposedWeight: 0.03, Side: domain.SideLong, Now: now,
 	}
+}
+
+// TestASecondWALWriterIsRefused covers the rule that a silent corruption is
+// worse than a loud refusal.
+//
+// The WAL driver serialises appends with an in-process mutex and keeps its own
+// record-offset counter, so two processes sharing a directory interleave
+// partial records and reuse offsets — and neither notices until a CRC failure
+// turns up later looking like a disk fault. Starting must fail instead.
+func TestASecondWALWriterIsRefused(t *testing.T) {
+	dir := t.TempDir()
+	clock := obs.NewSimClock(now)
+
+	first, err := bus.NewWALBus(bus.WALOptions{Dir: dir, Clock: clock})
+	if err != nil {
+		t.Fatalf("the first writer could not open the log: %v", err)
+	}
+
+	second, err := bus.NewWALBus(bus.WALOptions{Dir: dir, Clock: clock})
+	if err == nil {
+		_ = second.Close()
+		_ = first.Close()
+		t.Fatal("a second writer opened a log another process already holds; records from " +
+			"the two would interleave and both would hand out the same offsets")
+	}
+	if !strings.Contains(err.Error(), "already in use") {
+		t.Fatalf("the refusal does not explain itself: %v", err)
+	}
+
+	// Releasing the log must let the next process take it, or a restart would
+	// need a manual cleanup step nobody will remember at 3am.
+	if err := first.Close(); err != nil {
+		t.Fatal(err)
+	}
+	third, err := bus.NewWALBus(bus.WALOptions{Dir: dir, Clock: clock})
+	if err != nil {
+		t.Fatalf("the log stayed locked after its holder closed: %v", err)
+	}
+	_ = third.Close()
 }

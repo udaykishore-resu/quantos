@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/udaykishoreresu/quantos/internal/obs"
@@ -44,6 +45,10 @@ type WALBus struct {
 
 	wg     sync.WaitGroup
 	stopCh chan struct{}
+
+	// lock is an exclusive advisory lock on the log directory, held for the
+	// lifetime of the bus. See acquireDirLock.
+	lock *os.File
 }
 
 // WALOptions parameterises the durable log.
@@ -101,12 +106,50 @@ func NewWALBus(opts WALOptions) (*WALBus, error) {
 	if err := os.MkdirAll(filepath.Join(opts.Dir, "offsets"), 0o750); err != nil {
 		return nil, fmt.Errorf("wal: create dir: %w", err)
 	}
+	lock, err := acquireDirLock(opts.Dir)
+	if err != nil {
+		return nil, err
+	}
 	return &WALBus{
 		dir:    opts.Dir,
 		opts:   opts,
 		topics: map[string]*walTopic{},
 		stopCh: make(chan struct{}),
+		lock:   lock,
 	}, nil
+}
+
+// acquireDirLock takes an exclusive advisory lock on the log directory, and
+// fails rather than waiting if another process already holds it.
+//
+// This driver is a single-process log. Appends are serialised by an in-process
+// mutex through a buffered writer, and each process keeps its own idea of the
+// next record offset. Two processes sharing a directory therefore interleave
+// partial records and hand out the same offsets twice — and neither notices,
+// because a torn record only surfaces later as a CRC failure that looks like
+// disk corruption.
+//
+// Refusing to start is the right answer. The alternative that looks friendlier
+// — carrying on and hoping the two processes never write the same topic — is
+// exactly the failure this platform is built to avoid: something that appears
+// to be working while quietly losing events. Cross-process fan-out is what a
+// broker is for; point bus.driver at kafka when more than one process needs to
+// publish.
+func acquireDirLock(dir string) (*os.File, error) {
+	path := filepath.Join(dir, "LOCK")
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o640)
+	if err != nil {
+		return nil, fmt.Errorf("wal: open lock file: %w", err)
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		_ = f.Close()
+		return nil, fmt.Errorf(
+			"wal: %s is already in use by another process: this driver is a single-process "+
+				"log and a second writer would interleave records and reuse offsets. "+
+				"Give each process its own bus.dir, or use a broker (bus.driver=kafka) "+
+				"if they need to share a topic: %w", dir, err)
+	}
+	return f, nil
 }
 
 func segName(base int64) string { return fmt.Sprintf("%020d.log", base) }
@@ -550,6 +593,12 @@ func (b *WALBus) Close() error {
 	close(b.stopCh)
 	b.wg.Wait()
 	var firstErr error
+	if b.lock != nil {
+		// Releasing on close is what lets a restarted process take the log back
+		// immediately; the kernel would release it on exit anyway.
+		_ = syscall.Flock(int(b.lock.Fd()), syscall.LOCK_UN)
+		_ = b.lock.Close()
+	}
 	for _, t := range topics {
 		t.mu.Lock()
 		if err := t.writer.Flush(); err != nil && firstErr == nil {

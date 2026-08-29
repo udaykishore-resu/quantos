@@ -1,0 +1,53 @@
+# What must NOT reach the build context.
+#
+# The build stage does `COPY . .`, so anything listed here is the difference
+# between a 5 MB context and a 500 MB one. Two entries are load-bearing rather
+# than tidy: ml/data holds the exported feature CSV, which is around 100 MB
+# after `make export-features`, and frontend/node_modules is larger still.
+# Neither is used by the Go build, and shipping them makes every one of the
+# nine service builds slower for no reason.
+
+# Research data and reports: regenerable, large, and not read by any service.
+ml/data/
+ml/reports/
+ml/.venv/
+ml/**/__pycache__/
+ml/**/*.pyc
+.pytest_cache/
+
+# NOT ignored: ml/artifacts. The trained model travels in the image, because a
+# pod has no host to bind-mount it from.
+
+# The dashboard is built and served separately.
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Local build output and runtime state.
+bin/
+dist/
+quantos
+*.test
+*.out
+coverage.html
+data/
+wal/
+*.log
+
+# Infrastructure and docs: not inputs to a Go build, and terraform state in
+# particular has no business inside an image layer.
+infra/
+docs/
+deploy/grafana/
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# VCS and editors.
+.git/
+.github/
+.gitignore
+.idea/
+.vscode/
+.DS_Store
+*.swp

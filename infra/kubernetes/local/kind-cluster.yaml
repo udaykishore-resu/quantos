@@ -1,0 +1,32 @@
+# The kind cluster QuantOS runs on locally.
+#
+# One node. The platform is a single process here (see quantos.yaml), the
+# backing stores are single replicas, and a multi-node kind cluster would add
+# scheduling complexity to demonstrate high availability that none of these
+# components have anyway.
+#
+# Create it with `make k8s-up`, or by hand:
+#   kind create cluster --name quantos --config infra/kubernetes/local/kind-cluster.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: quantos
+
+nodes:
+  - role: control-plane
+    # The NodePorts declared in the manifests, mapped straight through to
+    # localhost. This is what replaces the ALB Ingress the base overlay uses:
+    # an ingress controller on a laptop is one more component to install and
+    # debug before you can see whether the platform works.
+    extraPortMappings:
+      # The API and the SSE stream. quantos-nodeport, 30080.
+      - containerPort: 30080
+        hostPort: 8080
+        protocol: TCP
+      # Prometheus. 30090.
+      - containerPort: 30090
+        hostPort: 9091
+        protocol: TCP
+      # Grafana. 30300.
+      - containerPort: 30300
+        hostPort: 3001
+        protocol: TCP

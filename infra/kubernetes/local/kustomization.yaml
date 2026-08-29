@@ -1,0 +1,67 @@
+# The local overlay: everything QuantOS needs, on one kind node.
+#
+# This is not an overlay on infra/kubernetes/base, and that is deliberate. The
+# base describes the nine-service split against MSK, RDS and ElastiCache; the
+# gap between that and a laptop is not a patch, it is a different deployment.
+# Half a dozen patches that delete ExternalSecrets, delete the ALB Ingress,
+# delete the operator CRDs, delete the HPAs and rewrite every backing-store
+# address would be harder to read than the manifests they produce, and would
+# quietly break the next time the base changed.
+#
+# So the local stack stands on its own, and the base stays honest about what it
+# is: the cluster deployment, applied by ArgoCD, with Terraform behind it.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: quantos
+
+resources:
+  - namespace.yaml
+  - data.yaml
+  - observability.yaml
+  - quantos.yaml
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: quantos
+      app.kubernetes.io/managed-by: kustomize
+      quantos.io/environment: local
+
+configMapGenerator:
+  # The schemas and rules are generated from the files the compose stack uses,
+  # rather than copied. A second copy is a copy that drifts, and a schema that
+  # drifts between two local environments is a bug that only appears in one of
+  # them.
+  - name: postgres-schema
+    files:
+      - 001_schema.sql=../../../deploy/sql/postgres/001_schema.sql
+  - name: clickhouse-schema
+    files:
+      - 001_schema.sql=../../../deploy/sql/clickhouse/001_schema.sql
+  - name: prometheus-rules
+    files:
+      - slo.yml=../../../deploy/prometheus/rules/slo.yml
+  - name: grafana-datasources
+    files:
+      - datasources.yml=grafana/datasources.yml
+  - name: grafana-dashboard-provider
+    files:
+      - dashboards.yml=../../../deploy/grafana/provisioning/dashboards/dashboards.yml
+  - name: grafana-dashboards
+    files:
+      - quantos-platform.json=../../../deploy/grafana/dashboards/quantos-platform.json
+
+generatorOptions:
+  # Suffixed names would be correct for anything that should trigger a rollout
+  # on change, but the schema ConfigMaps are consumed by a Job and an initdb
+  # hook that only run once. A stable name keeps `kubectl apply` idempotent and
+  # the manifests readable.
+  disableNameSuffixHash: true
+
+images:
+  # Built locally and loaded into the node with `kind load docker-image`. There
+  # is no registry in this setup, which is why the Deployment sets
+  # imagePullPolicy: Never — a pull would be a mistake, not a fallback.
+  - name: quantos/quantos
+    newTag: local

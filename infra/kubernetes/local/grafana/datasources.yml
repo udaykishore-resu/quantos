@@ -1,0 +1,16 @@
+# Local-cluster datasources.
+#
+# Deliberately not the compose file (deploy/grafana/provisioning/datasources):
+# that one also declares Jaeger, and no collector or Jaeger runs in the local
+# cluster. A datasource pointing at nothing is worse than one fewer datasource
+# — every panel that uses it renders an error, and the reader has to work out
+# whether the platform is broken or the wiring is.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 5s

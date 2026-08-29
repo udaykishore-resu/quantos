@@ -4,9 +4,26 @@
 # docs/architecture/overview.md: the same engines as production, with
 # PostgreSQL, ClickHouse, Redis and the observability trio behind them.
 #
-# Kafka is present so the split topology can be exercised locally. The Go
-# services use the durable WAL bus driver by default (see ADR-002 and
-# drivers/kafka/README.md); point bus.driver at kafka once that module is built.
+# What comes up by default is one `quantos` container running every role,
+# against real PostgreSQL, ClickHouse and Redis. That is the topology this
+# platform can actually run today.
+#
+# The nine role services are still defined, behind the `split` profile:
+#
+#   docker compose --profile split up
+#
+# They will not work yet, and the reason is worth stating rather than
+# discovering. The split needs a broker: roles publish events to each other, and
+# a consumer in one container has to read what a producer in another wrote. The
+# WAL driver cannot do that. It serialises appends behind an in-process mutex
+# and keeps its own record-offset counter, so a second writer on the same
+# directory interleaves partial records and reuses offsets. Since that was
+# found, the driver takes an exclusive lock and a second writer refuses to
+# start (internal/bus.acquireDirLock) — so the profile now fails loudly instead
+# of corrupting a log.
+#
+# Kafka is here for the same eventual purpose. Point bus.driver at kafka once
+# drivers/kafka exists, and the split profile becomes the real topology.
 
 name: quantos
 
@@ -168,7 +185,29 @@ services:
     networks: [quantos]
 
   # ------------------------------------------------------- platform --------
+
+  # The default deployment: every role in one process.
+  quantos:
+    <<: *service
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      # SERVICE=quantos selects cmd/quantos rather than one of the nine role
+      # binaries under services/.
+      args: {SERVICE: quantos}
+    # `run` is a subcommand of the multiplexer, not a flag; with no roles named
+    # it runs app.AllRoles.
+    command: ["run"]
+    environment:
+      <<: *service-env
+      QUANTOS_SERVICE: quantos
+      QUANTOS_HTTP_ADDR: ":8080"
+    ports: ["8080:8080"]
+
+  # --- the split topology, behind a profile: see the note at the top of this
+  # --- file. These do not currently share a bus.
   market-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -181,6 +220,7 @@ services:
     ports: ["8081:8081"]
 
   signal-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -193,6 +233,7 @@ services:
     ports: ["8082:8082"]
 
   risk-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -205,6 +246,7 @@ services:
     ports: ["8083:8083"]
 
   portfolio-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -217,6 +259,7 @@ services:
     ports: ["8084:8084"]
 
   news-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -229,6 +272,7 @@ services:
     ports: ["8085:8085"]
 
   evaluation-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -241,6 +285,7 @@ services:
     ports: ["8086:8086"]
 
   alert-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -253,6 +298,7 @@ services:
     ports: ["8087:8087"]
 
   backtest-service:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -265,6 +311,7 @@ services:
     ports: ["8088:8088"]
 
   api-gateway:
+    profiles: [split]
     <<: *service
     build:
       context: ..
@@ -274,7 +321,10 @@ services:
       <<: *service-env
       QUANTOS_SERVICE: api-gateway
       QUANTOS_HTTP_ADDR: ":8080"
-    ports: ["8080:8080"]
+    # 8089, not 8080: the default `quantos` container owns 8080, and a port
+    # collision when the split profile is enabled would be a confusing way to
+    # learn that both are defined.
+    ports: ["8089:8080"]
 
 volumes:
   pgdata:
