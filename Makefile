@@ -208,6 +208,19 @@ backtest: ## run a deterministic backtest over simulated history
 KIND_CLUSTER ?= quantos
 KUBECTX      := kind-$(KIND_CLUSTER)
 K8S_LOCAL    := infra/kubernetes/local
+
+# Host ports the cluster publishes. Overridable because a laptop that already
+# runs something on 8080 is the common case, not the exception, and the failure
+# is otherwise a docker error several layers below anything that mentions
+# QuantOS:
+#
+#   make k8s-up API_PORT=18080 GRAFANA_PORT=13001
+#
+# The defaults live in $(K8S_LOCAL)/kind-cluster.yaml; these substitute into a
+# generated copy so that file stays readable rather than becoming a template.
+API_PORT     ?= 8080
+PROM_PORT    ?= 9091
+GRAFANA_PORT ?= 3001
 # kustomize refuses by default to read files outside the kustomization root,
 # and the local overlay generates ConfigMaps from deploy/sql and deploy/grafana
 # so the cluster applies exactly the files the compose stack does. Copying them
@@ -217,18 +230,42 @@ KUSTOMIZE_FLAGS := --load-restrictor LoadRestrictionsNone
 .PHONY: k8s-preflight
 k8s-preflight: ## check that docker, kind and kubectl are present
 	@command -v docker  >/dev/null || { echo "docker not found: install Docker Desktop or colima"; exit 1; }
-	@docker info >/dev/null 2>&1 || { echo "the docker daemon is not running"; exit 1; }
+	@docker info --format '{{.ServerVersion}}' >/dev/null 2>&1 || { \
+		echo "the docker daemon is not reachable: start Docker Desktop (open -a Docker),"; \
+		echo "or colima start, then try again"; exit 1; }
 	@command -v kind    >/dev/null || { echo "kind not found: brew install kind"; exit 1; }
 	@command -v kubectl >/dev/null || { echo "kubectl not found: brew install kubectl"; exit 1; }
 	@command -v kustomize >/dev/null || { echo "kustomize not found: brew install kustomize"; exit 1; }
 	@echo "docker, kind, kubectl and kustomize are all present"
 
+.PHONY: k8s-ports
+k8s-ports: ## check the host ports the cluster needs are free
+	@busy=""; \
+	for p in $(API_PORT) $(PROM_PORT) $(GRAFANA_PORT); do \
+		if lsof -nP -iTCP:$$p -sTCP:LISTEN >/dev/null 2>&1; then busy="$$busy $$p"; fi; \
+	done; \
+	if [ -n "$$busy" ]; then \
+		echo "host port(s) already in use:$$busy"; \
+		echo ""; \
+		for p in $$busy; do lsof -nP -iTCP:$$p -sTCP:LISTEN | sed -n '1p;2p'; done; \
+		echo ""; \
+		echo "free them, or pick others:"; \
+		echo "  make k8s-up API_PORT=18080 PROM_PORT=19091 GRAFANA_PORT=13001"; \
+		exit 1; \
+	fi; \
+	echo "host ports $(API_PORT), $(PROM_PORT) and $(GRAFANA_PORT) are free"
+
 .PHONY: k8s-cluster
-k8s-cluster: k8s-preflight ## create the kind cluster (idempotent)
+k8s-cluster: k8s-preflight k8s-ports ## create the kind cluster (idempotent)
 	@if kind get clusters 2>/dev/null | grep -qx "$(KIND_CLUSTER)"; then \
 		echo "cluster $(KIND_CLUSTER) already exists"; \
 	else \
-		kind create cluster --name $(KIND_CLUSTER) --config $(K8S_LOCAL)/kind-cluster.yaml; \
+		mkdir -p .quantos; \
+		sed -e 's/hostPort: 8080/hostPort: $(API_PORT)/' \
+		    -e 's/hostPort: 9091/hostPort: $(PROM_PORT)/' \
+		    -e 's/hostPort: 3001/hostPort: $(GRAFANA_PORT)/' \
+		    $(K8S_LOCAL)/kind-cluster.yaml > .quantos/kind-cluster.yaml; \
+		kind create cluster --name $(KIND_CLUSTER) --config .quantos/kind-cluster.yaml; \
 	fi
 
 .PHONY: k8s-image
@@ -263,16 +300,16 @@ k8s-up: k8s-cluster k8s-image ## create the cluster, build and load the image, a
 k8s-status: ## what is running, and where to reach it
 	@kubectl --context $(KUBECTX) -n quantos get pods -o wide
 	@echo ""
-	@echo "  API          http://localhost:8080/healthz"
-	@echo "  Prometheus   http://localhost:9091"
-	@echo "  Grafana      http://localhost:3001   (anonymous viewer, or admin/admin)"
+	@echo "  API          http://localhost:$(API_PORT)/healthz"
+	@echo "  Prometheus   http://localhost:$(PROM_PORT)"
+	@echo "  Grafana      http://localhost:$(GRAFANA_PORT)   (anonymous viewer, or admin/admin)"
 	@echo ""
-	@echo "  A token:  curl -s -XPOST localhost:8080/api/v1/auth/login \\"
+	@echo "  A token:  curl -s -XPOST localhost:$(API_PORT)/api/v1/auth/login \\"
 	@echo "              -H 'content-type: application/json' \\"
 	@echo "              -d '{\"subject\":\"demo\",\"password\":\"demo\"}'"
 	@echo ""
 	@echo "  The dashboard runs outside the cluster:"
-	@echo "    cd frontend && QUANTOS_API_URL=http://localhost:8080 npm run dev"
+	@echo "    cd frontend && QUANTOS_API_URL=http://localhost:$(API_PORT) npm run dev"
 
 .PHONY: k8s-logs
 k8s-logs: ## follow the platform logs
