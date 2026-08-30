@@ -196,3 +196,18 @@ The shipped model has a small measured lift over its base rate and **no measurab
 The market data is simulated. The simulator is careful — stochastic volatility, jumps, an intraday volume smile, a market factor, per-symbol betas, a VIX that tracks synthetic implied volatility — but it is not a market, and nothing measured against it transfers to one.
 
 This is research software. It is not a trading system, it is not advice, and it should not be connected to a broker.
+
+---
+
+## License
+
+[MIT](LICENSE). Use it, fork it, build on it.
+
+One thing the licence says in legal capitals and this says in plain words: the
+software comes with **no warranty of any kind**, and the authors carry no
+liability for what anyone does with it. That is standard boilerplate in most
+repositories and less boilerplate here. This platform models markets, produces
+probabilities, and is wrong a measurable fraction of the time by design. It is
+research and teaching software. Nothing in it is financial advice, none of its
+output is a guarantee, and it must not be connected to a broker or used to move
+real money.
