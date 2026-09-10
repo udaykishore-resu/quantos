@@ -4,7 +4,7 @@ output "service_role_arns" {
     eks.amazonaws.com/role-arn annotation on the matching ServiceAccount in
     infra/kubernetes/base/serviceaccounts.yaml.
   EOT
-  value = { for k, r in aws_iam_role.service : k => r.arn }
+  value       = { for k, r in aws_iam_role.service : k => r.arn }
 }
 
 output "external_secrets_role_arn" {

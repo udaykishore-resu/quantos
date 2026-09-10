@@ -23,9 +23,6 @@ concurrency:
   group: security-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-env:
-  GO_VERSION: "1.24"
-
 jobs:
   # -------------------------------------------------------------- go vulns --
   govulncheck:
@@ -37,7 +34,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
           cache: true
 
       - name: govulncheck
@@ -64,7 +61,10 @@ jobs:
         run: |
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \
             | tar -xz -C /usr/local/bin gitleaks
-          gitleaks detect --source . --redact --no-banner --exit-code 1
+          # .gitleaks.toml keeps the default rules and allowlists the API
+          # documentation examples and dashboard fixtures, which carry
+          # credential-shaped strings that are not credentials.
+          gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --exit-code 1
 
       - name: no plaintext secret material in the infrastructure tree
         # A narrower, cheaper check that catches the specific mistake this
@@ -83,7 +83,10 @@ jobs:
           fi
           # A rendered Secret with data: would mean a literal value reached a
           # manifest. The manifests reference External Secrets and nothing else.
-          if grep -rn '^kind: Secret$' infra/kubernetes infra/helm; then
+          # infra/kubernetes/local is the kind stack and is excluded: it carries
+          # a deliberately plaintext local-only credential set (see the note at
+          # the top of infra/kubernetes/local/data.yaml) and is never deployed.
+          if grep -rn '^kind: Secret$' infra/kubernetes/base infra/kubernetes/overlays infra/helm; then
             echo "a manifest declares a Secret; secrets are references only"
             exit 1
           fi
@@ -124,7 +127,7 @@ jobs:
             -t quantos/api-gateway:ci .
 
       - name: trivy
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: quantos/api-gateway:ci
           format: sarif
@@ -137,7 +140,10 @@ jobs:
           ignore-unfixed: true
 
       - name: upload trivy results
-        if: always()
+        # Only when the scan produced a file: an earlier failure leaves nothing
+        # to upload, and a missing file is a second, misleading failure. Fork
+        # pull requests do not hold security-events: write, so they skip it.
+        if: always() && hashFiles('trivy.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy.sarif
@@ -147,7 +153,7 @@ jobs:
         # Catches what the image scan cannot: a vulnerable dependency in
         # ml/requirements.txt and anything in the repository that is not
         # compiled into the binary.
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -200,7 +206,9 @@ jobs:
           sarif_file: tfsec.sarif
 
       - name: upload tfsec results
-        if: always()
+        # Same guards as the trivy upload: a file must exist, and a fork PR
+        # cannot write to code scanning.
+        if: always() && hashFiles('tfsec.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: tfsec.sarif

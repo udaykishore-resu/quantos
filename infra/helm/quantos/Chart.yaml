@@ -1,0 +1,33 @@
+apiVersion: v2
+name: quantos
+description: >-
+  QuantOS — an educational market-intelligence and paper-trading platform.
+  Deploys the nine services, their configuration, and the observability wiring.
+type: application
+
+# The chart version moves when the chart changes; appVersion follows the
+# platform's own version in config/quantos.yaml. They are separate on purpose: a
+# change to a resource limit is a chart change and not a platform release.
+version: 0.1.0
+appVersion: "0.1.0"
+
+kubeVersion: ">=1.27.0-0"
+
+home: https://github.com/udaykishoreresu/quantos
+sources:
+  - https://github.com/udaykishoreresu/quantos
+
+keywords:
+  - market-data
+  - paper-trading
+  - research
+  - event-driven
+
+maintainers:
+  - name: QuantOS maintainers
+
+annotations:
+  # This platform routes no real-money orders. internal/paper panics at start-up
+  # if QUANTOS_ALLOW_REAL_MONEY is set, and nothing in this chart can change
+  # that.
+  quantos.io/purpose: research-and-paper-trading

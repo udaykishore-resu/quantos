@@ -1,0 +1,59 @@
+{{/*
+HorizontalPodAutoscalers.
+
+A singleton never gets one, whatever the values say: it is a timer or a sole
+producer, and an autoscaler on it would not add capacity, it would duplicate
+events. The `not $svc.singleton` guard makes that structural rather than a matter
+of remembering.
+
+The custom metric needs prometheus-adapter to expose it. Without that the HPA
+falls back to its CPU target and reports the custom metric as <unknown>, which
+is a degradation rather than a failure - but it is the metric that matters, since
+docs/operations/slo.md says scaling is by partition count and the HPA targets
+consumer lag.
+*/}}
+{{- if ne .Values.mode "embedded" }}
+{{- range $name, $cfg := .Values.services }}
+{{- $svc := include "quantos.serviceValues" (dict "root" $ "name" $name) | fromYaml }}
+{{- if and $cfg.enabled $svc.autoscaling $svc.autoscaling.enabled (not $svc.singleton) }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "quantos.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: {{ $name }}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: {{ $name }}}
+  minReplicas: {{ $svc.autoscaling.minReplicas }}
+  maxReplicas: {{ $svc.autoscaling.maxReplicas }}
+  metrics:
+    {{- if $svc.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: {{ $svc.autoscaling.targetCPUUtilizationPercentage }}}
+    {{- end }}
+    {{- if $svc.autoscaling.customMetric }}
+    - type: Pods
+      pods:
+        metric: {name: {{ $svc.autoscaling.customMetric }}}
+        target: {type: AverageValue, averageValue: {{ $svc.autoscaling.customMetricTarget | quote }}}
+    {{- end }}
+  behavior:
+    scaleUp:
+      # Lag builds fast, and an event that ages past bus.max_event_age is
+      # dropped rather than acted on.
+      stabilizationWindowSeconds: 30
+      policies:
+        - {type: Pods, value: 4, periodSeconds: 60}
+    scaleDown:
+      # Slow, because a consumer-group rebalance pauses consumption for every
+      # instance and flapping replicas means a permanent rebalance.
+      stabilizationWindowSeconds: 600
+      policies:
+        - {type: Pods, value: 1, periodSeconds: 180}
+{{- end }}
+{{- end }}
+{{- end }}

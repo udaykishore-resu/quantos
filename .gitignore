@@ -1,7 +1,9 @@
 # Build output
 /bin/
 /dist/
-quantos
+# The root-level binary from `go build ./cmd/quantos`; anchored so that the
+# cmd/quantos source directory itself is not ignored.
+/quantos
 *.exe
 *.test
 *.out

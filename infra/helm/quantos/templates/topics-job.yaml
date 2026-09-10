@@ -1,0 +1,151 @@
+{{/*
+Kafka topic creation.
+
+The specification is authoritative in internal/bus.TopicConfigs; `go run
+./cmd/quantos topics` prints it. This is one of three renderings of that one
+source - the others are deploy/kafka/create-topics.sh and
+infra/kubernetes/base/topics-job.yaml - and the partition counts below are its
+output verbatim.
+
+A topic the broker creates implicitly gets the default partition count. A
+market.quotes with one partition still works, still shows no error, and quietly
+destroys the per-symbol ordering ADR-002 exists to provide.
+
+Runs as a pre-install/pre-upgrade hook: the topics must exist before the first
+producer starts, or the first publish fails and the pod restarts into a
+CrashLoopBackOff that looks like a bug in the service.
+*/}}
+{{- if and .Values.topics.enabled (eq .Values.mode "cluster") }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-topics
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    app.kubernetes.io/name: quantos-topics
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        {{- include "quantos.labels" . | nindent 8 }}
+        app.kubernetes.io/name: quantos-topics
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: quantos-topics
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: create-topics
+          image: {{ .Values.topics.image }}
+          command: ["/bin/bash", "/scripts/create-topics.sh"]
+          env:
+            - name: KAFKA_BROKER
+              valueFrom:
+                secretKeyRef: {name: quantos-bus, key: QUANTOS_KAFKA_BROKERS}
+            - name: REPLICATION_FACTOR
+              value: {{ .Values.topics.replicationFactor | quote }}
+            - name: MIN_INSYNC_REPLICAS
+              value: {{ .Values.topics.minInsyncReplicas | quote }}
+          securityContext:
+            {{- include "quantos.containerSecurityContext" . | nindent 12 }}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+          volumeMounts:
+            - {name: scripts, mountPath: /scripts, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: scripts
+          configMap: {name: {{ .Release.Name }}-topics-script, defaultMode: 0555}
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-topics-script
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-10"
+    helm.sh/hook-delete-policy: before-hook-creation
+data:
+  # MSK IAM authentication: the client reads the pod's IRSA credentials from the
+  # projected token, so there is no password anywhere in this chart.
+  client.properties: |
+    security.protocol=SASL_SSL
+    sasl.mechanism=AWS_MSK_IAM
+    sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required;
+    sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+
+  create-topics.sh: |
+    #!/usr/bin/env bash
+    # Creates the QuantOS topic set on MSK.
+    #
+    # Partition counts and retention are from internal/bus.TopicConfigs.
+    # Replication factor and min.insync.replicas come from the environment
+    # because they differ between the single-broker compose stack and a
+    # three-broker MSK cluster; everything else matches
+    # deploy/kafka/create-topics.sh on purpose.
+    set -euo pipefail
+
+    BROKER="${KAFKA_BROKER:?QUANTOS_KAFKA_BROKERS is not set}"
+    RF="${REPLICATION_FACTOR:-3}"
+    ISR="${MIN_INSYNC_REPLICAS:-2}"
+    KT="kafka-topics.sh --bootstrap-server ${BROKER} --command-config /scripts/client.properties"
+
+    echo "waiting for ${BROKER}..."
+    for _ in $(seq 1 60); do
+      if ${KT} --list >/dev/null 2>&1; then break; fi
+      sleep 5
+    done
+
+    create() {
+      local name="$1" partitions="$2" retention_ms="$3" cleanup="${4:-delete}"
+      echo "topic ${name}: partitions=${partitions} retention=${retention_ms}ms policy=${cleanup} rf=${RF}"
+      ${KT} --create --if-not-exists --topic "${name}" \
+        --partitions "${partitions}" --replication-factor "${RF}" \
+        --config "retention.ms=${retention_ms}" \
+        --config "cleanup.policy=${cleanup}" \
+        --config "min.insync.replicas=${ISR}"
+      # Every topic gets a dead-letter partner: a poison message must have
+      # somewhere to go that is not "retry forever".
+      ${KT} --create --if-not-exists --topic "${name}.dlq" \
+        --partitions 1 --replication-factor "${RF}" \
+        --config "retention.ms=604800000" \
+        --config "min.insync.replicas=${ISR}"
+    }
+
+    DAY=86400000
+    create market.quotes            12 $((1 * DAY))
+    create market.trades            12 $((1 * DAY))
+    create market.bars              12 $((30 * DAY))
+    create market.news               6 $((30 * DAY))
+    create market.events             3 $((90 * DAY))
+    create market.stale              3 $((7 * DAY))
+    create market.rejected           3 $((7 * DAY))
+    create features.updated         12 $((7 * DAY))
+    create regime.updated            1 $((90 * DAY))
+    create prediction.generated     12 $((30 * DAY))
+    create signal.generated          6 $((365 * DAY)) compact
+    create signal.invalidated        6 $((365 * DAY))
+    create risk.updated              6 $((30 * DAY))
+    create alert.generated           6 $((90 * DAY))
+    create prediction.evaluated      6 $((365 * DAY))
+    create model.drift.detected      1 $((365 * DAY))
+
+    echo ""
+    echo "topics present:"
+    ${KT} --list | sort
+{{- end }}

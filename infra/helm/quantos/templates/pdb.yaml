@@ -1,0 +1,34 @@
+{{/*
+PodDisruptionBudgets.
+
+Two shapes. A scalable service gets minAvailable: 1 so a drain cannot take the
+last instance. A singleton gets maxUnavailable: 1 instead, because minAvailable:
+1 against a one-replica Deployment blocks every voluntary eviction forever and
+turns a node rotation into a stuck drain. Singletons are already unavailable for
+the length of a rollout by construction - they use strategy: Recreate - so the
+budget documents that rather than pretending to prevent it.
+*/}}
+{{- if and .Values.podDisruptionBudgets.enabled (ne .Values.mode "embedded") }}
+{{- range $name, $cfg := .Values.services }}
+{{- $svc := include "quantos.serviceValues" (dict "root" $ "name" $name) | fromYaml }}
+{{- if $cfg.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "quantos.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: {{ $name }}
+spec:
+  {{- if or $svc.singleton (le (int $svc.replicas) 1) }}
+  maxUnavailable: 1
+  {{- else }}
+  minAvailable: {{ max 1 (sub (int $svc.replicas) 1) }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "quantos.selectorLabels" (dict "root" $ "name" $name) | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

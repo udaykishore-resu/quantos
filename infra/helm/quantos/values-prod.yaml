@@ -1,0 +1,139 @@
+# Production values.
+#
+#   helm upgrade --install quantos infra/helm/quantos \
+#     -n quantos -f infra/helm/quantos/values-prod.yaml \
+#     --set image.tag=v1.4.2
+#
+# image.tag is deliberately not set in this file. A tag committed to git drifts
+# from what is deployed the moment someone runs an upgrade with --set, and a
+# floating tag is how a rollback silently rolls forward. The release workflow
+# passes the immutable tag.
+#
+# Capacity comes from the assumptions in docs/operations/slo.md: 500 active
+# symbols, 2.5k-25k events/s, one feature-engine instance CPU-bound at roughly
+# 40k events/s on 2 vCPU. Three engine replicas is the ~10x headroom those SLOs
+# were sized against.
+
+mode: cluster
+
+image:
+  registry: 222222222222.dkr.ecr.us-east-1.amazonaws.com
+  repository: quantos
+  pullPolicy: IfNotPresent
+
+services:
+  api-gateway:
+    replicas: 3
+    resources:
+      requests: {cpu: 250m, memory: 512Mi}
+      limits: {cpu: "1", memory: 1Gi}
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+      customMetric: quantos_http_in_flight_requests
+      customMetricTarget: "40"
+
+  signal-service:
+    replicas: 3
+    resources:
+      requests: {cpu: "1", memory: 1Gi}
+      limits: {cpu: "2", memory: 2Gi}
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      # market.bars has 12 partitions (ADR-002); the 13th replica idles.
+      maxReplicas: 12
+      targetCPUUtilizationPercentage: 70
+      customMetric: quantos_kafka_lag
+      customMetricTarget: "500"
+
+  alert-service:
+    replicas: 2
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      customMetric: quantos_kafka_lag
+      customMetricTarget: "100"
+
+  backtest-service:
+    replicas: 2
+    resources:
+      requests: {cpu: "1", memory: 2Gi}
+      limits: {cpu: "4", memory: 4Gi}
+
+config:
+  log:
+    level: info
+  http:
+    corsOrigins:
+      - https://quantos.example.com
+    rateLimitRps: 50
+    rateLimitBurst: 100
+  llm:
+    # The real provider. Only signal-service and news-service are given the key
+    # (services.*.llm), and the NetworkPolicy allows egress from those two
+    # alone. Explanations remain off the critical path: they are produced after
+    # the decision is final and never gate a signal (ADR-005).
+    provider: anthropic
+  auth:
+    enabled: true
+    issuer: https://issuer.example.com/realms/quantos
+    jwksUrl: https://issuer.example.com/realms/quantos/protocol/openid-connect/certs
+
+models:
+  bucket: quantos-prod-222222222222-models
+  id: direction-3class
+
+externalSecrets:
+  enabled: true
+  secretPrefix: quantos-prod
+  region: us-east-1
+  serviceAccount:
+    name: quantos-external-secrets
+    roleArn: arn:aws:iam::222222222222:role/quantos-prod-external-secrets
+
+serviceAccounts:
+  create: true
+  roleArns:
+    api-gateway: arn:aws:iam::222222222222:role/quantos-prod-api-gateway
+    market-service: arn:aws:iam::222222222222:role/quantos-prod-market-service
+    signal-service: arn:aws:iam::222222222222:role/quantos-prod-signal-service
+    risk-service: arn:aws:iam::222222222222:role/quantos-prod-risk-service
+    portfolio-service: arn:aws:iam::222222222222:role/quantos-prod-portfolio-service
+    news-service: arn:aws:iam::222222222222:role/quantos-prod-news-service
+    evaluation-service: arn:aws:iam::222222222222:role/quantos-prod-evaluation-service
+    alert-service: arn:aws:iam::222222222222:role/quantos-prod-alert-service
+    backtest-service: arn:aws:iam::222222222222:role/quantos-prod-backtest-service
+    topics: arn:aws:iam::222222222222:role/quantos-prod-topics
+
+networkPolicy:
+  enabled: true
+  # environments/prod/prod.tfvars.
+  vpcCidr: 10.50.0.0/16
+
+ingress:
+  enabled: true
+  className: alb
+  host: quantos.example.com
+  certificateArn: arn:aws:acm:us-east-1:222222222222:certificate/REPLACE-WITH-PROD-CERT
+  annotations:
+    # A WAF in front of the API. internal/httpx's rate limiter is per-principal
+    # and runs after authentication; this runs before it. They protect against
+    # different things.
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:us-east-1:222222222222:regional/webacl/quantos-api/REPLACE-ME
+
+topics:
+  enabled: true
+  # Three brokers across three AZs (environments/prod/prod.tfvars). RF 3 with
+  # ISR 2 is what makes an acknowledged write survive the loss of an AZ.
+  replicationFactor: 3
+  minInsyncReplicas: 2
+
+podDisruptionBudgets:
+  enabled: true
+
+priorityClasses:
+  enabled: true

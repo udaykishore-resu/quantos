@@ -1,0 +1,8 @@
+# Nothing outside the chart directory belongs in the packaged artifact.
+.DS_Store
+.git/
+.gitignore
+*.tmproj
+.idea/
+.vscode/
+*.tgz

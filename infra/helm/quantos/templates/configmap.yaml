@@ -1,0 +1,118 @@
+{{/*
+The override sheet, the same shape as config/quantos.compose.yaml.
+
+It is an override sheet and not a complete configuration: internal/config.Default
+supplies everything absent, and `quantos run` works with no file at all. Only
+keys that exist as yaml tags in internal/config appear here.
+
+No secret is rendered. Only the *name* of the environment variable that holds
+one, which is the contract config/quantos.yaml states.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quantos-config
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+data:
+  {{ include "quantos.configFile" . }}: |
+    env: {{ .Values.mode }}
+    mode: {{ .Values.mode }}
+
+    log:
+      level: {{ .Values.config.log.level }}
+      format: {{ .Values.config.log.format }}
+
+    telemetry:
+      otlp_endpoint: {{ .Values.config.telemetry.otlpEndpoint | quote }}
+      metrics_addr: ":9090"
+      flush_every: 5s
+
+    bus:
+    {{- if eq .Values.mode "embedded" }}
+      driver: memory
+    {{- else }}
+      driver: kafka
+    {{- end }}
+      group_prefix: {{ .Values.config.bus.groupPrefix }}
+      max_event_age: {{ .Values.config.bus.maxEventAge }}
+      dedup_ttl: {{ .Values.config.bus.dedupTtl }}
+      max_retries: 2
+      buffer: 8192
+
+    store:
+    {{- if eq .Values.mode "embedded" }}
+      driver: memory
+    {{- else }}
+      driver: sql
+      # postgres_dsn and redis_addr arrive from the projected Secret. They are
+      # absent here because a DSN carries a password.
+      clickhouse_db: quantos
+      max_open_conns: 25
+      max_idle_conns: 5
+      conn_timeout: 5s
+    {{- end }}
+
+    http:
+      read_timeout: 10s
+      write_timeout: 30s
+      idle_timeout: 120s
+      shutdown_timeout: 15s
+      max_body_bytes: 1048576
+      cors_origins:
+      {{- range .Values.config.http.corsOrigins }}
+        - {{ . | quote }}
+      {{- end }}
+      rate_limit_rps: {{ .Values.config.http.rateLimitRps }}
+      rate_limit_burst: {{ .Values.config.http.rateLimitBurst }}
+      sse_buffer: 256
+      sse_replay: 1024
+
+    market:
+      provider: {{ .Values.config.market.provider }}
+      tick_interval: 1s
+      staleness_soft: 30s
+      staleness_hard: 2m
+
+    {{- if ne .Values.mode "embedded" }}
+    predict:
+      artifact_dir: /var/lib/quantos/models
+    {{- end }}
+
+    llm:
+      provider: {{ .Values.config.llm.provider }}
+      api_key_env: {{ .Values.config.llm.apiKeyEnv }}
+      timeout: 20s
+      cache_ttl: 30m
+      max_per_minute: 60
+      fail_open: true
+
+    auth:
+      enabled: {{ .Values.config.auth.enabled }}
+      issuer: {{ .Values.config.auth.issuer | quote }}
+      audience: {{ .Values.config.auth.audience | quote }}
+      jwks_url: {{ .Values.config.auth.jwksUrl | quote }}
+      hmac_secret_env: {{ .Values.config.auth.hmacSecretEnv }}
+      token_ttl: 12h
+      # No dev_users. A static local principal has no place in a cluster, and
+      # config.Validate already refuses cluster mode with auth disabled.
+      dev_users: []
+
+    strategies:
+      dir: /app/strategies
+{{- if ne .Values.mode "embedded" }}
+---
+{{/*
+Non-secret environment for the fetch-models init container. Not QUANTOS_*
+variables: they are read by the AWS CLI, not by the Go binary.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quantos-models
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+data:
+  MODEL_BUCKET: {{ .Values.models.bucket | quote }}
+  MODEL_ID: {{ .Values.models.id | quote }}
+{{- end }}

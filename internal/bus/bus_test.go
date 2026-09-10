@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -320,13 +321,25 @@ func TestWALDurabilityAndReplay(t *testing.T) {
 		t.Fatalf("after reopening, depth is %d; the log did not survive", d)
 	}
 
-	var got []int
+	// The handler runs on the consumer goroutine; the slice is read from
+	// this one, so access is serialised by a mutex.
+	var (
+		mu  sync.Mutex
+		got []int
+	)
+	count := func() int {
+		mu.Lock()
+		defer mu.Unlock()
+		return len(got)
+	}
 	if err := b2.Subscribe(TopicBars, "replay", func(_ context.Context, e Envelope) error {
 		var v struct{ N int }
 		if err := e.Decode(&v); err != nil {
 			return err
 		}
+		mu.Lock()
 		got = append(got, v.N)
+		mu.Unlock()
 		return nil
 	}); err != nil {
 		t.Fatal(err)
@@ -336,12 +349,14 @@ func TestWALDurabilityAndReplay(t *testing.T) {
 	go func() { _ = b2.Run(ctx) }()
 
 	deadline := time.Now().Add(5 * time.Second)
-	for time.Now().Before(deadline) && len(got) < 50 {
+	for time.Now().Before(deadline) && count() < 50 {
 		time.Sleep(5 * time.Millisecond)
 	}
-	if len(got) != 50 {
-		t.Fatalf("replayed %d of 50 events", len(got))
+	if count() != 50 {
+		t.Fatalf("replayed %d of 50 events", count())
 	}
+	mu.Lock()
+	defer mu.Unlock()
 	for i, v := range got {
 		if v != i {
 			t.Fatalf("replay order broken at %d: %d", i, v)
@@ -373,9 +388,11 @@ func TestWALResumesFromCommittedOffset(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer b.Close()
-		seen := 0
+		// The handler runs on the bus's consumer goroutine while this one
+		// polls, so the count is shared across goroutines.
+		var seen atomic.Int64
 		if err := b.Subscribe(TopicBars, "group", func(context.Context, Envelope) error {
-			seen++
+			seen.Add(1)
 			return nil
 		}); err != nil {
 			t.Fatal(err)
@@ -384,10 +401,10 @@ func TestWALResumesFromCommittedOffset(t *testing.T) {
 		defer cancel()
 		go func() { _ = b.Run(ctx) }()
 		deadline := time.Now().Add(2 * time.Second)
-		for time.Now().Before(deadline) && seen < limit {
+		for time.Now().Before(deadline) && seen.Load() < int64(limit) {
 			time.Sleep(5 * time.Millisecond)
 		}
-		return seen
+		return int(seen.Load())
 	}
 
 	write(20)

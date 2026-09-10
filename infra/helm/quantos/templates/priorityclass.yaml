@@ -1,0 +1,33 @@
+{{/*
+Two priority classes so a node under memory pressure evicts the right thing.
+
+The decision path is what the platform is for; a backtest is work that can be
+resubmitted. Without an explicit priority the kubelet picks by QoS class and
+usage, and backtest-service - which requests 1Gi and is allowed 4Gi - is not
+reliably the one it picks.
+
+PriorityClasses are cluster-scoped, so this is off by default: a chart that
+installs cluster-scoped objects cannot be installed twice into one cluster
+without a collision.
+*/}}
+{{- if .Values.priorityClasses.enabled }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.priorityClasses.live }}
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+value: 1000
+globalDefault: false
+description: "QuantOS live decision path: ingest, engine, API, alert delivery."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.priorityClasses.batch }}
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+value: 100
+globalDefault: false
+description: "QuantOS batch work: backtests and evaluation. Preemptible; runs are resubmittable."
+{{- end }}

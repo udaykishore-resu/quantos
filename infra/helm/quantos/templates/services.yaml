@@ -1,0 +1,40 @@
+{{/*
+ClusterIP Services.
+
+Ports match deploy/docker-compose.yml and deploy/prometheus/prometheus.yml
+exactly, so a port in a runbook is right whichever runtime mode is running.
+*/}}
+{{- if eq .Values.mode "embedded" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: quantos
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    app.kubernetes.io/name: quantos
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "quantos.selectorLabels" (dict "root" $ "name" "quantos") | nindent 4 }}
+  ports:
+    - {name: http, port: {{ .Values.embedded.port }}, targetPort: http, protocol: TCP}
+{{- else }}
+{{- range $name, $cfg := .Values.services }}
+{{- if $cfg.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "quantos.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: {{ $name }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "quantos.selectorLabels" (dict "root" $ "name" $name) | nindent 4 }}
+  ports:
+    - {name: http, port: {{ $cfg.port }}, targetPort: http, protocol: TCP}
+{{- end }}
+{{- end }}
+{{- end }}

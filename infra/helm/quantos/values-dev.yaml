@@ -1,0 +1,104 @@
+# Dev values.
+#
+#   helm upgrade --install quantos infra/helm/quantos \
+#     -n quantos --create-namespace -f infra/helm/quantos/values-dev.yaml
+#
+# One replica of everything, debug logs, and the mock LLM provider. Dev is a
+# correctness environment: the behaviour a second replica would exercise is the
+# consumer-group rebalance, and that is covered by tests/failure rather than by
+# paying for a second pod all day.
+
+mode: cluster
+
+image:
+  registry: 111111111111.dkr.ecr.us-east-1.amazonaws.com
+  repository: quantos
+  tag: dev
+  pullPolicy: Always
+
+defaults:
+  replicas: 1
+
+services:
+  api-gateway:
+    replicas: 1
+    autoscaling: {enabled: true, minReplicas: 1, maxReplicas: 3, targetCPUUtilizationPercentage: 70}
+  signal-service:
+    replicas: 1
+    autoscaling: {enabled: true, minReplicas: 1, maxReplicas: 3, targetCPUUtilizationPercentage: 70, customMetric: quantos_kafka_lag, customMetricTarget: "500"}
+  alert-service:
+    replicas: 1
+    autoscaling: {enabled: true, minReplicas: 1, maxReplicas: 2, customMetric: quantos_kafka_lag, customMetricTarget: "100"}
+
+config:
+  log:
+    level: debug
+  http:
+    corsOrigins:
+      - https://quantos-dev.example.internal
+      - http://localhost:3000
+  llm:
+    # The mock is deterministic and needs no key, so the whole platform runs
+    # offline. It also removes the one path by which a dev environment
+    # redeployed twenty times a day could spend money on a provider API.
+    provider: mock
+  auth:
+    issuer: https://issuer-dev.example.internal/realms/quantos
+    jwksUrl: https://issuer-dev.example.internal/realms/quantos/protocol/openid-connect/certs
+
+models:
+  bucket: quantos-dev-111111111111-models
+  id: direction-3class
+
+externalSecrets:
+  enabled: true
+  secretPrefix: quantos-dev
+  region: us-east-1
+  serviceAccount:
+    name: quantos-external-secrets
+    roleArn: arn:aws:iam::111111111111:role/quantos-dev-external-secrets
+
+serviceAccounts:
+  create: true
+  roleArns:
+    api-gateway: arn:aws:iam::111111111111:role/quantos-dev-api-gateway
+    market-service: arn:aws:iam::111111111111:role/quantos-dev-market-service
+    signal-service: arn:aws:iam::111111111111:role/quantos-dev-signal-service
+    risk-service: arn:aws:iam::111111111111:role/quantos-dev-risk-service
+    portfolio-service: arn:aws:iam::111111111111:role/quantos-dev-portfolio-service
+    news-service: arn:aws:iam::111111111111:role/quantos-dev-news-service
+    evaluation-service: arn:aws:iam::111111111111:role/quantos-dev-evaluation-service
+    alert-service: arn:aws:iam::111111111111:role/quantos-dev-alert-service
+    backtest-service: arn:aws:iam::111111111111:role/quantos-dev-backtest-service
+    topics: arn:aws:iam::111111111111:role/quantos-dev-topics
+
+networkPolicy:
+  enabled: true
+  # environments/dev/dev.tfvars.
+  vpcCidr: 10.40.0.0/16
+
+ingress:
+  enabled: true
+  className: alb
+  host: quantos-dev.example.internal
+  certificateArn: arn:aws:acm:us-east-1:111111111111:certificate/REPLACE-WITH-DEV-CERT
+  # Internal: the dev API is reachable from the VPN, not from the internet.
+  # There is no reason for a research environment's API to be publicly
+  # resolvable.
+  scheme: internal
+
+topics:
+  enabled: true
+  # MSK Serverless replicates internally and does not accept an explicit factor
+  # above 3; dev runs serverless (environments/dev/dev.tfvars).
+  replicationFactor: 3
+  minInsyncReplicas: 2
+
+# One replica means a minAvailable budget would block every node drain. The
+# chart already switches to maxUnavailable at replicas <= 1, but turning them
+# off entirely in dev says "no availability guarantee here" more honestly.
+podDisruptionBudgets:
+  enabled: false
+
+priorityClasses:
+  enabled: false

@@ -1,0 +1,167 @@
+{{/*
+ServiceMonitor and PrometheusRule.
+
+The rule expressions are the ones in deploy/prometheus/rules/slo.yml, unchanged.
+Keeping them identical means an alert that fires in the compose stack and an
+alert that fires in the cluster mean the same thing, which is the property that
+makes a runbook portable across the three runtime modes.
+*/}}
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: quantos
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    {{- with .Values.monitoring.serviceMonitor.labels }}{{ toYaml . | nindent 4 }}{{- end }}
+spec:
+  namespaceSelector:
+    matchNames: [{{ .Release.Namespace }}]
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: quantos
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.monitoring.serviceMonitor.interval }}
+      relabelings:
+        # `service` matches the label deploy/prometheus/prometheus.yml attaches
+        # statically, so a query written against the compose stack works here
+        # unchanged.
+        - sourceLabels: [__meta_kubernetes_service_label_app_kubernetes_io_name]
+          targetLabel: service
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+{{- end }}
+{{- if .Values.monitoring.prometheusRule.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: quantos-slo
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    {{- with .Values.monitoring.prometheusRule.labels }}{{ toYaml . | nindent 4 }}{{- end }}
+spec:
+  groups:
+    - name: quantos-slo-latency
+      interval: 30s
+      rules:
+        # Market event processing: P99 < 100 ms, 1% budget.
+        - alert: MarketEventProcessingSLOFastBurn
+          expr: |
+            (1 - (
+              sum(rate(quantos_market_event_processing_duration_seconds_bucket{le="0.1"}[1h]))
+              / sum(rate(quantos_market_event_processing_duration_seconds_count[1h]))
+            )) > (14.4 * 0.01)
+          for: 2m
+          labels: {severity: page, slo: market_event_p99_100ms}
+          annotations:
+            summary: "Market event processing is burning its latency budget 14x too fast"
+            runbook_url: docs/runbooks/kafka-lag.md
+
+        # API read: P99 < 300 ms, 0.1% budget.
+        - alert: APILatencySLOFastBurn
+          expr: |
+            (1 - (
+              sum(rate(quantos_http_server_duration_seconds_bucket{le="0.3",method="GET"}[1h]))
+              / sum(rate(quantos_http_server_duration_seconds_count{method="GET"}[1h]))
+            )) > (14.4 * 0.001)
+          for: 2m
+          labels: {severity: page, slo: api_read_p99_300ms}
+          annotations:
+            summary: "API read latency is burning its budget 14x too fast"
+            runbook_url: docs/runbooks/incident-response.md
+
+        # Alert generation: P99 < 500 ms. Excludes external delivery.
+        - alert: AlertGenerationSLOFastBurn
+          expr: |
+            (1 - (
+              sum(rate(quantos_alert_generation_latency_seconds_bucket{le="0.5"}[1h]))
+              / sum(rate(quantos_alert_generation_latency_seconds_count[1h]))
+            )) > (14.4 * 0.01)
+          for: 2m
+          labels: {severity: page, slo: alert_p99_500ms}
+          annotations:
+            summary: "Alert generation is burning its latency budget 14x too fast"
+            runbook_url: docs/runbooks/incident-response.md
+
+        # Prediction: P95 < 1 s, 5% budget. Slow burn tickets rather than pages.
+        - alert: PredictionLatencySLOSlowBurn
+          expr: |
+            (1 - (
+              sum(rate(quantos_prediction_latency_seconds_bucket{le="1"}[6h]))
+              / sum(rate(quantos_prediction_latency_seconds_count[6h]))
+            )) > (6 * 0.05)
+          for: 15m
+          labels: {severity: ticket, slo: prediction_p95_1s}
+          annotations:
+            summary: "Prediction latency has been degraded for six hours"
+            runbook_url: docs/runbooks/model-drift.md
+
+    - name: quantos-correctness
+      interval: 30s
+      rules:
+        # Zero-budget: one duplicate is a defect in the idempotency layer.
+        - alert: DuplicateAlertEmitted
+          expr: increase(quantos_alerts_suppressed_total{reason="durable_dedup"}[10m]) > 0
+          labels: {severity: page, slo: alert_duplication_zero}
+          annotations:
+            summary: "The durable unique index caught a duplicate the in-memory dedup missed"
+            runbook_url: docs/runbooks/incident-response.md
+
+        - alert: SignalProvenanceSuppression
+          expr: increase(quantos_degraded_component{component="postgres"}[5m]) > 0
+          labels: {severity: page}
+          annotations:
+            summary: "Provenance store degraded; signal emission is suspended"
+            runbook_url: docs/runbooks/postgres-unavailable.md
+
+        - alert: MarketDataStale
+          expr: sum(quantos_market_data_stale) > 5
+          for: 2m
+          labels: {severity: page}
+          annotations:
+            summary: "More than five instruments have stale market data; signals are suspended for them"
+            runbook_url: docs/runbooks/market-data-outage.md
+
+        - alert: ConsumerLagHigh
+          expr: max(quantos_kafka_lag) > 5000
+          for: 5m
+          labels: {severity: ticket}
+          annotations:
+            summary: "Consumer lag is high; events older than max_event_age are dropped rather than acted on"
+            runbook_url: docs/runbooks/kafka-lag.md
+
+    - name: quantos-model
+      interval: 1m
+      rules:
+        - alert: ModelDriftSevere
+          expr: max(quantos_model_drift{kind="overall"}) >= 3
+          for: 5m
+          labels: {severity: page}
+          annotations:
+            summary: "Severe model drift: the active model should be demoted to shadow"
+            runbook_url: docs/runbooks/model-drift.md
+
+        - alert: VetoRateExcessive
+          expr: |
+            sum(rate(quantos_risk_decisions_total{decision!="ALLOW_PAPER_SIGNAL"}[1h]))
+            / sum(rate(quantos_risk_decisions_total[1h])) > 0.8
+          for: 30m
+          labels: {severity: ticket}
+          annotations:
+            summary: "The risk engine is blocking over 80% of evaluations, which usually means a threshold needs review"
+            runbook_url: docs/runbooks/risk-veto-storm.md
+
+        - alert: ExplanationsAlwaysRejected
+          expr: |
+            sum(rate(quantos_analyst_grounding_rejections_total[30m]))
+            / clamp_min(sum(rate(quantos_llm_calls_total[30m])), 1) > 0.5
+          for: 30m
+          labels: {severity: ticket}
+          annotations:
+            summary: "Over half of generated explanations fail grounding; the model or the prompt has drifted"
+            runbook_url: docs/runbooks/llm-provider-failure.md
+{{- end }}

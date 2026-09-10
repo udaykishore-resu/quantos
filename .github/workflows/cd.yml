@@ -55,9 +55,19 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: kustomize
+        # The release tarball rather than hack/install_kustomize.sh: that script
+        # refuses to run when a kustomize binary already exists in the target
+        # directory, and ubuntu-latest ships one in /usr/local/bin. A private
+        # bin directory put first on PATH pins the version this workflow tested.
+        env:
+          KUSTOMIZE_VERSION: 5.4.3
         run: |
-          curl -sSfL https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh \
-            | bash -s -- 5.4.3 /usr/local/bin
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSfL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" \
+            | tar -xz -C "${RUNNER_TEMP}/bin" kustomize
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/kustomize" version
 
       - name: both overlays build
         # A sync that fails on a malformed manifest leaves Argo reporting

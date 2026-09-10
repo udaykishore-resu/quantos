@@ -1,0 +1,193 @@
+{{/*
+The nine service Deployments, or the single embedded pod.
+
+The split is the whole point of the mode switch: `embedded` renders one pod
+running every role in one process, and the other two render nine pods each
+running the roles its binary names. The engines are identical either way, which
+is what makes the mode split cheap (docs/architecture/overview.md).
+*/}}
+{{- if eq .Values.mode "embedded" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantos
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    app.kubernetes.io/name: quantos
+spec:
+  replicas: {{ .Values.embedded.replicas }}
+  selector:
+    matchLabels:
+      {{- include "quantos.selectorLabels" (dict "root" $ "name" "quantos") | nindent 6 }}
+  strategy:
+    # Recreate, not RollingUpdate. The in-memory bus and store hold everything;
+    # two instances would produce two divergent worlds, not one shared one.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "quantos.labels" . | nindent 8 }}
+        app.kubernetes.io/name: quantos
+    spec:
+      serviceAccountName: quantos-api-gateway
+      securityContext:
+        {{- include "quantos.podSecurityContext" . | nindent 8 }}
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: quantos
+          image: {{ include "quantos.image" (dict "root" $ "name" "api-gateway") }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.embedded.port }}
+          env:
+            {{- include "quantos.env" (dict "root" $ "name" "quantos" "port" .Values.embedded.port "llm" false) | trim | nindent 12 }}
+          {{- include "quantos.probes" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.embedded.resources | nindent 12 }}
+          securityContext:
+            {{- include "quantos.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/quantos, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: config
+          configMap: {name: quantos-config}
+        - name: tmp
+          emptyDir: {}
+{{- else }}
+{{- range $name, $cfg := .Values.services }}
+{{- if $cfg.enabled }}
+{{- $svc := include "quantos.serviceValues" (dict "root" $ "name" $name) | fromYaml }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "quantos.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/component: {{ $svc.pool | default "platform" }}
+spec:
+  replicas: {{ $svc.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "quantos.selectorLabels" (dict "root" $ "name" $name) | nindent 6 }}
+  {{- if $svc.singleton }}
+  strategy:
+    # A singleton must stop before its replacement starts, or two instances
+    # briefly publish the same events.
+    type: Recreate
+  {{- else }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "quantos.labels" $ | nindent 8 }}
+        app.kubernetes.io/name: {{ $name }}
+        app.kubernetes.io/component: {{ $svc.pool | default "platform" }}
+        {{- with $.Values.podLabels }}{{ toYaml . | nindent 8 }}{{- end }}
+      annotations:
+        # Roll the pods when the config sheet changes. Without this a ConfigMap
+        # edit is applied to disk and never read, because internal/config loads
+        # once at start-up.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+        {{- with $.Values.podAnnotations }}{{ toYaml . | nindent 8 }}{{- end }}
+    spec:
+      serviceAccountName: quantos-{{ $name }}
+      securityContext:
+        {{- include "quantos.podSecurityContext" $ | nindent 8 }}
+      {{- if $.Values.priorityClasses.enabled }}
+      priorityClassName: {{ if eq ($svc.pool | default "platform") "batch" }}{{ $.Values.priorityClasses.batch }}{{ else }}{{ $.Values.priorityClasses.live }}{{ end }}
+      {{- end }}
+      {{- if $svc.pool }}
+      nodeSelector:
+        quantos.io/pool: {{ $svc.pool }}
+      {{- end }}
+      {{- if eq ($svc.pool | default "platform") "batch" }}
+      tolerations:
+        # The batch pool is tainted so the live decision path never lands on it:
+        # a parameter sweep is minutes of single-threaded work and the live path
+        # has a hundred-millisecond budget.
+        - {key: quantos.io/pool, operator: Equal, value: batch, effect: NoSchedule}
+      {{- end }}
+      {{- if not $svc.singleton }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ $name }}
+      {{- end }}
+      # cli.Main drains on SIGTERM; give it longer than the 15s
+      # http.shutdown_timeout so the drain finishes before SIGKILL.
+      terminationGracePeriodSeconds: 45
+      {{- if and $svc.models (eq $.Values.mode "cluster") }}
+      initContainers:
+        # Model artifacts are versioned in S3 and pulled at start-up rather than
+        # baked into the image: promoting a model should not rebuild nine
+        # images. The IRSA role for this ServiceAccount grants read on the
+        # models bucket and nothing else.
+        - name: fetch-models
+          image: {{ $.Values.models.syncImage }}
+          command: ["/bin/sh", "-c", 'aws s3 sync "s3://${MODEL_BUCKET}/${MODEL_ID}/" /var/lib/quantos/models/ --only-show-errors']
+          envFrom:
+            - configMapRef: {name: quantos-models}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            {{- include "quantos.containerSecurityContext" $ | nindent 12 }}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          volumeMounts:
+            - {name: models, mountPath: /var/lib/quantos/models}
+            - {name: tmp, mountPath: /tmp}
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: {{ include "quantos.image" (dict "root" $ "name" $name) }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            # /metrics is on this same port: internal/api.Mount registers it on
+            # the main router and telemetry.metrics_addr starts no second
+            # listener.
+            - name: http
+              containerPort: {{ $svc.port }}
+              protocol: TCP
+          env:
+            {{- include "quantos.env" (dict "root" $ "name" $name "port" $svc.port "llm" ($svc.llm | default false)) | trim | nindent 12 }}
+          envFrom:
+            {{- include "quantos.envFrom" (dict "root" $ "llm" ($svc.llm | default false)) | trim | nindent 12 }}
+          {{- include "quantos.probes" $ | nindent 10 }}
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+          securityContext:
+            {{- include "quantos.containerSecurityContext" $ | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/quantos, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+            {{- if $svc.models }}
+            - {name: models, mountPath: /var/lib/quantos/models}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap: {name: quantos-config}
+        # The distroless image has a read-only root filesystem; anything the
+        # process writes needs an explicit volume.
+        - name: tmp
+          emptyDir: {}
+        {{- if $svc.models }}
+        - name: models
+          emptyDir: {sizeLimit: 2Gi}
+        {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

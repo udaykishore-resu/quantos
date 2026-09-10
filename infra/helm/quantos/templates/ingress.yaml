@@ -1,0 +1,52 @@
+{{/*
+The only route into the cluster.
+
+The path is /api/v1 and not /: internal/api.Mount serves /metrics on the same
+router as the API, and quantos_risk_decisions_total by reason describes the
+platform's behaviour in enough detail to be worth not publishing. The load
+balancer's own health check reaches /readyz on the target directly and does not
+go through this rule.
+*/}}
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quantos-api
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+    app.kubernetes.io/name: api-gateway
+  annotations:
+    {{- if eq .Values.ingress.className "alb" }}
+    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme }}
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    alb.ingress.kubernetes.io/healthcheck-path: /readyz
+    alb.ingress.kubernetes.io/success-codes: "200"
+    # SSE connections are long-lived by design; the default 60s idle timeout
+    # would cut every /api/v1/stream client once a minute.
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+    {{- if .Values.ingress.certificateArn }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.certificateArn | quote }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ if eq .Values.mode "embedded" }}quantos{{ else }}api-gateway{{ end }}
+                port:
+                  name: http
+{{- end }}

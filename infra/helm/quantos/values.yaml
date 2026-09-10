@@ -1,0 +1,345 @@
+# QuantOS Helm values.
+#
+# Every key is documented where it is not obvious. The single most important one
+# is `mode`, at the top: it selects which of the three runtime topologies from
+# docs/operations/deployment.md this release deploys, and it changes what the
+# rest of the chart renders.
+
+# ---------------------------------------------------------------- mode -------
+#
+#   embedded  One pod running every role in one process, in-memory bus and
+#             stores. No Kafka, no Postgres, no secrets. This is `quantos run`
+#             in a container: the fastest way to get a working QuantOS and the
+#             right choice for a demo, a workshop or a CI smoke test. Nothing
+#             survives a restart, by design.
+#
+#   compose   The nine services split out, but pointed at in-cluster
+#             dependencies you provide (a Postgres StatefulSet, a Redis, a
+#             single-broker Kafka). Mirrors deploy/docker-compose.yml. Useful
+#             for an integration environment where the managed services are not
+#             worth their cost.
+#
+#   cluster   The nine services against managed AWS backing stores: RDS, MSK,
+#             ElastiCache. IRSA, External Secrets, NetworkPolicies and the
+#             topic-provisioning Job are all rendered. This is what
+#             infra/terraform provisions for.
+#
+# config.Validate refuses `cluster` with auth disabled, and refuses
+# store.driver=sql with no DSN, so a half-configured cluster release fails at
+# start-up rather than at the first request.
+mode: cluster
+
+# ------------------------------------------------------------- images --------
+image:
+  registry: ""
+  # One image per service, all from deploy/Dockerfile with a different SERVICE
+  # build arg. The service name is appended: <registry>/<repository>/<service>.
+  repository: quantos
+  # Empty means Chart.appVersion. Set to an immutable tag in prod; `latest` is
+  # how a rollback silently rolls forward.
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# ------------------------------------------------------------ platform -------
+#
+# Per-service overrides. Anything omitted falls back to `defaults` below.
+#
+# `singleton: true` means the service is a timer or the sole producer of a
+# stream: a second replica would not share work, it would duplicate events. Such
+# services get strategy Recreate and no HPA, whatever the values say.
+defaults:
+  replicas: 1
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  nodeSelector: {}
+  tolerations: []
+
+services:
+  api-gateway:
+    enabled: true
+    port: 8080
+    singleton: false
+    replicas: 2
+    pool: platform
+    resources:
+      requests: {cpu: 100m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+      # quantos_http_in_flight_requests. Queue depth predicts an API-latency SLO
+      # breach earlier than CPU does, because the tail is Postgres joins on
+      # provenance and those requests are waiting on I/O, not on cores.
+      customMetric: quantos_http_in_flight_requests
+      customMetricTarget: "40"
+
+  market-service:
+    enabled: true
+    port: 8081
+    # The simulated provider generates its own tick stream from a seed. A second
+    # instance would publish a second, divergent stream for the same symbols.
+    singleton: true
+    replicas: 1
+    pool: platform
+    resources:
+      requests: {cpu: 200m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+    autoscaling: {enabled: false}
+
+  signal-service:
+    enabled: true
+    port: 8082
+    singleton: false
+    replicas: 2
+    pool: platform
+    # The only service besides news-service that may call the language model,
+    # and then only after the decision is final (ADR-005).
+    llm: true
+    models: true
+    resources:
+      requests: {cpu: 500m, memory: 512Mi}
+      limits: {cpu: "2", memory: 1Gi}
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      # market.bars has 12 partitions (ADR-002) and per-symbol ordering means
+      # one partition is consumed by one instance. The 13th replica idles.
+      maxReplicas: 12
+      targetCPUUtilizationPercentage: 70
+      customMetric: quantos_kafka_lag
+      customMetricTarget: "500"
+
+  risk-service:
+    enabled: true
+    port: 8083
+    # A timer over shared state. Two sweepers publish two signal.invalidated
+    # events for one invalidation.
+    singleton: true
+    replicas: 1
+    pool: platform
+    autoscaling: {enabled: false}
+
+  portfolio-service:
+    enabled: true
+    port: 8084
+    singleton: true
+    replicas: 1
+    pool: platform
+    autoscaling: {enabled: false}
+
+  news-service:
+    enabled: true
+    port: 8085
+    # A poller. Two pollers fetch the same articles twice, and pay the LLM twice
+    # for the same headline.
+    singleton: true
+    replicas: 1
+    pool: platform
+    llm: true
+    autoscaling: {enabled: false}
+
+  evaluation-service:
+    enabled: true
+    port: 8086
+    singleton: true
+    replicas: 1
+    pool: batch
+    models: true
+    resources:
+      requests: {cpu: 200m, memory: 512Mi}
+      limits: {cpu: "1", memory: 1Gi}
+    autoscaling: {enabled: false}
+
+  alert-service:
+    enabled: true
+    port: 8087
+    # Safe to scale: delivery is idempotent on the alert's dedup key, so a
+    # redelivered event cannot notify anyone twice.
+    singleton: false
+    replicas: 2
+    pool: platform
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {cpu: 500m, memory: 256Mi}
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      # alert.generated has 6 partitions.
+      maxReplicas: 6
+      customMetric: quantos_kafka_lag
+      # Tighter than the engine's: a backlog here is a late page.
+      customMetricTarget: "100"
+
+  backtest-service:
+    enabled: true
+    port: 8088
+    singleton: false
+    replicas: 1
+    pool: batch
+    models: true
+    resources:
+      requests: {cpu: 500m, memory: 1Gi}
+      limits: {cpu: "4", memory: 4Gi}
+    autoscaling: {enabled: false}
+
+# In `embedded` mode the nine Deployments above are not rendered at all. One pod
+# runs every role in one process, which is what `quantos run` does.
+embedded:
+  replicas: 1
+  port: 8080
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+    limits: {cpu: "2", memory: 2Gi}
+
+# ---------------------------------------------------------- configuration ----
+#
+# Rendered into the ConfigMap as quantos.<mode>.yaml and selected with
+# QUANTOS_CONFIG. Only keys that exist as yaml tags in internal/config belong
+# here; anything else is silently ignored at load, which is worse than an error.
+config:
+  log:
+    level: info
+    format: json
+  http:
+    corsOrigins:
+      - https://quantos.example.internal
+    rateLimitRps: 50
+    rateLimitBurst: 100
+  market:
+    # sim or replay. Not a live venue: QuantOS is research and paper trading.
+    provider: sim
+  llm:
+    # mock or anthropic. Overridden per service; only signal-service and
+    # news-service ever get the key.
+    provider: mock
+    apiKeyEnv: ANTHROPIC_API_KEY
+  auth:
+    # config.Validate refuses cluster mode with this false.
+    enabled: true
+    issuer: https://issuer.example.internal/realms/quantos
+    audience: quantos-api
+    jwksUrl: https://issuer.example.internal/realms/quantos/protocol/openid-connect/certs
+    hmacSecretEnv: QUANTOS_JWT_SECRET
+  bus:
+    groupPrefix: quantos
+    # Events older than this are recorded but never acted on: lag becomes
+    # silence rather than stale trading signals.
+    maxEventAge: 5m
+    dedupTtl: 48h
+  telemetry:
+    otlpEndpoint: http://otel-collector.observability.svc.cluster.local:4318
+
+# ------------------------------------------------------------ backing --------
+#
+# In `cluster` mode these are read from the projected Secrets and only the
+# ClickHouse URL is set here. In `compose` mode set the in-cluster addresses.
+backing:
+  clickhouseUrl: http://clickhouse.quantos.svc.cluster.local:8123
+  # compose mode only; ignored when mode=cluster.
+  postgresHost: postgres
+  redisAddr: "redis:6379"
+  kafkaBrokers: "kafka:9092"
+
+models:
+  # S3 bucket the fetch-models init container syncs from. Required when any
+  # service sets models: true and mode is cluster.
+  bucket: ""
+  id: direction-3class
+  syncImage: public.ecr.aws/aws-cli/aws-cli:2.17.0
+
+# ------------------------------------------------------------- secrets -------
+#
+# References only. This chart never renders a Secret containing a literal value,
+# and `helm template` output is safe to paste into a ticket.
+externalSecrets:
+  # Off in embedded mode: there is nothing to fetch.
+  enabled: true
+  # Prefix of the Secrets Manager entries, matching var.name in
+  # infra/terraform/environments/*.
+  secretPrefix: quantos
+  region: us-east-1
+  refreshInterval: 1h
+  serviceAccount:
+    name: quantos-external-secrets
+    # arn:aws:iam::<account>:role/<prefix>-external-secrets
+    roleArn: ""
+
+# --------------------------------------------------------- service accounts --
+serviceAccounts:
+  create: true
+  # IRSA role ARNs, keyed by service name. Empty means no annotation, which is
+  # correct for embedded and compose mode and wrong for cluster mode - the
+  # NOTES.txt check calls this out.
+  roleArns: {}
+  #  api-gateway: arn:aws:iam::<account>:role/quantos-prod-api-gateway
+  #  ...
+
+# ------------------------------------------------------------ networking -----
+networkPolicy:
+  # Requires a CNI that enforces NetworkPolicy. The EKS VPC CNI does not by
+  # default; without one these render and do nothing.
+  enabled: true
+  # Where RDS, ElastiCache and MSK live. A NetworkPolicy has no other way to
+  # name a resource outside the cluster.
+  vpcCidr: 10.40.0.0/16
+  dnsNamespace: kube-system
+  monitoringNamespace: monitoring
+  ingressNamespace: ingress-nginx
+  observabilityNamespace: observability
+
+ingress:
+  enabled: true
+  className: alb
+  # internet-facing or internal. A value rather than an annotation override
+  # because setting it in `annotations` produces a duplicate key alongside the
+  # default the template already emits.
+  scheme: internet-facing
+  host: quantos.example.internal
+  certificateArn: ""
+  # /api/v1 rather than /. internal/api.Mount serves /metrics on the same
+  # router, and a "/" prefix would publish it to the internet.
+  path: /api/v1
+  annotations: {}
+
+# --------------------------------------------------------- observability -----
+monitoring:
+  serviceMonitor:
+    enabled: true
+    # 5s, not the usual 15s: the SLOs in docs/operations/slo.md are sub-second
+    # and a 15-second interval hides the spikes that matter.
+    interval: 5s
+    # Matched by the Prometheus resource's serviceMonitorSelector.
+    labels:
+      release: monitoring
+  prometheusRule:
+    enabled: true
+    labels:
+      release: monitoring
+
+# ------------------------------------------------------------- topics --------
+topics:
+  # Creates the ADR-002 topic set before the first producer starts. Only
+  # meaningful in cluster mode; the compose stack has its own init container and
+  # embedded mode has no broker.
+  enabled: true
+  image: bitnami/kafka:3.7
+  replicationFactor: 3
+  minInsyncReplicas: 2
+
+# -------------------------------------------------------------- budgets ------
+podDisruptionBudgets:
+  enabled: true
+
+priorityClasses:
+  # Two classes so a node under memory pressure evicts a backtest rather than
+  # the decision path.
+  enabled: false
+  live: quantos-live
+  batch: quantos-batch
+
+podAnnotations: {}
+podLabels: {}

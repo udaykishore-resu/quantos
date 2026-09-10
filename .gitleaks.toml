@@ -1,0 +1,27 @@
+# gitleaks configuration for the `secrets` job in .github/workflows/security.yml.
+#
+# The default ruleset is kept in full; this file only names the places where a
+# credential-shaped string is documentation rather than a credential. Each entry
+# is a false positive that would otherwise fail every run, and a check that
+# always fails is a check nobody reads.
+#
+# Nothing here exempts infra/, deploy/, scripts/ or the Go sources: a real key
+# in any of those still fails the build.
+
+title = "quantos"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "documentation examples and dashboard fixtures"
+paths = [
+  # API documentation. The login example carries a JWT signed with the
+  # development secret for the `demo` principal, and the order example an
+  # idempotency key that is a UUID by construction. Neither grants anything.
+  '''^docs/api/README\.md$''',
+  '''^docs/api/openapi\.yaml$''',
+  # Dashboard mock responses: idempotency keys of the form
+  # api:signal-<id>, which are order identifiers, not credentials.
+  '''^frontend/mocks/.*\.json$''',
+]

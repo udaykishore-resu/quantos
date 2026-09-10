@@ -4,7 +4,7 @@
 # configuration it reads. No shell, no package manager, no source: the smallest
 # surface that can still do the job.
 
-ARG GO_VERSION=1.24
+ARG GO_VERSION=1.26
 
 # --------------------------------------------------------------- build -----
 FROM golang:${GO_VERSION}-bookworm AS build

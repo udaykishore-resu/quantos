@@ -24,5 +24,5 @@ output "logs_kms_key_arn" {
     logs service principal, so other modules that create log groups should reuse
     it rather than minting a key that CloudWatch will reject.
   EOT
-  value = aws_kms_key.logs.arn
+  value       = aws_kms_key.logs.arn
 }

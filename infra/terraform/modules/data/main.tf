@@ -207,8 +207,8 @@ resource "aws_elasticache_replication_group" "redis" {
   automatic_failover_enabled = var.redis_replicas_per_node_group > 0
   multi_az_enabled           = var.redis_replicas_per_node_group > 0
 
-  subnet_group_name  = aws_elasticache_subnet_group.redis.name
-  security_group_ids = [aws_security_group.redis.id]
+  subnet_group_name    = aws_elasticache_subnet_group.redis.name
+  security_group_ids   = [aws_security_group.redis.id]
   parameter_group_name = aws_elasticache_parameter_group.redis.name
 
   at_rest_encryption_enabled = true

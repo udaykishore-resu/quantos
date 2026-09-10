@@ -13,7 +13,7 @@ output "bootstrap_brokers" {
     IAM-SASL bootstrap string. Becomes QUANTOS_KAFKA_BROKERS, which
     internal/config splits on commas into bus.brokers.
   EOT
-  value = var.serverless ? aws_msk_serverless_cluster.this[0].bootstrap_brokers_sasl_iam : aws_msk_cluster.this[0].bootstrap_brokers_sasl_iam
+  value       = var.serverless ? aws_msk_serverless_cluster.this[0].bootstrap_brokers_sasl_iam : aws_msk_cluster.this[0].bootstrap_brokers_sasl_iam
 }
 
 output "security_group_id" {

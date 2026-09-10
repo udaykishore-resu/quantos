@@ -49,7 +49,7 @@ output "service_role_arns" {
     eks.amazonaws.com/role-arn annotations in the kustomize overlay or into
     serviceAccounts.<service>.roleArn in the Helm values.
   EOT
-  value = module.iam.service_role_arns
+  value       = module.iam.service_role_arns
 }
 
 output "external_secrets_role_arn" {

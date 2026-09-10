@@ -1,0 +1,179 @@
+{{/*
+Default-deny, then explicit allows.
+
+The allow set is short because QuantOS services do not call each other: the
+platform is event-driven (ADR-010) and the only in-cluster HTTP that exists is
+Prometheus scraping /metrics and the ingress controller reaching api-gateway.
+
+These render and do nothing unless the CNI enforces NetworkPolicy. The EKS VPC
+CNI does not by default. NOTES.txt says so at install time, because a policy set
+that looks locked down and is inert is worse than none.
+*/}}
+{{- if and .Values.networkPolicy.enabled (ne .Values.mode "embedded") }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-default-deny
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  # Empty selector: every pod in the namespace, including ones added later. A
+  # policy that must be remembered for each new Deployment is one that will be
+  # forgotten for one of them.
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-dns
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.networkPolicy.dnsNamespace }}}
+          podSelector:
+            matchLabels: {k8s-app: kube-dns}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+---
+{{/*
+The backing stores and the bus, all outside the cluster. Ports are named
+individually: 5432 Postgres, 6379 Redis, 9098 MSK's IAM-SASL listener, 443 the
+interface VPC endpoints (STS for IRSA, Secrets Manager, CloudWatch, ECR). The
+endpoints exist so this rule can be VPC-only instead of "443 to the internet",
+which is not a policy.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-egress-datastores
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: quantos}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock: {cidr: {{ .Values.networkPolicy.vpcCidr }}}
+      ports:
+        - {protocol: TCP, port: 5432}
+        - {protocol: TCP, port: 6379}
+        - {protocol: TCP, port: 9098}
+        - {protocol: TCP, port: 8123}
+        - {protocol: TCP, port: 443}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-egress-otel
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: quantos}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.networkPolicy.observabilityNamespace }}}
+          podSelector:
+            matchLabels: {app.kubernetes.io/name: otel-collector}
+      ports:
+        - {protocol: TCP, port: 4318}
+{{- $llmServices := list }}
+{{- range $name, $cfg := .Values.services }}
+{{- if and $cfg.enabled $cfg.llm }}{{ $llmServices = append $llmServices $name }}{{ end }}
+{{- end }}
+{{- if and $llmServices (eq .Values.config.llm.provider "anthropic") }}
+---
+{{/*
+Egress to the provider, from the services that hold the key and no others. The
+ExternalSecret projection and the IRSA grant say the same thing at two other
+layers: a service with no key cannot call, and a service with no route cannot
+either.
+
+0.0.0.0/0 minus the VPC is the tightest a stock NetworkPolicy can express. A CNI
+with FQDN policy support can pin the hostname; if yours does, replace this.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-egress-llm
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values:
+          {{- range $llmServices }}
+          - {{ . }}
+          {{- end }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - {{ .Values.networkPolicy.vpcCidr }}
+              # IMDS. Never from a pod.
+              - 169.254.169.254/32
+      ports:
+        - {protocol: TCP, port: 443}
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-ingress-prometheus
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/part-of: quantos}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.networkPolicy.monitoringNamespace }}}
+          podSelector:
+            matchLabels: {app.kubernetes.io/name: prometheus}
+      ports:
+        {{- range $name, $cfg := .Values.services }}
+        {{- if $cfg.enabled }}
+        - {protocol: TCP, port: {{ $cfg.port }}}
+        {{- end }}
+        {{- end }}
+{{- if .Values.ingress.enabled }}
+---
+{{/*
+The only ingress path from outside the cluster, and it reaches api-gateway
+alone. Every binary mounts the same routes (cli.Spec.WithHTTP is true for all
+nine), so a routing mistake could otherwise expose signal-service's API surface.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quantos-allow-ingress-api-gateway
+  labels:
+    {{- include "quantos.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/name: api-gateway}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.networkPolicy.ingressNamespace }}}
+      ports:
+        - {protocol: TCP, port: {{ (index .Values.services "api-gateway").port }}}
+{{- end }}
+{{- end }}

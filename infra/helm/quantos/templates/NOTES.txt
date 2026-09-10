@@ -1,0 +1,94 @@
+QuantOS {{ .Chart.AppVersion }} installed as "{{ .Release.Name }}" in namespace
+{{ .Release.Namespace }}, runtime mode: {{ .Values.mode }}.
+
+CHECK THESE FIRST, IN THIS ORDER
+================================
+
+1. Does anything start at all?
+
+     kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+
+   A pod in CrashLoopBackOff before it ever serves a request is almost always a
+   rejected configuration. internal/config.Validate is strict on purpose and
+   prints exactly what it rejected:
+
+     kubectl -n {{ .Release.Namespace }} logs deploy/{{ if eq .Values.mode "embedded" }}quantos{{ else }}signal-service{{ end }} | head -20
+
+{{- if ne .Values.mode "embedded" }}
+
+2. Did the secrets resolve?
+
+     kubectl -n {{ .Release.Namespace }} get externalsecret
+     kubectl -n {{ .Release.Namespace }} get secret quantos-store
+
+   Every pod waits on quantos-store. If the ExternalSecret is not Ready, nothing
+   below this line will work, and the reason is usually the IRSA role on the
+   {{ .Values.externalSecrets.serviceAccount.name }} ServiceAccount.
+{{- end }}
+
+3. Is the platform ready, or is it deliberately holding back?
+
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ if eq .Values.mode "embedded" }}quantos{{ else }}api-gateway{{ end }} 8080:{{ if eq .Values.mode "embedded" }}{{ .Values.embedded.port }}{{ else }}{{ (index .Values.services "api-gateway").port }}{{ end }}
+     curl -s localhost:8080/healthz | jq .
+     curl -s localhost:8080/readyz  | jq .
+
+   /healthz returns 200 even when degraded and lists what is degraded in the
+   body. /readyz returns 503 when the service cannot do its job.
+
+   The one worth understanding before you see it:
+
+     "provenance store is unavailable; signal emission is suspended"
+
+   That is not a bug. When Postgres cannot be written, App.CanEmitSignals
+   returns false and the platform stops emitting signals rather than emitting
+   one it could not later explain (ADR-003). Fix Postgres and it resumes on its
+   own. Runbook: docs/runbooks/postgres-unavailable.md.
+
+{{- if eq .Values.mode "cluster" }}
+
+4. Did the topics get created?
+
+     kubectl -n {{ .Release.Namespace }} logs job/{{ .Release.Name }}-topics
+
+   The Job runs as a pre-install hook. If it failed, producers will fail on
+   their first publish, because auto-creation is disabled on the cluster - a
+   topic created implicitly gets the wrong partition count and silently breaks
+   per-symbol ordering.
+{{- end }}
+
+5. Are metrics being scraped?
+
+     curl -s localhost:8080/metrics | grep -c '^quantos_'
+
+   /metrics is on the service port, not a separate one.
+
+{{- $problems := list }}
+{{- if eq .Values.mode "cluster" }}
+{{- if not .Values.models.bucket }}{{ $problems = append $problems "models.bucket is empty: the fetch-models init container will fail and any service with models: true will not start." }}{{ end }}
+{{- if not .Values.externalSecrets.serviceAccount.roleArn }}{{ $problems = append $problems "externalSecrets.serviceAccount.roleArn is empty: External Secrets cannot reach Secrets Manager, so no pod will get its DSN." }}{{ end }}
+{{- if not .Values.serviceAccounts.roleArns }}{{ $problems = append $problems "serviceAccounts.roleArns is empty: pods will fall back to the node role, which holds none of the permissions they need. Fill it from `terraform output -json service_role_arns`." }}{{ end }}
+{{- if not .Values.ingress.certificateArn }}{{ if .Values.ingress.enabled }}{{ $problems = append $problems "ingress.certificateArn is empty: the ALB will come up without a TLS listener." }}{{ end }}{{ end }}
+{{- end }}
+{{- if and (eq .Values.config.llm.provider "anthropic") (eq .Values.mode "embedded") }}
+{{- $problems = append $problems "config.llm.provider is anthropic but mode is embedded, which projects no secret. The provider will fall back to the mock." }}
+{{- end }}
+{{- if $problems }}
+
+UNFINISHED CONFIGURATION
+========================
+{{ range $problems }}
+  ! {{ . }}
+{{ end }}
+{{- end }}
+
+WHAT THIS RELEASE IS NOT
+========================
+
+QuantOS is an educational research and paper-trading platform. It routes no
+real-money orders, and internal/paper panics at start-up if
+QUANTOS_ALLOW_REAL_MONEY is set. Nothing in this chart changes that, and nothing
+in it should be read as making the platform ready to trade.
+
+Runbooks: docs/runbooks/
+Deployment modes: docs/operations/deployment.md
+SLOs the alerts are derived from: docs/operations/slo.md
