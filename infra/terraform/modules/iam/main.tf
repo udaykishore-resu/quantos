@@ -15,7 +15,9 @@
 # risk.updated, and domain.NewSignal's structural guarantee is only as strong as
 # the identity that produced the assessment it read.
 
-data "aws_caller_identity" "current" {}
+# The account id is not referenced here: every ARN in this module is either
+# derived from an ARN the caller passes in or built from the region, so there
+# is nothing left for aws_caller_identity to supply.
 data "aws_region" "current" {}
 
 locals {

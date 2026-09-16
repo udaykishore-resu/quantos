@@ -193,9 +193,22 @@ jobs:
             terraform -chdir="${dir}" validate -no-color
           done
 
+      # The upstream install_linux.sh used to be curl'd from the tflint default
+      # branch. That file no longer exists there, so the pipe to bash fetched a
+      # 404 page, ran it, and the job died at `tflint: command not found`. A
+      # release URL on a mutable branch is not a pin; the maintained action is.
+      - uses: terraform-linters/setup-tflint@v6.3.1
+        with:
+          tflint_version: v0.64.0
+
       - name: tflint
+        # --init resolves any plugins the config asks for; it needs a token to
+        # avoid the anonymous release-API rate limit on busy runners.
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          curl -sSfL https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          set -euo pipefail
+          tflint --version
           tflint --init --chdir=infra/terraform
           tflint --recursive --chdir=infra/terraform --minimum-failure-severity=warning
 
