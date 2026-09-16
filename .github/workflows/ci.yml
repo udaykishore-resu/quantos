@@ -192,6 +192,18 @@ jobs:
           cache: pip
           cache-dependency-path: ml/requirements.txt
 
+      # test_go_parity.py shells out to `go run ./ml/tools/parity`, so this job
+      # needs the same toolchain as every other Go job rather than whatever the
+      # runner image happens to ship. Without this it used the ambient Go, and
+      # the moment go.mod asked for a newer one the go command tried to fetch a
+      # toolchain module -- which is always verified against the checksum
+      # database, so the harness's GOSUMDB=off turned it into a hard failure.
+      - uses: actions/setup-go@v5
+        if: steps.check.outputs.run == 'true'
+        with:
+          go-version-file: go.mod
+          cache: true
+
       - name: install
         if: steps.check.outputs.run == 'true'
         run: |

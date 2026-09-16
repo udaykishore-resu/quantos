@@ -23,11 +23,20 @@ from ml.training import train as trainer  # noqa: E402
 
 #: Environment `go run` needs in this container: the module proxy is not
 #: reachable, and every dependency is either vendored in go.sum or stdlib.
+#:
+#: GOTOOLCHAIN=local is load-bearing. With GOSUMDB off there is no way to verify
+#: a downloaded toolchain module -- cmd/go always checks those against the
+#: checksum database and GOPRIVATE does not exempt them -- so an automatic
+#: toolchain switch cannot succeed here. Pinning to the installed toolchain
+#: turns that into an honest "go.mod requires go >= X (running go1.Y)" instead
+#: of a misleading checksum error, and says out loud that this harness expects
+#: the toolchain go.mod asks for to already be on PATH.
 GO_ENV = {
     "GOPROXY": "direct",
     "GOSUMDB": "off",
     "GOPRIVATE": "*",
     "GOFLAGS": "-mod=mod",
+    "GOTOOLCHAIN": "local",
 }
 
 
