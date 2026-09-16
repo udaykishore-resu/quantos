@@ -24,9 +24,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # The Go version comes from the `go` directive in go.mod (setup-go reads it
-  # with go-version-file), so the toolchain CI builds with is the one the
-  # module declares. deploy/Dockerfile carries the same value in its ARG.
+  # The Go version comes from go.mod (setup-go reads it with go-version-file).
+  # setup-go prefers the `toolchain` directive over the `go` directive, so the
+  # `go` line states the minimum language version the module needs and the
+  # `toolchain` line names the patched release CI actually builds with -- keep
+  # that one current, since a bare `go 1.26.0` would pin CI to the unpatched
+  # .0 release. deploy/Dockerfile carries the same minor in its ARG and lets
+  # the image supply the patch.
   #
   # The tests are deterministic and seeded; a flake here is a bug, not weather.
   CGO_ENABLED: "0"
