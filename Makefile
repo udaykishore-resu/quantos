@@ -210,8 +210,8 @@ MEMBERSHIP  ?= data/membership/sp500.csv
 STRATEGY    ?= momentum
 
 .PHONY: ingest
-ingest: ## fetch real daily history (Stooq, no API key) into $(DATA_DIR)
-	$(GO) run ./cmd/quantos ingest -source stooq -out $(DATA_DIR) -start 2010-01-01
+ingest: ## fetch real daily history (Yahoo chart API, no key) into $(DATA_DIR)
+	$(GO) run ./cmd/quantos ingest -source yahoo -out $(DATA_DIR) -start 2010-01-01
 
 .PHONY: membership
 membership: ## build the point-in-time S&P 500 membership table

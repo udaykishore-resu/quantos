@@ -215,3 +215,70 @@ func TestRunWritesReplayLayoutTheReplayProviderCanRead(t *testing.T) {
 		t.Errorf("replayed bar lost its daily shape: %+v", bars[0])
 	}
 }
+
+func TestYahooFetchScalesByAdjustedCloseAndSkipsNulls(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("User-Agent") == "" || !strings.Contains(r.Header.Get("User-Agent"), "Mozilla") {
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/chart/NOPE"):
+			_, _ = w.Write([]byte(`{"chart":{"result":null,"error":{"code":"Not Found","description":"No data found, symbol may be delisted"}}}`))
+		case strings.HasSuffix(r.URL.Path, "/chart/BRK-B"):
+			if r.URL.Query().Get("interval") != "1d" || r.URL.Query().Get("period1") == "" {
+				t.Errorf("unexpected query %s", r.URL.RawQuery)
+			}
+			// 2024-01-02, 2024-01-03 (null row), 2024-01-04 as unix seconds.
+			_, _ = w.Write([]byte(`{"chart":{"result":[{"meta":{"symbol":"BRK-B"},"timestamp":[1704153600,1704240000,1704326400],
+			  "indicators":{"quote":[{"open":[100,null,104],"high":[110,null,112],"low":[90,null,100],"close":[100,null,110],"volume":[1000,null,1200]}],
+			  "adjclose":[{"adjclose":[50,null,110]}]}}],"error":null}}`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer srv.Close()
+
+	src := &Yahoo{BaseURL: srv.URL, Client: srv.Client()}
+	bars, err := src.Fetch(context.Background(), "BRK-B", time.Time{}, time.Time{})
+	if err != nil {
+		t.Fatalf("fetch: %v", err)
+	}
+	if len(bars) != 2 {
+		t.Fatalf("expected the null row to be skipped, got %d bars", len(bars))
+	}
+	if bars[0].Start != time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC) {
+		t.Errorf("first bar date %s", bars[0].Start)
+	}
+	// Day one is scaled by 0.5 across the whole bar; day two is unadjusted.
+	if bars[0].Open != 50 || bars[0].High != 55 || bars[0].Low != 45 || bars[0].Close != 50 || bars[0].Volume != 2000 {
+		t.Errorf("bar not scaled consistently: %+v", bars[0])
+	}
+	if bars[1].Close != 110 || bars[1].Volume != 1200 {
+		t.Errorf("unadjusted bar altered: %+v", bars[1])
+	}
+	if _, err := src.Fetch(context.Background(), "NOPE", time.Time{}, time.Time{}); err != ErrBadSymbol {
+		t.Errorf("unknown symbol should be ErrBadSymbol, got %v", err)
+	}
+	if _, err := src.Fetch(context.Background(), "GONE", time.Time{}, time.Time{}); err != ErrBadSymbol {
+		t.Errorf("404 should be ErrBadSymbol, got %v", err)
+	}
+	if got := YahooSymbol("BRK.B"); got != "BRK-B" {
+		t.Errorf("YahooSymbol(BRK.B) = %s", got)
+	}
+	if got := YahooSymbol("VIX"); got != "^VIX" {
+		t.Errorf("YahooSymbol(VIX) = %s", got)
+	}
+}
+
+func TestStooqRecognisesTheBrowserWall(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`<!DOCTYPE html><html><body><noscript>This site requires JavaScript to verify your browser.</noscript></body></html>`))
+	}))
+	defer srv.Close()
+	src := &Stooq{BaseURL: srv.URL, Client: srv.Client()}
+	_, err := src.Fetch(context.Background(), "aapl.us", time.Time{}, time.Time{})
+	if err == nil || !strings.Contains(err.Error(), "browser-verification") {
+		t.Errorf("expected a clear wall error, got %v", err)
+	}
+}

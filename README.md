@@ -103,7 +103,7 @@ Everything above runs on the simulator. The path to a number that means
 something is three commands:
 
 ```bash
-make ingest        # real daily bars into data/daily (Stooq, no API key)
+make ingest        # real daily bars into data/daily (Yahoo chart API, no key)
 make membership    # point-in-time S&P 500 constituents, the survivorship guard
 make report        # out-of-sample walk-forward, at 1x and 2x costs, against buy-and-hold
 ```
@@ -154,7 +154,7 @@ services/             nine deployable binaries, each a thin entrypoint (ADR-011)
 internal/domain/      the shared vocabulary; imports nothing else in the repo
 internal/bus/         envelopes, topics, in-memory and WAL drivers, idempotency
 internal/marketdata/  provider abstraction, deterministic simulator, validation
-internal/ingest/      real daily history (Stooq, Tiingo, local CSV) → replay layout
+internal/ingest/      real daily history (Yahoo, Tiingo, Stooq, local CSV) → replay layout
 internal/features/    incremental indicators → content-hashed snapshots
 internal/rules/       YAML strategies, condition evaluation, counter-evidence
 internal/predict/     rule prior, model blending, horizon scaling, flat band

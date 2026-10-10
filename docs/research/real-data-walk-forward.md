@@ -10,7 +10,7 @@ that means something.
 The three commands:
 
 ```bash
-make ingest         # real daily bars into data/daily  (Stooq, no API key)
+make ingest         # real daily bars into data/daily  (Yahoo chart API, no key)
 make membership     # point-in-time S&P 500 constituents into data/membership/
 make report         # net-of-cost walk-forward → reports/walkforward-momentum.{md,json}
 ```
@@ -29,15 +29,20 @@ traded notional (which the risk engine's liquidity gate needs).
 
 | source | key | what you get |
 |---|---|---|
-| `stooq` (default) | none | split/dividend-adjusted daily bars; throttled after a few hundred requests a day, so `-delay` matters |
-| `tiingo` | `TIINGO_TOKEN` | adjusted fields from the API; free tier covers a few hundred names a day |
+| `yahoo` (default) | none | the chart endpoint the Yahoo Finance site uses (what `yfinance` wraps); OHLC scaled by `adjclose/close`. Unofficial, so expect it to change someday; the parser fails loudly when it does |
+| `tiingo` | `TIINGO_TOKEN` | adjusted fields from a documented API; free tier covers a few hundred names a day. The right choice once this is a routine |
+| `stooq` | none | CSV, but as of October 2026 behind a JavaScript browser-verification wall that a plain client cannot pass; kept in case the wall goes away |
 | `local` | none | any directory of CSVs you already have (a Yahoo Finance export works); an `Adj Close` column scales the whole bar |
 
 ```bash
-go run ./cmd/quantos ingest -source stooq -out data/daily -start 2010-01-01
-go run ./cmd/quantos ingest -source stooq -membership data/membership/sp500.csv   # every name ever in the index
+go run ./cmd/quantos ingest -out data/daily -start 2010-01-01
+go run ./cmd/quantos ingest -membership data/membership/sp500.csv       # every name ever in the index
+go run ./cmd/quantos ingest -source tiingo -token $TIINGO_TOKEN -out data/daily
 go run ./cmd/quantos ingest -source local -in ~/Downloads/yahoo -out data/daily
 ```
+
+Ingest overwrites per instrument, so a run that was rate-limited halfway can
+simply be re-run; the names that already landed are refreshed, not lost.
 
 Two things the manifest records that you should read before trusting a
 result: `adjustment` (never mix sources — the replay provider marks every bar

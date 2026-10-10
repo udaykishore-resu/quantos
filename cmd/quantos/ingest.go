@@ -22,7 +22,7 @@ import (
 // it talks only to read prices. There is still no order path.
 func runIngest() {
 	var (
-		source   = flag.String("source", "stooq", "data source: stooq (no key) | tiingo (TIINGO_TOKEN) | local (a directory of CSVs)")
+		source   = flag.String("source", "yahoo", "data source: yahoo (no key) | tiingo (TIINGO_TOKEN) | stooq (currently behind a JS wall) | local (a directory of CSVs)")
 		out      = flag.String("out", "data/daily", "replay directory to write")
 		in       = flag.String("in", "", "for -source local: directory containing <SYMBOL>.csv files")
 		tickers  = flag.String("tickers", "", "comma-separated tickers (default: the builtin universe plus macro and sector ETFs)")
@@ -51,6 +51,8 @@ func runIngest() {
 
 	var src ingest.Source
 	switch *source {
+	case "yahoo":
+		src = ingest.NewYahoo()
 	case "stooq":
 		src = ingest.NewStooq()
 	case "tiingo":
