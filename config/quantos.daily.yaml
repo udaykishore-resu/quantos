@@ -1,0 +1,88 @@
+# QuantOS — daily-bar research profile.
+#
+# Overlay for `quantos report` and `quantos run` against a replay directory of
+# real daily history (see `quantos ingest`). Every setting here that differs
+# from config/quantos.yaml differs because a daily bar is not a one-minute bar:
+# horizons, staleness, warm-up and time-to-live are all expressed in bars'
+# worth of time, and the defaults assume 390 of them a day.
+#
+# Nothing in this file changes what the platform *is*: the same engines, the
+# same risk veto, the same paper-only broker. It changes the clock they read.
+
+mode: embedded
+env: research
+
+market:
+  provider: replay
+  bar_interval: 1d
+  replay_dir: ./data/daily
+  # One bar a day; a bar is stale after a long weekend only if the sweep is
+  # late, which the backtester never is. Live replay at speed uses the same
+  # values.
+  staleness_soft: 72h
+  staleness_hard: 120h
+  max_gap_pct: 0.40
+
+features:
+  interval: 1d
+  # 260 trading days ≈ one calendar year of warm-up, which the report supplies
+  # from the bars *before* each test window rather than eating the window.
+  warmup_bars: 260
+  max_history_bars: 500
+  benchmark: SPY
+  # VWAP resets per session; on daily bars the session is the bar, so the
+  # distance-from-VWAP feature would always be zero. Cumulative VWAP is the
+  # meaningful alternative.
+  vwap_reset_daily: false
+
+regime:
+  benchmarks: [SPY, QQQ]
+  volatility_ref: VIX
+  min_confidence: 0.45
+  hysteresis: 48h
+  vix_high: 24
+  vix_low: 14
+  # trend_slope is a per-bar regression slope. A daily bar carries ~390 minute
+  # bars of drift, so the one-minute threshold would read every drift as a
+  # strong trend. 0.0015/day ≈ 45% a year, the same stance as the base file.
+  trend_threshold: 0.0015
+  breadth_threshold: 0.15
+
+predict:
+  # 60-minute horizons do not exist on daily bars. 1d is the next session; 5d
+  # is roughly a trading week.
+  horizons: [1d, 5d]
+  # Half-width of the FLAT class. A daily move inside ±50 bps is noise for a
+  # large cap; the one-minute band of 15 bps would call almost every day UP or
+  # DOWN and the base rate would collapse towards a coin flip.
+  flat_band_bps: 50
+
+risk:
+  staleness_soft: 72h
+  staleness_hard: 120h
+
+signals:
+  default_strategy: momentum
+  max_active: 50
+  max_per_ticker: 1
+  # One bar of cooldown and a two-week time-to-live.
+  cooldown: 24h
+  default_ttl: 336h
+  invalidation_sweep: 24h
+
+alerts:
+  dedup_bucket: 24h
+  cooldown: 24h
+  max_per_ticker_per_hour: 12
+
+paper:
+  starting_cash: 100000
+  max_positions: 20
+  max_weight: 0.10
+  allow_short: false
+  fill_delay: 0s
+  mark_interval: 24h
+
+evaluation:
+  sweep_interval: 24h
+  calibration_bins: 10

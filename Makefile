@@ -199,6 +199,38 @@ evaluate: ## run the walk-forward evaluation and write the report
 backtest: ## run a deterministic backtest over simulated history
 	$(GO) run ./cmd/quantos backtest -strategy momentum -days 45 -seed 20260827
 
+##@ Real data
+
+# Everything above runs on the simulator. These targets are the path to a
+# number that means something: real daily bars in, an out-of-sample report out.
+# See docs/research/real-data-walk-forward.md before reading the result.
+
+DATA_DIR    ?= data/daily
+MEMBERSHIP  ?= data/membership/sp500.csv
+STRATEGY    ?= momentum
+
+.PHONY: ingest
+ingest: ## fetch real daily history (Stooq, no API key) into $(DATA_DIR)
+	$(GO) run ./cmd/quantos ingest -source stooq -out $(DATA_DIR) -start 2010-01-01
+
+.PHONY: membership
+membership: ## build the point-in-time S&P 500 membership table
+	mkdir -p $(dir $(MEMBERSHIP))
+	$(PYTHON) scripts/build_membership.py --out $(MEMBERSHIP)
+
+.PHONY: report
+report: ## net-of-cost walk-forward over $(DATA_DIR); set STRATEGY=, MEMBERSHIP=
+	$(GO) run ./cmd/quantos report -config config/quantos.daily.yaml \
+		-data $(DATA_DIR) $(if $(wildcard $(MEMBERSHIP)),-membership $(MEMBERSHIP),) \
+		-strategy $(STRATEGY) -costs 1,2 -trials 5 \
+		-out reports/walkforward-$(STRATEGY).json -md reports/walkforward-$(STRATEGY).md
+
+.PHONY: report-all
+report-all: ## the report for every shipped strategy, with and without the model
+	@for s in momentum breakout mean_reversion quality_growth value; do \
+		$(MAKE) --no-print-directory report STRATEGY=$$s; \
+	done
+
 ##@ Kubernetes (local)
 
 # The local cluster is one kind node running the full backing stack and QuantOS

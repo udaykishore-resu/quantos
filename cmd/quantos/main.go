@@ -6,6 +6,8 @@
 //	run              run every role in one process (the `make dev` target)
 //	demo             run the ten reproducible demo scenarios
 //	backtest         run a deterministic historical simulation
+//	ingest           fetch real daily history into a replay directory
+//	report           net-of-cost walk-forward over a replay directory
 //	export-features  export feature snapshots for research in Python
 //	validate         validate configuration and strategies, then exit
 //	topics           print the Kafka topic specification
@@ -64,6 +66,10 @@ func main() {
 		runDemo()
 	case "backtest":
 		runBacktest()
+	case "ingest":
+		runIngest()
+	case "report":
+		runReport()
 	case "export-features":
 		exportFeatures()
 	case "validate":
@@ -92,6 +98,8 @@ commands:
   run              run every role in one process
   demo             run the ten reproducible demo scenarios
   backtest         run a deterministic historical simulation
+  ingest           fetch real daily history into a replay directory
+  report           net-of-cost walk-forward over a replay directory
   export-features  export feature snapshots as CSV for research
   validate         validate configuration and strategies, then exit
   topics           print the event topic specification

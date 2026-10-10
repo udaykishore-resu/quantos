@@ -150,6 +150,18 @@ type WalkForwardReport struct {
 // directory.
 func (e *Engine) RunWalkForward(ctx context.Context, base Request, folds []Fold,
 	barsFor func(start, end time.Time) ([]domain.Candle, error)) (WalkForwardReport, error) {
+	return e.RunWalkForwardWarm(ctx, base, folds, 0, barsFor)
+}
+
+// RunWalkForwardWarm is RunWalkForward with a warm-up period ahead of every
+// test window. Bars from TestStart-warmup to TestStart run through the
+// pipeline without trading so that indicators are warm when the out-of-sample
+// period begins; the equity curve and every statistic cover the test window
+// only. Those warm-up bars lie inside the embargo and training windows, which
+// is fine: nothing is *fitted* on them here, they only prime rolling state
+// that would otherwise take warmup_bars of the test window to fill.
+func (e *Engine) RunWalkForwardWarm(ctx context.Context, base Request, folds []Fold, warmup time.Duration,
+	barsFor func(start, end time.Time) ([]domain.Candle, error)) (WalkForwardReport, error) {
 
 	if err := Validate(folds); err != nil {
 		return WalkForwardReport{}, err
@@ -160,13 +172,20 @@ func (e *Engine) RunWalkForward(ctx context.Context, base Request, folds []Fold,
 	positive := 0
 
 	for _, f := range folds {
-		bars, err := barsFor(f.TestStart, f.TestEnd)
+		from := f.TestStart
+		if warmup > 0 {
+			from = f.TestStart.Add(-warmup)
+		}
+		bars, err := barsFor(from, f.TestEnd)
 		if err != nil {
 			rep.Folds = append(rep.Folds, FoldResult{Fold: f, Error: err.Error()})
 			continue
 		}
 		req := base
-		req.Start, req.End = f.TestStart, f.TestEnd
+		req.Start, req.End = from, f.TestEnd
+		if warmup > 0 {
+			req.TradeFrom = f.TestStart
+		}
 		req.Name = fmt.Sprintf("%s-fold-%d", base.Name, f.Index)
 		run, err := e.Run(ctx, req, bars)
 		fr := FoldResult{Fold: f, Run: run, Metrics: run.Metrics}
@@ -191,6 +210,9 @@ func (e *Engine) RunWalkForward(ctx context.Context, base Request, folds []Fold,
 		fmt.Sprintf("%d folds, %.0f%% with a positive out-of-sample return", len(rep.Folds), rep.Consistency*100),
 		"aggregate metrics are computed from the concatenated out-of-sample curve, not by averaging per-fold statistics",
 		fmt.Sprintf("embargo of %s applied between validation and test in every fold", folds[0].EmbargoEnd.Sub(folds[0].EmbargoStart)))
+	if warmup > 0 {
+		rep.Notes = append(rep.Notes, fmt.Sprintf("indicators warmed on %s of bars before each test window; no trades and no statistics from that stretch", warmup))
+	}
 	return rep, nil
 }
 

@@ -388,6 +388,12 @@ func (e *Engine) buildSnapshot(s *symbol, c domain.Candle) domain.FeatureSnapsho
 
 	// Volatility: annualised realised vol from log returns at this bar size.
 	barsPerYear := 252 * 6.5 * 3600 / e.cfg.Interval.Duration().Seconds()
+	if e.cfg.Interval == domain.Interval1d {
+		// A daily bar is a trading day, not 24 hours of a 6.5-hour session;
+		// the generic formula gives 68 bars a year and understates daily
+		// volatility by almost half.
+		barsPerYear = 252
+	}
 	rv := s.logRets.StdDev() * math.Sqrt(barsPerYear)
 	put(domain.FeatRealizedVol, rv, s.logRets.Len() >= 20)
 	put(domain.FeatVolOfVol, volOfVol(s.logRets), s.logRets.Len() >= 40)

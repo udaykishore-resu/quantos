@@ -82,6 +82,24 @@ type Request struct {
 	CodeVersion  string
 	ConfigHash   string
 	ModelVersion string
+
+	// TradeFrom, when set, splits the window into a warm-up and a trading
+	// period. Bars before it run through the pipeline so indicators, regime
+	// and relationship state are warm, but no paper order is submitted and
+	// the equity curve starts there. Without it every walk-forward fold would
+	// begin with cold indicators and the first warmup_bars of each test
+	// window would be silently untradable — a year of daily data.
+	TradeFrom time.Time
+	// FillAtNextOpen fills a pending order at the *open* of the next bar for
+	// that instrument rather than at the last close. The default (last close)
+	// is a fair proxy on one-minute bars, where close(i) ≈ open(i+1). On daily
+	// bars it books the overnight gap in the strategy's favour, so the daily
+	// report turns this on.
+	FillAtNextOpen bool
+	// Observer, when set, sees every pipeline result in stream order. The
+	// walk-forward report uses it to score predictions against realised
+	// outcomes; it must not mutate anything.
+	Observer func(bar domain.Candle, res pipeline.Result)
 }
 
 // Builder constructs a fresh pipeline bound to a simulated clock and broker.
@@ -157,6 +175,10 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 
 	pl := e.build(clock, broker)
 	guard := LeakageGuard{Enabled: true}
+	warming := !req.TradeFrom.IsZero() && stream[0].End.Before(req.TradeFrom)
+	if warming {
+		pl.SetTradePaper(false)
+	}
 
 	run := domain.BacktestRun{
 		ID:           newRunID(req),
@@ -176,6 +198,7 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 		StartedAt:    stream[0].End,
 	}
 	seen := map[domain.Ticker]bool{}
+	spreads := newSpreadEstimator()
 
 	// The loop processes bars strictly in order and advances the clock to each
 	// bar's close before evaluating it. Nothing in the pipeline can therefore
@@ -189,18 +212,42 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 		default:
 		}
 		c := stream[i]
-		seen[c.Ticker] = true
 		clock.Set(c.End)
 		decisionAt := c.End
+
+		if warming && !c.End.Before(req.TradeFrom) {
+			// Warm-up is over: from this bar on signals become positions.
+			warming = false
+			pl.SetTradePaper(true)
+		}
+		if !warming {
+			seen[c.Ticker] = true
+		}
 
 		// Mark the book *before* the decision, using prices from bars that have
 		// already closed. Pending orders from the previous bar fill here, which
 		// is the next-bar-open semantics ADR-007 requires.
 		prices, volumes := pl.Marks()
+		if req.FillAtNextOpen && c.Open > 0 {
+			// The first tradable price after a decision at close(i) is
+			// open(i+1), which is this bar. Only the arriving instrument is
+			// touched; every other mark stays at its last close.
+			prices[c.Ticker] = c.Open
+		}
 		broker.Mark(prices, volumes, decisionAt)
+
+		// A replayed history has no quotes, and a risk check that cannot see
+		// a spread returns WATCH_ONLY rather than passing. Feed the pipeline
+		// the two-sided quote the bar implies: a spread from the instrument's
+		// traded notional, floored at the cost model's own assumption, so the
+		// check is a stated assumption rather than a skipped one. See spread.go.
+		pl.OnQuote(syntheticQuote(c, spreads.observe(c), 2*req.Costs.SpreadCostBps))
 
 		res := pl.OnBar(ctx, c)
 		run.EventsProcessed++
+		if req.Observer != nil {
+			req.Observer(c, res)
+		}
 
 		if err := guard.Check(res.Snapshot, decisionAt, c); err != nil {
 			run.Status = domain.BacktestFailed
@@ -229,6 +276,18 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 
 	curve := broker.EquityCurve()
 	trades := broker.Trades()
+	if !req.TradeFrom.IsZero() {
+		// The warm-up stretch is flat cash and would dilute every return
+		// statistic; the run reports the trading period only.
+		trimmed := curve[:0]
+		for _, p := range curve {
+			if !p.At.Before(req.TradeFrom) {
+				trimmed = append(trimmed, p)
+			}
+		}
+		curve = trimmed
+		run.Start = req.TradeFrom
+	}
 	run.EquityCurve = curve
 	run.Trades = trades
 	run.Metrics = ComputeMetrics(curve, trades, req.RiskFree)

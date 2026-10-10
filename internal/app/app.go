@@ -596,14 +596,16 @@ func (a *App) newBacktestPipeline(clock *obs.SimClock, broker *paper.Broker) *pi
 	riskCfg.Clock = clock
 	riskCfg.ConfigHash = a.Cfg.Hash
 
-	return pipeline.New(pipeline.Deps{
+	pl := pipeline.New(pipeline.Deps{
 		Universe: a.Universe, Features: feat, Regime: rg,
 		Relationship: relationship.NewEngine(relCfg), Rules: rules.NewEngine(),
 		Strategies: a.Strategies,
 		Predict: predict.NewEngine(predict.Config{
 			ModelID: a.Cfg.Predict.ModelID, Horizons: a.Cfg.Predict.Horizons,
 			FlatBandBps: a.Cfg.Predict.FlatBandBps, BlendWeight: a.Cfg.Predict.BlendWeight,
-			FallbackCeiling: a.Cfg.Predict.FallbackCeiling, Clock: clock,
+			BlendReferenceLift:      a.Cfg.Predict.BlendReferenceLift,
+			DirectionalReferenceAUC: a.Cfg.Predict.DirectionalReferenceAUC,
+			FallbackCeiling:         a.Cfg.Predict.FallbackCeiling, Clock: clock,
 		}, a.Models),
 		Risk: risk.NewEngine(riskCfg),
 		Signals: signal.NewEngine(signal.Config{
@@ -619,6 +621,16 @@ func (a *App) newBacktestPipeline(clock *obs.SimClock, broker *paper.Broker) *pi
 		MacroTickers: universe.MacroTickers(),
 		TradePaper:   true,
 	})
+	// The live pipeline serves a loaded model on its offline evaluation until
+	// live outcomes replace it (see the model-health check). A backtest gets
+	// the same provisional record; without it the risk engine sees "a model
+	// is serving but has no health record" and every candidate is WATCH_ONLY,
+	// so no backtest with a model loaded could ever trade.
+	if len(a.Models.All()) > 0 && a.health.ModelVersion != "" {
+		h := a.health
+		pl.SetModelHealth(&h, nil)
+	}
+	return pl
 }
 
 // historicalBars supplies bars to a backtest, from the store when available and

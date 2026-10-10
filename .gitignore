@@ -57,3 +57,7 @@ crash.log
 .idea/
 .vscode/
 *.swp
+.codegraphy/*
+
+# Walk-forward reports over real data; regenerate with `make report`.
+/reports/

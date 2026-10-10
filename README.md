@@ -97,6 +97,24 @@ make evaluate          # walk-forward validation with an embargo
 make backtest          # deterministic event-driven backtest
 ```
 
+### Real data
+
+Everything above runs on the simulator. The path to a number that means
+something is three commands:
+
+```bash
+make ingest        # real daily bars into data/daily (Stooq, no API key)
+make membership    # point-in-time S&P 500 constituents, the survivorship guard
+make report        # out-of-sample walk-forward, at 1x and 2x costs, against buy-and-hold
+```
+
+The report scores every prediction against its realised outcome, compares the
+paper book with holding SPY over the same windows, and ends with a mechanical
+verdict whose thresholds are in the code. Read
+[`docs/research/real-data-walk-forward.md`](docs/research/real-data-walk-forward.md)
+before reading the result; it says what the survivorship correction can and
+cannot do, and why "no demonstrated edge" is the likely and useful outcome.
+
 Training data comes from the Go feature engine rather than a parallel Python implementation, so a model is never fitted on a subtly different definition of a feature from the one that will serve it. `ml/tests/` includes a Go/Python parity check that pins the two implementations to within 1e-12.
 
 ---
@@ -131,17 +149,18 @@ These are enforced in code, not documented as intentions:
 ## Repository layout
 
 ```
-cmd/quantos/          run | demo | backtest | export-features | validate | topics
+cmd/quantos/          run | demo | backtest | ingest | report | export-features | validate | topics
 services/             nine deployable binaries, each a thin entrypoint (ADR-011)
 internal/domain/      the shared vocabulary; imports nothing else in the repo
 internal/bus/         envelopes, topics, in-memory and WAL drivers, idempotency
 internal/marketdata/  provider abstraction, deterministic simulator, validation
+internal/ingest/      real daily history (Stooq, Tiingo, local CSV) → replay layout
 internal/features/    incremental indicators → content-hashed snapshots
 internal/rules/       YAML strategies, condition evaluation, counter-evidence
 internal/predict/     rule prior, model blending, horizon scaling, flat band
 internal/risk/        eleven checks, most-severe-wins, the veto
 internal/signal/      construction, policy, invalidation
-internal/backtest/    event-driven engine, leakage guard, walk-forward, metrics
+internal/backtest/    event-driven engine, leakage guard, walk-forward, net-of-cost report
 internal/evaluation/  outcome scoring, calibration, drift, veto cost
 internal/analyst/     LLM narrative, grounding validator, language guard, template
 internal/app/         the composition root

@@ -247,6 +247,18 @@ func (p *Pipeline) OnBar(ctx context.Context, c domain.Candle) Result {
 	}
 	res.Stock = stock
 
+	// 2b. Point-in-time membership. The bar has already warmed the feature
+	//     engine, which is correct: the data existed. What did not exist is
+	//     the instrument's place in the universe, so it goes no further. This
+	//     is the survivorship-bias guard; a universe without a membership table
+	//     answers from the stock's own listing dates and the builtin fixtures
+	//     are always active, so the live path is unchanged.
+	if p.deps.Universe.Membership() != nil && !p.deps.Universe.Active(c.Ticker, now) {
+		res.Rejection = &signal.Rejection{Ticker: c.Ticker, Stage: "universe",
+			Reason: "not a universe member on " + now.UTC().Format("2006-01-02"), At: now}
+		return res
+	}
+
 	strat, ok := p.selectStrategy(rg.Regime)
 	if !ok {
 		return res
@@ -602,6 +614,22 @@ func (p *Pipeline) Marks() (map[domain.Ticker]float64, map[domain.Ticker]float64
 		vols[k] = v
 	}
 	return prices, vols
+}
+
+// SetTradePaper toggles paper order submission. The backtester turns it off
+// while warming indicators ahead of a fold's test window, so a signal fired
+// on the warm-up tape never becomes a position that the test window inherits.
+func (p *Pipeline) SetTradePaper(enabled bool) {
+	p.mu.Lock()
+	p.opts.TradePaper = enabled
+	p.mu.Unlock()
+}
+
+// TradePaper reports whether paper orders are submitted.
+func (p *Pipeline) TradePaper() bool {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return p.opts.TradePaper
 }
 
 // BarsProcessed returns how many bars the pipeline has seen.

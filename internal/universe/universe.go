@@ -21,6 +21,9 @@ type Universe struct {
 	byTicker map[domain.Ticker]domain.Stock
 	order    []domain.Ticker
 	lists    map[string][]domain.Ticker // named lists: sp500, nasdaq100, watchlist, sectors
+	// membership, when set, is the point-in-time constituent table that
+	// Active and AsOf consult instead of per-stock listing dates.
+	membership *Membership
 }
 
 // New returns an empty universe.
@@ -77,6 +80,12 @@ func (u *Universe) AsOf(at time.Time) []domain.Stock {
 	out := make([]domain.Stock, 0, len(u.order))
 	for _, t := range u.order {
 		s := u.byTicker[t]
+		if u.membership != nil {
+			if u.membership.MemberAt(t, at) {
+				out = append(out, s)
+			}
+			continue
+		}
 		if s.Active(at) {
 			out = append(out, s)
 		}
