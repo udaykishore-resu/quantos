@@ -54,6 +54,7 @@ func runReport() {
 		artifacts  = flag.String("artifacts", "", "artifact directory (default: predict.artifact_dir)")
 		modelID    = flag.String("model", "", "model id to serve (default: predict.model_id)")
 		closeFill  = flag.Bool("fill-at-close", false, "fill at the last close instead of the next open (optimistic on daily bars)")
+		volTarget  = flag.Float64("vol-target", 0, "size positions by min(1, target/forecast vol), e.g. 0.15; 0 disables")
 		tickers    = flag.String("tickers", "", "restrict candidates to these tickers (comma-separated)")
 		seed       = flag.Int64("seed", 20260827, "deterministic seed for the slippage model")
 		outJSON    = flag.String("out", "reports/walkforward.json", "write the report as JSON here")
@@ -276,7 +277,7 @@ func runReport() {
 			Name: "report", StrategyID: cfg.Signals.DefaultStrategy, Interval: interval, Seed: *seed,
 			StartingCash: cfg.Paper.StartingCash, Costs: cfg.Paper.Costs, Trials: *trials,
 			ConfigHash: cfg.Hash, CodeVersion: cfg.Version, MacroTickers: universe.MacroTickers(),
-			FillAtNextOpen: !*closeFill, Observer: observer,
+			FillAtNextOpen: !*closeFill, Observer: observer, VolTarget: *volTarget,
 		},
 		Folds: folds, Warmup: warmup, CostMultipliers: multipliers,
 		Benchmark: domain.NormalizeTicker(*bench), CalibrationBins: cfg.Evaluation.CalibrationBins,

@@ -49,6 +49,14 @@ type Deps struct {
 	Fundamentals fundamentals.Store
 	Clock        obs.Clock
 	Metrics      *obs.Metrics
+	// Vol is optional; see Options.VolTarget.
+	Vol VolForecaster
+}
+
+// VolForecaster supplies an instrument's expected annualised volatility over
+// the coming weeks, for sizing. internal/guide provides one.
+type VolForecaster interface {
+	Forecast(domain.Ticker) (float64, bool)
 }
 
 // Options tune pipeline behaviour that is not owned by a single engine.
@@ -63,6 +71,11 @@ type Options struct {
 	// FundamentalRefresh bounds how often fundamentals are recomputed per
 	// symbol; they change quarterly, so recomputing per bar is waste.
 	FundamentalRefresh time.Duration
+	// VolTarget, with a VolForecaster set, scales a signal's suggested weight
+	// by min(1, VolTarget/forecast): a name expected to be twice as volatile
+	// as the target gets half the weight. It only ever reduces size; it never
+	// leverages a quiet name up.
+	VolTarget float64
 }
 
 // Result is everything one bar produced. Nil pointers mean "this stage did not
@@ -427,7 +440,16 @@ func (p *Pipeline) submitPaperOrder(sig domain.Signal, now time.Time) {
 	if !p.deps.Broker.CanOpen(sig.Ticker) {
 		return
 	}
-	qty := p.deps.Broker.SizeForWeight(sig.Ticker, sig.SuggestedWeight)
+	weight := sig.SuggestedWeight
+	p.mu.RLock()
+	target, vf := p.opts.VolTarget, p.deps.Vol
+	p.mu.RUnlock()
+	if target > 0 && vf != nil {
+		if f, ok := vf.Forecast(sig.Ticker); ok && f > target {
+			weight *= target / f
+		}
+	}
+	qty := p.deps.Broker.SizeForWeight(sig.Ticker, weight)
 	if qty <= 0 {
 		return
 	}
@@ -622,6 +644,13 @@ func (p *Pipeline) Marks() (map[domain.Ticker]float64, map[domain.Ticker]float64
 func (p *Pipeline) SetTradePaper(enabled bool) {
 	p.mu.Lock()
 	p.opts.TradePaper = enabled
+	p.mu.Unlock()
+}
+
+// SetVolTarget attaches a volatility forecaster and a target. Zero disables.
+func (p *Pipeline) SetVolTarget(target float64, f VolForecaster) {
+	p.mu.Lock()
+	p.opts.VolTarget, p.deps.Vol = target, f
 	p.mu.Unlock()
 }
 

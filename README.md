@@ -115,6 +115,27 @@ verdict whose thresholds are in the code. Read
 before reading the result; it says what the survivorship correction can and
 cannot do, and why "no demonstrated edge" is the likely and useful outcome.
 
+The result, on thirteen years of real daily data: no shipped strategy and no
+model — simulator-trained or retrained on real features — beats holding SPY,
+and the directional predictions are measurably worse than guessing. The
+numbers are in the document above.
+
+### Your own book
+
+```bash
+make guide-book    # a holdings CSV marked against real history and the risk caps
+make guide-vol     # the one forecast the platform can make: next-month volatility, scored out of sample
+make guide-plan    # the arithmetic of a savings goal, bootstrapped from real returns
+```
+
+`quantos guide` is the investor-facing layer: exposure, concentration,
+correlation, drawdown and stress episodes for what you actually hold; a HAR
+volatility forecaster that beats persistence on 455,000 out-of-sample
+forecasts and sizes positions in the backtester (`report -vol-target`); and a
+goal planner that separates "income from returns" from "sustainable income".
+It gives no advice, by design — see
+[`docs/research/guide.md`](docs/research/guide.md).
+
 Training data comes from the Go feature engine rather than a parallel Python implementation, so a model is never fitted on a subtly different definition of a feature from the one that will serve it. `ml/tests/` includes a Go/Python parity check that pins the two implementations to within 1e-12.
 
 ---
@@ -149,7 +170,7 @@ These are enforced in code, not documented as intentions:
 ## Repository layout
 
 ```
-cmd/quantos/          run | demo | backtest | ingest | report | export-features | validate | topics
+cmd/quantos/          run | demo | backtest | ingest | report | guide | export-features | validate | topics
 services/             nine deployable binaries, each a thin entrypoint (ADR-011)
 internal/domain/      the shared vocabulary; imports nothing else in the repo
 internal/bus/         envelopes, topics, in-memory and WAL drivers, idempotency
@@ -161,6 +182,7 @@ internal/predict/     rule prior, model blending, horizon scaling, flat band
 internal/risk/        eleven checks, most-severe-wins, the veto
 internal/signal/      construction, policy, invalidation
 internal/backtest/    event-driven engine, leakage guard, walk-forward, net-of-cost report
+internal/guide/       holdings, book assessment, HAR volatility forecaster, goal planner
 internal/evaluation/  outcome scoring, calibration, drift, veto cost
 internal/analyst/     LLM narrative, grounding validator, language guard, template
 internal/app/         the composition root

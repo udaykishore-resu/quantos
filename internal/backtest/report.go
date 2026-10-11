@@ -375,6 +375,9 @@ func notes(rep Report, cfg ReportConfig) []string {
 		"the deflated Sharpe ratio uses the trial count supplied by the caller; if more configurations were tried than reported, every Sharpe here is overstated",
 		"survivorship: a membership table removes names before their inclusion date, but delisted names absent from the data directory are absent, not losing — the correction is partial",
 	}
+	if cfg.Base.VolTarget > 0 {
+		n = append(n, fmt.Sprintf("positions are sized by min(1, %.0f%% / forecast volatility) using a HAR forecaster fitted online; it only ever reduces size", cfg.Base.VolTarget*100))
+	}
 	if cfg.Base.FillAtNextOpen {
 		n = append(n, "fills are at the next bar's open for the traded instrument, which is the first price actually available after a decision at the close")
 	} else {

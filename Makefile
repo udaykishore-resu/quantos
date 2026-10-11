@@ -254,6 +254,26 @@ report-no-model: ## the walk-forward report served by the rule prior alone
 	$(MAKE) --no-print-directory report STRATEGY=$(STRATEGY) \
 		REPORT_FLAGS="-no-model" REPORT_SUFFIX="-nomodel"
 
+##@ Guide (your book)
+
+HOLDINGS ?= examples/holdings/model-100k.csv
+
+.PHONY: guide-book
+guide-book: ## mark $(HOLDINGS) against real history and the risk caps → reports/book.md
+	$(GO) run ./cmd/quantos guide book -data $(DATA_DIR) -holdings $(HOLDINGS)
+
+.PHONY: guide-vol
+guide-vol: ## fit and evaluate the volatility forecaster out of sample → reports/vol.md
+	$(GO) run ./cmd/quantos guide vol -data $(DATA_DIR)
+
+.PHONY: guide-plan
+guide-plan: ## the arithmetic of a savings goal → reports/plan.md (CAPITAL=, MONTHLY=, YEARS=, INCOME=)
+	$(GO) run ./cmd/quantos guide plan -data $(DATA_DIR) \
+		-capital $(or $(CAPITAL),100000) -monthly $(or $(MONTHLY),2000) -years $(or $(YEARS),20) -income $(or $(INCOME),50000)
+
+.PHONY: guide
+guide: guide-book guide-vol guide-plan ## all three
+
 ##@ Kubernetes (local)
 
 # The local cluster is one kind node running the full backing stack and QuantOS

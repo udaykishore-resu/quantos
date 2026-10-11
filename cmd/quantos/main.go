@@ -8,6 +8,7 @@
 //	backtest         run a deterministic historical simulation
 //	ingest           fetch real daily history into a replay directory
 //	report           net-of-cost walk-forward over a replay directory
+//	guide            investor-facing: book | vol | plan
 //	export-features  export feature snapshots for research in Python
 //	validate         validate configuration and strategies, then exit
 //	topics           print the Kafka topic specification
@@ -68,6 +69,8 @@ func main() {
 		runBacktest()
 	case "ingest":
 		runIngest()
+	case "guide":
+		runGuide()
 	case "report":
 		runReport()
 	case "export-features":
@@ -100,6 +103,7 @@ commands:
   backtest         run a deterministic historical simulation
   ingest           fetch real daily history into a replay directory
   report           net-of-cost walk-forward over a replay directory
+  guide            book | vol | plan — measure a real book, forecast volatility, plan a goal
   export-features  export feature snapshots as CSV for research
   validate         validate configuration and strategies, then exit
   topics           print the event topic specification

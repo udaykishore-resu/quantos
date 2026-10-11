@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/udaykishoreresu/quantos/internal/domain"
+	"github.com/udaykishoreresu/quantos/internal/guide"
 	"github.com/udaykishoreresu/quantos/internal/obs"
 	"github.com/udaykishoreresu/quantos/internal/paper"
 	"github.com/udaykishoreresu/quantos/internal/pipeline"
@@ -100,6 +101,10 @@ type Request struct {
 	// walk-forward report uses it to score predictions against realised
 	// outcomes; it must not mutate anything.
 	Observer func(bar domain.Candle, res pipeline.Result)
+	// VolTarget, when positive, sizes every paper position by
+	// min(1, VolTarget/forecast volatility) using a HAR forecaster fitted
+	// online on the bars the run has seen. See internal/guide.
+	VolTarget float64
 }
 
 // Builder constructs a fresh pipeline bound to a simulated clock and broker.
@@ -179,6 +184,11 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 	if warming {
 		pl.SetTradePaper(false)
 	}
+	var vol *guide.VolForecaster
+	if req.VolTarget > 0 {
+		vol = guide.NewVolForecaster()
+		pl.SetVolTarget(req.VolTarget, vol)
+	}
 
 	run := domain.BacktestRun{
 		ID:           newRunID(req),
@@ -242,6 +252,9 @@ func (e *Engine) Run(ctx context.Context, req Request, bars []domain.Candle) (do
 		// traded notional, floored at the cost model's own assumption, so the
 		// check is a stated assumption rather than a skipped one. See spread.go.
 		pl.OnQuote(syntheticQuote(c, spreads.observe(c), 2*req.Costs.SpreadCostBps))
+		if vol != nil {
+			vol.Observe(c)
+		}
 
 		res := pl.OnBar(ctx, c)
 		run.EventsProcessed++

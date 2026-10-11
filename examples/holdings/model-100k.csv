@@ -1,0 +1,11 @@
+ticker,quantity,cost_basis,note
+CASH,5000,,uninvested
+SPY,45,,core index exposure (~35%)
+QQQ,13,,growth tilt (~10%)
+AAPL,24,,~8%
+MSFT,15,,~8%
+NVDA,30,,~7%
+JPM,15,,~5%
+XOM,24,,~4%
+TLT,130,,duration hedge (~10%)
+GLD,13,,~5%
