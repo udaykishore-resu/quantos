@@ -3,6 +3,7 @@ package guide
 import (
 	"math"
 	"math/rand"
+	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
@@ -256,5 +257,72 @@ func TestMonthlyReturns(t *testing.T) {
 	rets, from, to := MonthlyReturns(bars)
 	if len(rets) < 12 || from.IsZero() || !to.After(from) {
 		t.Errorf("monthly returns: %d from %s to %s", len(rets), from, to)
+	}
+}
+
+func TestLedgerRecordsScoresAndPersists(t *testing.T) {
+	series := synthetic(21, 700, map[domain.Ticker][2]float64{"SPY": {1, 0.001}, "A": {1.1, 0.012}, "B": {0.9, 0.015}})
+	path := filepath.Join(t.TempDir(), "ledger.jsonl")
+	led, err := LoadLedger(path)
+	if err != nil || len(led.Calls) != 0 {
+		t.Fatalf("empty ledger: %v %d", err, len(led.Calls))
+	}
+	vf := NewVolForecaster()
+	var all []domain.Candle
+	for _, bars := range series {
+		all = append(all, bars...)
+	}
+	sort.SliceStable(all, func(i, j int) bool { return all[i].Start.Before(all[j].Start) })
+	bench := series["SPY"]
+	asOf := bench[600].Start
+	for _, c := range all {
+		if !c.Start.After(asOf) {
+			vf.Observe(c)
+		}
+	}
+	h := Holdings{Name: "t", Cash: 1000, Lines: []Holding{{Ticker: "A", Quantity: 10}, {Ticker: "B", Quantity: 10}}}
+	b, err := Compose(BriefInput{Holdings: h, Series: series, Benchmark: "SPY", AsOf: asOf, Vol: vf,
+		Sleeve: &SleeveView{Signal: "test", Holdings: []string{"A"}, Verdict: "v"}, Ledger: led, Now: asOf})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b.NewCalls != 3 { // two vol calls and one sleeve call
+		t.Errorf("expected 3 calls recorded, got %d", b.NewCalls)
+	}
+	if b.Record.Pending != 3 || b.Record.VolCalls != 0 {
+		t.Errorf("nothing should be scored yet: %+v", b.Record)
+	}
+	if err := led.Save(); err != nil {
+		t.Fatal(err)
+	}
+	// Re-running on the same date must not duplicate calls.
+	led2, _ := LoadLedger(path)
+	if _, err := Compose(BriefInput{Holdings: h, Series: series, Benchmark: "SPY", AsOf: asOf, Vol: vf, Ledger: led2, Now: asOf}); err != nil {
+		t.Fatal(err)
+	}
+	if len(led2.Calls) != 4 { // book + 2 vol + sleeve
+		t.Errorf("re-run duplicated calls: %d", len(led2.Calls))
+	}
+	// A month later the calls mature and score.
+	later := bench[630].Start
+	if n := led2.Score(series, "SPY", later); n != 3 {
+		t.Errorf("expected 3 calls to score, got %d", n)
+	}
+	r := led2.Record()
+	if r.VolCalls != 2 || r.SleeveCalls != 1 || r.Pending != 0 {
+		t.Errorf("record: %+v", r)
+	}
+	if r.VolMAE <= 0 || r.VolQLIKE <= 0 {
+		t.Errorf("vol scores should be positive: %+v", r)
+	}
+	b2, err := Compose(BriefInput{Holdings: h, Series: series, Benchmark: "SPY", AsOf: later, Vol: vf, Ledger: led2, Now: later})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b2.EquityDelta == nil {
+		t.Error("the second brief should report the change since the first")
+	}
+	if md := RenderBrief(b2); !strings.Contains(md, "## Track record") || !strings.Contains(md, "Volatility: 2 calls scored") {
+		t.Errorf("brief markdown missing the scored record:\n%s", md)
 	}
 }

@@ -16,6 +16,8 @@ method, and every forecast carries its own out-of-sample error.
 make guide-book      # your holdings against the caps: reports/book.md
 make guide-vol       # the volatility forecaster, evaluated: reports/vol.md
 make guide-plan      # the goal arithmetic: reports/plan.md
+make guide-rank      # the monthly ranking sleeve, stocks and the ETF control: reports/rank*.md
+make guide-brief     # today's page, and the ledger of every earlier page's calls: reports/brief/
 ```
 
 All three read `data/daily` from `quantos ingest`.
@@ -109,9 +111,69 @@ comparison, and the share of paths that have reached each target. Change the
 contribution and the horizon and watch which one moves the answer; the
 return assumption is the lever you control least.
 
+## `guide rank` — the sleeve, and the control that exposes it
+
+A cross-sectional monthly sleeve: sort the universe on a formation signal at
+each month end, hold the top slice for a month, repeat. Four variants
+(momentum 12-1, momentum 6-1, volatility-adjusted momentum, low volatility),
+each at the configured costs and at twice them, with the deflated Sharpe
+counting all four as the trials they are. Nothing is fitted, so every month
+is out of sample.
+
+Two universes, and the second is the point:
+
+| universe | variant | CAGR | Sharpe | max DD | t(excess vs SPY) | t(long−short) |
+|---|---|---|---|---|---|---|
+| 92 single names (today's large caps) | momentum 12-1 | +25.6% | 1.02 | 34% | **2.76** | 0.80 |
+| 19 sector / asset-class ETFs | momentum 12-1 | +11.4% | 0.78 | 26% | −1.12 | 0.81 |
+| 19 ETFs | low volatility | +5.1% | 0.79 | 16% | −3.18 | −1.43 |
+| SPY, same span (2011–2026) | | +14.0% | 0.85 | 34% | | |
+
+The single-name sleeve looks like an edge: eleven points a year over the
+index at a t-statistic of 2.8. It is not. The universe is the list of
+today's large caps — names that are on it *because* they won — and a
+momentum sort of a winners-only list concentrates in the decade's biggest
+winners. The tell is the long-short column: the signal separates the top of
+that universe from the bottom at t = 0.8, which is nothing. The ETF
+universe has existed unchanged for the whole sample, so survivorship cannot
+help it, and there every variant trails the index. That is the control, and
+it is what the single-name number is worth.
+
+The sleeve is still shown in the brief, labelled with this verdict, and
+every month's slice is recorded as a call — so if it ever does rank, the
+ledger will be the first to know.
+
+## `guide brief` — one page, with its own track record
+
+```bash
+make guide-brief                 # today
+make guide-brief BACKFILL=24     # and the last 24 month-ends, so the ledger starts scored
+```
+
+The page: the benchmark's position (returns, distance from the 200-day
+average, drawdown, realised and forecast volatility, VIX), the book against
+the caps with the change since the last brief, the volatility forecast per
+holding translated into a one-sigma monthly dollar move, what the sleeve
+would hold, and the track record.
+
+The track record is the part nobody else ships. Every statement that can be
+scored is written to `reports/brief/ledger.jsonl` when the brief runs — each
+holding's volatility forecast, matured 21 sessions later against realised
+volatility; the sleeve's slice, matured a month later against the
+benchmark. The next brief scores whatever has matured and prints the running
+record next to the persistence baseline. A backfill replays the brief at
+past month-ends with a forecaster that has seen nothing after each date, so
+day one is not an empty page. Risk findings are not calls: "NVDA is 7% of
+the book" is a fact, and facts are not scored.
+
+On the model book, backfilled over 24 months: 207 volatility calls scored,
+QLIKE 0.307 against 0.388 for last month's volatility; 23 sleeve months, 61%
+beating SPY — on the single-name universe, with the verdict above attached.
+
 ## What this is, and is not
 
 It is a measurement instrument pointed at your own money, with the same
 honesty rules as the research tools: no certainty language, provenance on
-every figure, the disclaimer on every record. It is not a recommendation
-engine, and the walk-forward report is the reason it is not one.
+every figure, the disclaimer on every record, and a ledger that scores the
+instrument itself. It is not a recommendation engine; the walk-forward
+report and the ETF control are the reasons it is not one.

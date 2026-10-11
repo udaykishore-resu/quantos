@@ -271,8 +271,18 @@ guide-plan: ## the arithmetic of a savings goal → reports/plan.md (CAPITAL=, M
 	$(GO) run ./cmd/quantos guide plan -data $(DATA_DIR) \
 		-capital $(or $(CAPITAL),100000) -monthly $(or $(MONTHLY),2000) -years $(or $(YEARS),20) -income $(or $(INCOME),50000)
 
+.PHONY: guide-rank
+guide-rank: ## the monthly ranking sleeve on single names and on the ETF control → reports/rank.md, rank-etfs.md
+	$(GO) run ./cmd/quantos guide rank -data $(DATA_DIR) $(if $(wildcard $(MEMBERSHIP)),-membership $(MEMBERSHIP),)
+	$(GO) run ./cmd/quantos guide rank -data $(DATA_DIR) -universe etfs -out reports/rank-etfs.json -md reports/rank-etfs.md
+
+.PHONY: guide-brief
+guide-brief: ## today's brief and the ledger of calls → reports/brief/ (BACKFILL=24 to seed the ledger)
+	$(GO) run ./cmd/quantos guide brief -data $(DATA_DIR) -holdings $(HOLDINGS) \
+		$(if $(wildcard $(MEMBERSHIP)),-membership $(MEMBERSHIP),) $(if $(BACKFILL),-backfill $(BACKFILL),)
+
 .PHONY: guide
-guide: guide-book guide-vol guide-plan ## all three
+guide: guide-book guide-vol guide-plan guide-rank guide-brief ## all five
 
 ##@ Kubernetes (local)
 

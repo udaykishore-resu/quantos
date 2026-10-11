@@ -126,14 +126,17 @@ numbers are in the document above.
 make guide-book    # a holdings CSV marked against real history and the risk caps
 make guide-vol     # the one forecast the platform can make: next-month volatility, scored out of sample
 make guide-plan    # the arithmetic of a savings goal, bootstrapped from real returns
+make guide-rank    # a monthly ranking sleeve — and the ETF control that shows its single-name 'edge' is survivorship
+make guide-brief   # one page a day, with a ledger that scores every earlier page's calls
 ```
 
 `quantos guide` is the investor-facing layer: exposure, concentration,
 correlation, drawdown and stress episodes for what you actually hold; a HAR
 volatility forecaster that beats persistence on 455,000 out-of-sample
 forecasts and sizes positions in the backtester (`report -vol-target`); and a
-goal planner that separates "income from returns" from "sustainable income".
-It gives no advice, by design — see
+goal planner that separates "income from returns" from "sustainable income";
+a ranking sleeve run against a survivorship-free control; and a daily brief
+whose track record is its own ledger. It gives no advice, by design — see
 [`docs/research/guide.md`](docs/research/guide.md).
 
 Training data comes from the Go feature engine rather than a parallel Python implementation, so a model is never fitted on a subtly different definition of a feature from the one that will serve it. `ml/tests/` includes a Go/Python parity check that pins the two implementations to within 1e-12.
@@ -182,7 +185,7 @@ internal/predict/     rule prior, model blending, horizon scaling, flat band
 internal/risk/        eleven checks, most-severe-wins, the veto
 internal/signal/      construction, policy, invalidation
 internal/backtest/    event-driven engine, leakage guard, walk-forward, net-of-cost report
-internal/guide/       holdings, book assessment, HAR volatility forecaster, goal planner
+internal/guide/       holdings, book assessment, HAR volatility forecaster, goal planner, brief + ledger
 internal/evaluation/  outcome scoring, calibration, drift, veto cost
 internal/analyst/     LLM narrative, grounding validator, language guard, template
 internal/app/         the composition root
