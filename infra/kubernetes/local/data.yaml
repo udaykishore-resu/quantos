@@ -172,7 +172,16 @@ spec:
         app.kubernetes.io/name: clickhouse
         app.kubernetes.io/part-of: quantos
     spec:
+      # Run as the image's clickhouse user (101) from the start. The entrypoint,
+      # when started as root, chowns /var/lib/clickhouse and then switches user;
+      # with every capability dropped it can do neither and exits with
+      # "chown: /var/lib/clickhouse/: Operation not permitted". Started as 101 it
+      # skips both, and the pod satisfies the restricted PodSecurity profile.
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
         seccompProfile:
           type: RuntimeDefault
       containers:
