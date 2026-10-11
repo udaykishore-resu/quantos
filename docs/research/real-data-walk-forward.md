@@ -152,7 +152,79 @@ honest, and they apply to the simulated backtest too:
   pipeline now gets the same record instead of "unmeasured", which was
   another way for every candidate to be `WATCH_ONLY`.
 
-## 4. Reading a result
+## 4. Retraining on real features
+
+The shipped artifact was fitted on the simulator. Once a replay directory
+exists, the same trainer fits the same model on real bars:
+
+```bash
+make features-daily       # export-features against data/daily, membership-gated, horizons 1d and 5d
+make train-daily          # fit direction-3class-daily, then the per-fold refit walk-forward
+make report-daily-model   # the Go report served by that artifact
+make report-no-model      # and by the rule prior alone, for the comparison
+```
+
+`export-features -data <dir>` uses the configured bar interval, horizons and
+flat band, exports every bar the membership table admits, and labels against
+the first close at or after each horizon. The Python side accepts `5d` as a
+horizon. The promotion gate's maximum calibration deviation now ignores bins
+with fewer than 100 samples (`MIN_BIN_SUPPORT`, mirrored in Go as
+`evaluation.MinCalibrationBinSupport`): a bin of twenty predictions has a
+ten-point standard error on its observed frequency, and letting it veto a
+model whose ECE is 0.006 was rejecting calibration for being occasionally
+confident.
+
+## 5. Results, October 2026
+
+Yahoo daily bars 2010-01-04 .. 2026-10-09, 92 S&P 500 candidates plus 22
+context symbols, membership-gated, 27 disjoint 180-day test windows from
+2013-05 to 2026-09, `momentum` strategy, fills at the next open, trial count 5.
+Reproducible with the targets above; the JSON reports carry every number.
+
+| served by | trades | return | CAGR | Sharpe | max DD | folds positive | 1d accuracy / base |
+|---|---|---|---|---|---|---|---|
+| shipped artifact (simulator-trained), x1 | 2273 | +19.2% | 1.3% | 0.28 | 12.5% | 56% | 0.345 / 0.360 |
+| shipped artifact, x2 costs | 2275 | +10.8% | 0.8% | 0.17 | 12.6% | 48% | |
+| rule prior only, x1 | 2303 | +12.2% | 0.9% | 0.19 | 13.0% | 48% | 0.345 / 0.360 |
+| rule prior only, x2 costs | 2304 | +4.1% | 0.3% | 0.08 | 14.9% | 44% | |
+| real-data artifact, x1 | 2316 | +15.7% | 1.1% | 0.23 | 12.5% | 52% | 0.345 / 0.360 |
+| real-data artifact, x2 costs | 2316 | +7.5% | 0.6% | 0.13 | 14.0% | 48% | |
+| **buy-and-hold SPY, same windows** | — | **+420.7%** | **13.2%** | **0.82** | 33.7% | | |
+
+The real-data artifact on its own held-out split (2023-09 .. 2026-10, 71,023
+rows): accuracy 0.390 against a base rate of 0.374, lift +0.016 at about nine
+standard errors, ECE 0.010. Refit per fold over eight expanding windows the
+lift is positive in every fold and **decays monotonically**, from +0.069 in
+the earliest window to +0.011 in the latest. That is what a weak technical
+signal that the market has been arbitraging for a decade looks like.
+
+What the table says:
+
+- **The book does not depend on the model.** Three different prediction
+  sources produce the same scored accuracy and Sharpe ratios within noise of
+  each other. The blend weight scales with measured lift over a 0.05
+  reference, so a model with +0.016 moves the argmax almost never; the
+  rule-score floor and the risk engine decide what trades. That is the
+  design working as specified, and it means the ML layer is currently
+  decorative.
+- **The rule prior is anti-predictive at one day.** 0.345 against 0.360 on
+  292k predictions is a measured negative, not noise. The regime-gated
+  rules were written as illustrations; on real data their directional calls
+  are wrong slightly more often than always calling FLAT.
+- **Doubling costs halves the return, every time.** The P&L is the same
+  size as the friction.
+- **Nothing beats holding the index**, with survivorship bias in the
+  strategy's favour.
+
+The honest conclusion is the one the README's disclaimer always made:
+QuantOS is a measurement instrument, and it has now measured that its
+shipped strategies and both models have no tradeable edge on daily US large
+caps. The useful next questions are not about thresholds. They are whether
+a different *target* carries information — realised volatility for sizing,
+or cross-sectional monthly ranking for selection — and the same report will
+answer them the same way.
+
+## 6. Reading a result
 
 The honest ceiling for a system like this on daily data is modest: a
 calibrated 52–56% directional accuracy, a Sharpe near one after costs, and a

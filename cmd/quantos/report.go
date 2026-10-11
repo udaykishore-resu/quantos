@@ -51,6 +51,8 @@ func runReport() {
 		trials     = flag.Int("trials", 1, "configurations tried in total, for the deflated Sharpe ratio")
 		bench      = flag.String("benchmark", "SPY", "buy-and-hold comparison ticker")
 		noModel    = flag.Bool("no-model", false, "serve from the rule prior only; do not load the ML artifact")
+		artifacts  = flag.String("artifacts", "", "artifact directory (default: predict.artifact_dir)")
+		modelID    = flag.String("model", "", "model id to serve (default: predict.model_id)")
 		closeFill  = flag.Bool("fill-at-close", false, "fill at the last close instead of the next open (optimistic on daily bars)")
 		tickers    = flag.String("tickers", "", "restrict candidates to these tickers (comma-separated)")
 		seed       = flag.Int64("seed", 20260827, "deterministic seed for the slippage model")
@@ -79,6 +81,12 @@ func runReport() {
 	cfg.Log.Level = "warn"
 	if *strategy != "" {
 		cfg.Signals.DefaultStrategy = *strategy
+	}
+	if *artifacts != "" {
+		cfg.Predict.ArtifactDir = *artifacts
+	}
+	if *modelID != "" {
+		cfg.Predict.ModelID = *modelID
 	}
 	if *noModel {
 		cfg.Predict.ArtifactDir = ""
@@ -206,7 +214,7 @@ func runReport() {
 	if len(a.Models.All()) == 0 {
 		fmt.Println("        model: none loaded; predictions use the rule prior")
 	} else {
-		fmt.Printf("        model: %s (trained on simulated history; see docs/ml/model-card.md)\n", cfg.Predict.ModelID)
+		fmt.Printf("        model: %s from %s (its report card is in the artifact; the shipped one was trained on simulated history)\n", cfg.Predict.ModelID, cfg.Predict.ArtifactDir)
 	}
 
 	barsFor := func(start, end time.Time) ([]domain.Candle, error) {
@@ -282,19 +290,7 @@ func runReport() {
 	}
 
 	printReport(rep)
-	md := backtest.RenderMarkdown(rep)
-	for path, body := range map[string][]byte{*outJSON: mustJSON(rep), *outMD: []byte(md)} {
-		if path == "" {
-			continue
-		}
-		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
-			fatal("output directory: %v", err)
-		}
-		if err := os.WriteFile(path, body, 0o644); err != nil {
-			fatal("write %s: %v", path, err)
-		}
-		fmt.Printf("wrote %s\n", path)
-	}
+	writeOutputs(rep, *outJSON, *outMD)
 }
 
 func printReport(rep backtest.Report) {
@@ -367,6 +363,25 @@ func mustJSON(v any) []byte {
 		fatal("encode: %v", err)
 	}
 	return data
+}
+
+// writeOutputs writes the Markdown first, so a JSON encoding problem can never
+// cost the human-readable report, then the JSON.
+func writeOutputs(rep backtest.Report, outJSON, outMD string) {
+	write := func(path string, body []byte) {
+		if path == "" {
+			return
+		}
+		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+			fatal("output directory: %v", err)
+		}
+		if err := os.WriteFile(path, body, 0o644); err != nil {
+			fatal("write %s: %v", path, err)
+		}
+		fmt.Printf("wrote %s\n", path)
+	}
+	write(outMD, []byte(backtest.RenderMarkdown(rep)))
+	write(outJSON, mustJSON(rep))
 }
 
 // parseSpan accepts Go durations plus the calendar units people actually use

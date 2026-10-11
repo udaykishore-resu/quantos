@@ -323,6 +323,15 @@ func Calibrate(outcomes []domain.PredictionOutcome, class domain.Outcome, bins i
 
 // calibrationError returns the maximum absolute deviation and the sample-
 // weighted expected calibration error.
+// MinCalibrationBinSupport is the smallest bin that may set the maximum
+// calibration deviation. A bin of twenty predictions has a binomial standard
+// error of ten points or more on its observed frequency, so its deviation is
+// mostly sampling noise; letting it drive the promotion gate rejects
+// well-calibrated models for occasionally being confident. ECE is unaffected,
+// since a sparse bin carries its own small weight there. Mirrored in
+// ml/evaluation/metrics.py (MIN_BIN_SUPPORT).
+const MinCalibrationBinSupport = 100
+
 func calibrationError(bins []domain.CalibrationBin, total int) (float64, float64) {
 	maxDev, ece := 0.0, 0.0
 	for _, b := range bins {
@@ -330,7 +339,7 @@ func calibrationError(bins []domain.CalibrationBin, total int) (float64, float64
 			continue
 		}
 		d := math.Abs(b.Deviation)
-		if d > maxDev {
+		if d > maxDev && b.Count >= MinCalibrationBinSupport {
 			maxDev = d
 		}
 		ece += float64(b.Count) / float64(total) * d

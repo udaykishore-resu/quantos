@@ -204,8 +204,9 @@ def _verdict(lifts: np.ndarray, pooled: dict) -> str:
     else:
         body = (
             "The lift is positive and smaller than its dispersion is large, "
-            "which is the weakest form of a real result. It is measured on "
-            "simulated history and is not evidence of a tradeable edge."
+            "which is the weakest form of a real result. Whether it is a "
+            "tradeable edge is the walk-forward report's question "
+            "(quantos report), not this one's."
         )
     prob = (
         "Probabilistically it beats the constant class-prior predictor on log "

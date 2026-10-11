@@ -169,12 +169,27 @@ def tables_from_html(html: str) -> tuple[list[dict], list[dict]]:
         joined = " ".join(cols).lower()
         if current_df is None and "symbol" in joined and "date added" in joined:
             current_df = t
-        elif changes_df is None and "added" in joined and "removed" in joined and "date" in joined:
+        elif changes_df is None and "added" in joined and "removed" in joined and ("date" in joined or "effective" in joined):
             changes_df = t
+    def inventory() -> str:
+        lines = []
+        for i, t in enumerate(tables):
+            cols = [c if isinstance(c, str) else " / ".join(str(x) for x in c) for c in t.columns]
+            lines.append(f"  table {i}: {len(t)} rows; columns: {cols[:8]}")
+        return "\n".join(lines)
+
     if current_df is None:
-        raise SystemExit("could not find the constituents table (expected 'Symbol' and 'Date added' columns)")
+        raise SystemExit("could not find the constituents table (expected 'Symbol' and 'Date added' columns).\n"
+                         "tables on the page:\n" + inventory())
     if changes_df is None:
-        raise SystemExit("could not find the changes table (expected 'Date', 'Added', 'Removed' columns)")
+        # The changes table has moved before and may have moved again. Current
+        # constituents alone still remove the pre-inclusion bias for every name
+        # that is in the index today, which is the half of the correction that
+        # free price data can act on; removed names rarely have prices anyway.
+        print("warning: no changes table found (expected 'Date', 'Added', 'Removed' columns); "
+              "building current-constituent intervals only — removed names will not be closed",
+              file=sys.stderr)
+        print("tables on the page:\n" + inventory(), file=sys.stderr)
 
     def col(df, *needles):
         for c in df.columns:
@@ -192,17 +207,18 @@ def tables_from_html(html: str) -> tuple[list[dict], list[dict]]:
             "date_added": r[col(current_df, "date added")],
         })
     changes = []
-    c_date = col(changes_df, "date")
-    c_add = col(changes_df, "added", "ticker") or col(changes_df, "added", "symbol")
-    c_rem = col(changes_df, "removed", "ticker") or col(changes_df, "removed", "symbol")
-    c_rem_name = col(changes_df, "removed", "security")
-    for _, r in changes_df.iterrows():
-        changes.append({
-            "date": r[c_date],
-            "added": "" if c_add is None or str(r[c_add]) == "nan" else r[c_add],
-            "removed": "" if c_rem is None or str(r[c_rem]) == "nan" else r[c_rem],
-            "removed_name": "" if c_rem_name is None or str(r[c_rem_name]) == "nan" else r[c_rem_name],
-        })
+    if changes_df is not None:
+        c_date = col(changes_df, "date")
+        c_add = col(changes_df, "added", "ticker") or col(changes_df, "added", "symbol") or col(changes_df, "added")
+        c_rem = col(changes_df, "removed", "ticker") or col(changes_df, "removed", "symbol") or col(changes_df, "removed")
+        c_rem_name = col(changes_df, "removed", "security")
+        for _, r in changes_df.iterrows():
+            changes.append({
+                "date": r[c_date],
+                "added": "" if c_add is None or str(r[c_add]) == "nan" else r[c_add],
+                "removed": "" if c_rem is None or str(r[c_rem]) == "nan" else r[c_rem],
+                "removed_name": "" if c_rem_name is None or str(r[c_rem_name]) == "nan" else r[c_rem_name],
+            })
     return current, changes
 
 

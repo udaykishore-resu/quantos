@@ -290,10 +290,14 @@ total costs:    %.2f         avg exposure: %.2f
 func exportFeatures() {
 	var (
 		configPath = flag.String("config", envOr("QUANTOS_CONFIG", "config/quantos.yaml"), "configuration file")
-		days       = flag.Int("days", 30, "days of history")
+		days       = flag.Int("days", 30, "days of simulated history (simulator only)")
+		data       = flag.String("data", "", "replay directory from `quantos ingest`; switches the source from the simulator to real bars")
+		members    = flag.String("membership", "", "point-in-time membership CSV; rows are exported only while the ticker is a member")
+		startS     = flag.String("start", "", "first date for replay data (default: earliest bar)")
+		endS       = flag.String("end", "", "last date for replay data (default: latest bar)")
 		out        = flag.String("out", "ml/data/features.csv", "output CSV path")
 		seed       = flag.Int64("seed", 20260827, "deterministic seed")
-		horizonBps = flag.Float64("flat-band-bps", 15, "half-width of the FLAT label band, in basis points")
+		horizonBps = flag.Float64("flat-band-bps", 0, "half-width of the FLAT label band in bps (default: predict.flat_band_bps)")
 	)
 	flag.Parse()
 
@@ -305,10 +309,46 @@ func exportFeatures() {
 	cfg.Store.Driver = "memory"
 	cfg.Bus.Driver = "memory"
 	cfg.Log.Level = "error"
+	if *data != "" {
+		cfg.Market.Provider = "replay"
+		cfg.Market.ReplayDir = *data
+	}
+	if *horizonBps <= 0 {
+		*horizonBps = cfg.Predict.FlatBandBps
+	}
+	replay := cfg.Market.Provider == "replay"
+	interval := cfg.Market.BarInterval
+	if interval == "" {
+		interval = domain.Interval1m
+	}
+	// The horizons exported are the configured prediction horizons, in
+	// duration order, which is the order ml/features/schema.py expects.
+	horizons := append([]domain.Horizon(nil), cfg.Predict.Horizons...)
+	if len(horizons) == 0 {
+		horizons = domain.DefaultHorizons
+	}
+	sort.Slice(horizons, func(i, j int) bool { return horizons[i].Duration() < horizons[j].Duration() })
 
 	ctx := context.Background()
-	end := time.Date(2026, 3, 10, 20, 0, 0, 0, time.UTC)
-	start := end.AddDate(0, 0, -*days)
+	var start, end time.Time
+	if replay {
+		if man, err := readManifest(cfg.Market.ReplayDir); err == nil {
+			start, end = seriesBounds(man)
+		}
+		if *startS != "" {
+			if start, err = time.Parse("2006-01-02", *startS); err != nil {
+				fatal("bad -start: %v", err)
+			}
+		}
+		if *endS != "" {
+			if end, err = time.Parse("2006-01-02", *endS); err != nil {
+				fatal("bad -end: %v", err)
+			}
+		}
+	} else {
+		end = time.Date(2026, 3, 10, 20, 0, 0, 0, time.UTC)
+		start = end.AddDate(0, 0, -*days)
+	}
 
 	a, err := app.New(ctx, cfg, app.Options{Now: start})
 	if err != nil {
@@ -316,12 +356,26 @@ func exportFeatures() {
 	}
 	defer a.Close()
 
+	var membership *universe.Membership
+	if *members != "" {
+		if membership, err = universe.LoadMembership(*members); err != nil {
+			fatal("%v", err)
+		}
+		a.Universe.SetMembership(membership)
+	}
+
 	var tickers []domain.Ticker
-	for _, s := range a.Universe.All() {
-		tickers = append(tickers, s.Ticker)
+	limit := 5000
+	if rp, ok := a.Provider.(*marketdata.Replay); ok {
+		tickers = rp.Tickers()
+		limit = 0 // the whole history, not the simulator's cap
+	} else {
+		for _, s := range a.Universe.All() {
+			tickers = append(tickers, s.Ticker)
+		}
 	}
 	bars, err := a.Provider.GetHistoricalBars(ctx, marketdata.BarRequest{
-		Tickers: tickers, Interval: domain.Interval1m, Start: start, End: end, Limit: 5000, Adjusted: true,
+		Tickers: tickers, Interval: interval, Start: start, End: end, Limit: limit, Adjusted: true,
 	})
 	if err != nil {
 		fatal("historical data: %v", err)
@@ -346,8 +400,8 @@ func exportFeatures() {
 
 	names := domain.ModelFeatureSet
 	header := append([]string{"ts", "ticker", "close", "regime"}, names...)
-	// Forward returns for label construction, at each default horizon.
-	for _, h := range domain.DefaultHorizons {
+	// Forward returns for label construction, at each configured horizon.
+	for _, h := range horizons {
 		header = append(header, "fwd_ret_bps_"+string(h), "label_"+string(h))
 	}
 	if err := w.Write(header); err != nil {
@@ -367,14 +421,24 @@ func exportFeatures() {
 		px float64
 	}{}
 
+	context := map[domain.Ticker]bool{}
+	for _, t := range universe.MacroTickers() {
+		context[t] = true
+	}
+	for _, t := range universe.SectorETFs() {
+		context[t] = true
+	}
 	for _, c := range bars {
 		res := a.Pipeline.OnBar(ctx, c)
 		prices[c.Ticker] = append(prices[c.Ticker], struct {
 			at time.Time
 			px float64
 		}{c.End, c.Close})
-		if res.Macro {
+		if res.Macro || context[c.Ticker] {
 			continue
+		}
+		if membership != nil && !membership.MemberAt(c.Ticker, c.End) {
+			continue // the data existed; the name's place in the universe did not
 		}
 		vec := make([]float64, 0, len(names))
 		complete := true
@@ -404,7 +468,7 @@ func exportFeatures() {
 			rec = append(rec, strconv.FormatFloat(v, 'f', 8, 64))
 		}
 		complete := true
-		for _, h := range domain.DefaultHorizons {
+		for _, h := range horizons {
 			target := r.ts.Add(h.Duration())
 			px, ok := priceAt(prices[r.ticker], target)
 			if !ok {
@@ -430,8 +494,12 @@ func exportFeatures() {
 		written++
 	}
 	w.Flush()
-	fmt.Printf("wrote %d labelled rows to %s (%d features, flat band ±%.0f bps)\n",
-		written, *out, len(names), *horizonBps)
+	source := "simulated"
+	if replay {
+		source = "replay " + cfg.Market.ReplayDir
+	}
+	fmt.Printf("wrote %d labelled rows to %s (%d features, horizons %v, flat band ±%.0f bps, %s bars, %s)\n",
+		written, *out, len(names), horizons, *horizonBps, interval, source)
 	fmt.Println("labels use forward prices strictly after each feature timestamp; cold features are excluded")
 }
 

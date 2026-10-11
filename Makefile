@@ -214,22 +214,45 @@ ingest: ## fetch real daily history (Yahoo chart API, no key) into $(DATA_DIR)
 	$(GO) run ./cmd/quantos ingest -source yahoo -out $(DATA_DIR) -start 2010-01-01
 
 .PHONY: membership
-membership: ## build the point-in-time S&P 500 membership table
+membership: ## build the point-in-time S&P 500 membership table (needs pandas + lxml: `make venv`)
 	mkdir -p $(dir $(MEMBERSHIP))
-	$(PYTHON) scripts/build_membership.py --out $(MEMBERSHIP)
+	$(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(PYTHON)) scripts/build_membership.py --out $(MEMBERSHIP)
 
 .PHONY: report
 report: ## net-of-cost walk-forward over $(DATA_DIR); set STRATEGY=, MEMBERSHIP=
 	$(GO) run ./cmd/quantos report -config config/quantos.daily.yaml \
 		-data $(DATA_DIR) $(if $(wildcard $(MEMBERSHIP)),-membership $(MEMBERSHIP),) \
-		-strategy $(STRATEGY) -costs 1,2 -trials 5 \
-		-out reports/walkforward-$(STRATEGY).json -md reports/walkforward-$(STRATEGY).md
+		-strategy $(STRATEGY) -costs 1,2 -trials 5 $(REPORT_FLAGS) \
+		-out reports/walkforward-$(STRATEGY)$(REPORT_SUFFIX).json -md reports/walkforward-$(STRATEGY)$(REPORT_SUFFIX).md
 
 .PHONY: report-all
 report-all: ## the report for every shipped strategy, with and without the model
 	@for s in momentum breakout mean_reversion quality_growth value; do \
 		$(MAKE) --no-print-directory report STRATEGY=$$s; \
 	done
+
+.PHONY: features-daily
+features-daily: ## export labelled real-data features from $(DATA_DIR) for research
+	$(GO) run ./cmd/quantos export-features -config config/quantos.daily.yaml \
+		-data $(DATA_DIR) $(if $(wildcard $(MEMBERSHIP)),-membership $(MEMBERSHIP),) \
+		-out ml/data/features-daily.csv
+
+.PHONY: train-daily
+train-daily: features-daily ## fit the direction model on real daily features (model id direction-3class-daily)
+	$(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(PYTHON)) ml/training/train.py --data ml/data/features-daily.csv --out ml/artifacts \
+		--model-id direction-3class-daily --horizon 1d --flat-band-bps 50
+	$(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(PYTHON)) ml/evaluation/walk_forward.py --data ml/data/features-daily.csv --out ml/reports \
+		--horizon 1d --flat-band-bps 50 --folds 8
+
+.PHONY: report-daily-model
+report-daily-model: ## the walk-forward report served by the real-data model
+	$(MAKE) --no-print-directory report STRATEGY=$(STRATEGY) \
+		REPORT_FLAGS="-model direction-3class-daily" REPORT_SUFFIX="-realmodel"
+
+.PHONY: report-no-model
+report-no-model: ## the walk-forward report served by the rule prior alone
+	$(MAKE) --no-print-directory report STRATEGY=$(STRATEGY) \
+		REPORT_FLAGS="-no-model" REPORT_SUFFIX="-nomodel"
 
 ##@ Kubernetes (local)
 

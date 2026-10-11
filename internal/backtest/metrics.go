@@ -95,7 +95,10 @@ func ComputeMetrics(curve []domain.EquityPoint, trades []domain.BacktestTrade, r
 		if grossLoss > 0 {
 			m.ProfitFactor = round4(grossWin / grossLoss)
 		} else if grossWin > 0 {
-			m.ProfitFactor = math.Inf(1)
+			// No losing trade in the window. Infinity is the honest value and
+			// JSON cannot carry it, so the field is capped; a win rate of 1.0
+			// alongside says what happened.
+			m.ProfitFactor = maxProfitFactor
 		}
 		m.Expectancy = round4(totalPnL / float64(len(trades)))
 		m.AvgHoldHours = round2(hold / float64(len(trades)))
@@ -291,7 +294,15 @@ func PartitionByRegime(curve []domain.EquityPoint, trades []domain.BacktestTrade
 	return out
 }
 
-func round2(v float64) float64 { return math.Round(v*100) / 100 }
+// maxProfitFactor stands in for +Inf when a window has no losing trade.
+const maxProfitFactor = 1000
+
+func round2(v float64) float64 {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return 0
+	}
+	return math.Round(v*100) / 100
+}
 
 func round4(v float64) float64 {
 	if math.IsNaN(v) || math.IsInf(v, 0) {

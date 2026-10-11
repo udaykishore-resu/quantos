@@ -44,7 +44,7 @@ MODEL_FEATURE_SET: list[str] = [
 ALL_OUTCOMES: list[str] = ["UP", "FLAT", "DOWN"]
 
 # Mirror of domain.Horizon values that cmd/quantos export-features emits.
-DEFAULT_HORIZONS: list[str] = ["15m", "60m", "1d"]
+DEFAULT_HORIZONS: list[str] = ["15m", "60m", "1d", "5d"]
 
 # Mirror of the clamp applied to standardised inputs in
 # mlinfer.Model.PredictVector. Training applies the identical clamp, so the

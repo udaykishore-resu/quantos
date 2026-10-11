@@ -126,8 +126,12 @@ def main(argv: list[str] | None = None) -> int:
     raw_ece, _ = metrics.expected_calibration_error(Pva_raw, yva)
     print(
         f"[calibration] temperature={temperature:.6f} "
-        f"validation ECE {raw_ece:.4f} -> {val_ece:.4f}"
+        f"validation ECE {raw_ece:.4f} -> {val_ece:.4f}, max deviation {val_max_dev:.4f} "
+        f"over bins with >= {metrics.MIN_BIN_SUPPORT} samples"
     )
+    for lo, hi, m, c, acc in metrics.calibration_bins(Pva, yva):
+        flag = "" if m >= metrics.MIN_BIN_SUPPORT else "  (below support floor, ignored for max deviation)"
+        print(f"[calibration]   {lo:.2f}-{hi:.2f}  n={m:<7d} confidence {c:.3f}  accuracy {acc:.3f}  gap {abs(acc - c):.3f}{flag}")
 
     artifact = build_artifact(
         args=args,
@@ -486,8 +490,9 @@ def report(test: dict, train: dict, temperature: float, val_ece: float) -> None:
         )
     else:
         print(
-            f"  VERDICT: {lift:+.4f} over the base rate on held-out data. Still\n"
-            "  educational output on simulated history, not a trading edge."
+            f"  VERDICT: {lift:+.4f} over the base rate on held-out data. A lift\n"
+            "  this size is a research finding, not a trading edge; the walk-forward\n"
+            "  report (quantos report) says whether it survives costs."
         )
     print("")
 

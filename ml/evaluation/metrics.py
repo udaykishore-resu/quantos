@@ -69,8 +69,17 @@ def class_prior_log_loss(y: np.ndarray) -> float:
     return float(-np.log(prior[y]).mean())
 
 
+#: Bins with fewer samples than this do not count towards the maximum
+#: deviation. A bin of twenty predictions has a binomial standard error of
+#: ten points or more on its empirical accuracy, so its "deviation" is mostly
+#: sampling noise; letting it decide a promotion gate rejects well-calibrated
+#: models for the crime of occasionally being confident. ECE is unaffected: a
+#: sparse bin carries its own tiny weight there.
+MIN_BIN_SUPPORT = 100
+
+
 def expected_calibration_error(
-    P: np.ndarray, y: np.ndarray, bins: int = 15
+    P: np.ndarray, y: np.ndarray, bins: int = 15, min_support: int = MIN_BIN_SUPPORT
 ) -> tuple[float, float]:
     """Return (ECE, max bin deviation) over the top-class confidence.
 
@@ -78,6 +87,9 @@ def expected_calibration_error(
     predicted class, and the bin's empirical accuracy is what that probability
     claims. The gap between them is the part a risk threshold cares about,
     because ``risk.MinConfidence`` gates on this number believing itself.
+
+    The maximum deviation is taken over bins with at least ``min_support``
+    samples; see MIN_BIN_SUPPORT.
     """
     conf = P.max(axis=1)
     correct = (np.argmax(P, axis=1) == y).astype(np.float64)
@@ -94,8 +106,25 @@ def expected_calibration_error(
             continue
         gap = abs(float(correct[mask].mean()) - float(conf[mask].mean()))
         ece += (m / n) * gap
-        max_dev = max(max_dev, gap)
+        if m >= min_support:
+            max_dev = max(max_dev, gap)
     return float(ece), float(max_dev)
+
+
+def calibration_bins(P: np.ndarray, y: np.ndarray, bins: int = 15) -> list[tuple[float, float, int, float, float]]:
+    """(lower, upper, count, mean confidence, accuracy) per non-empty bin."""
+    conf = P.max(axis=1)
+    correct = (np.argmax(P, axis=1) == y).astype(np.float64)
+    edges = np.linspace(0.0, 1.0, bins + 1)
+    idx = np.clip(np.digitize(conf, edges[1:-1], right=False), 0, bins - 1)
+    out = []
+    for b in range(bins):
+        mask = idx == b
+        m = int(mask.sum())
+        if m == 0:
+            continue
+        out.append((float(edges[b]), float(edges[b + 1]), m, float(conf[mask].mean()), float(correct[mask].mean())))
+    return out
 
 
 def reliability_table(P: np.ndarray, y: np.ndarray, bins: int = 10) -> list[dict]:
