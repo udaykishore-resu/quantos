@@ -52,6 +52,11 @@ const (
 	ScopeManageConfig  Scope = "config:write"
 	ScopeManageModels  Scope = "models:write"
 	ScopeReadAudit     Scope = "audit:read"
+	// ScopeApproveOrders lets a principal propose, approve and reject order
+	// tickets at the execution venue and operate its kill switch. Approving
+	// also requires re-entering the password (VerifyPassword), so a stolen or
+	// left-open session cannot place an order on its own.
+	ScopeApproveOrders Scope = "orders:approve"
 )
 
 // roleScopes is the authorisation matrix. It is data rather than scattered
@@ -66,12 +71,12 @@ var roleScopes = map[Role][]Scope{
 	},
 	RoleOperator: {
 		ScopeReadMarket, ScopeReadSignals, ScopeReadModels, ScopeReadPortfolio,
-		ScopeRunBacktest, ScopePaperTrade, ScopeReadAudit,
+		ScopeRunBacktest, ScopePaperTrade, ScopeReadAudit, ScopeApproveOrders,
 	},
 	RoleAdmin: {
 		ScopeReadMarket, ScopeReadSignals, ScopeReadModels, ScopeReadPortfolio,
 		ScopeRunBacktest, ScopePaperTrade, ScopeManageConfig, ScopeManageModels,
-		ScopeReadAudit,
+		ScopeReadAudit, ScopeApproveOrders,
 	},
 }
 
@@ -240,6 +245,21 @@ func (a *Authenticator) Login(subject, password string) (string, Principal, erro
 	}
 	tok, err := a.Issue(p, now)
 	return tok, p, err
+}
+
+// VerifyPassword re-checks a locally-configured principal's password without
+// issuing a token. It is the step-up check in front of order approval.
+//
+// Principals that come from an OIDC issuer have no local password, so this
+// returns false for them: approval needs a step-up the platform can verify,
+// and a bearer token alone is not one.
+func (a *Authenticator) VerifyPassword(subject, password string) bool {
+	u, ok := a.users[subject]
+	if !ok || password == "" {
+		_ = hashPassword(password, make([]byte, 16))
+		return false
+	}
+	return subtle.ConstantTimeCompare(u.hash, hashPassword(password, u.salt)) == 1
 }
 
 // Issue signs a local HS256 token.

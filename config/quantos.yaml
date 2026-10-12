@@ -254,3 +254,30 @@ evaluation:
   accuracy_drop_warn: 0.05
   accuracy_drop_alert: 0.10
   min_samples: 100
+
+# Order approval desk (internal/execution). Off by default.
+#
+# When enabled, QuantOS can put order tickets in front of you and, only after
+# you approve each one and re-enter your password, send a limit order to the
+# venue. The only venue is Alpaca's *paper* API (governance rule G-8); its keys
+# are read from the two environment variables named below, never from here.
+execution:
+  enabled: false
+  venue: alpaca-paper
+  key_id_env: QUANTOS_ALPACA_KEY_ID
+  secret_key_env: QUANTOS_ALPACA_SECRET_KEY
+  data_feed: iex
+  # Required when enabled; an empty list trades nothing.
+  allowlist: []
+  max_order_notional: 1000      # dollars per order
+  max_position_weight: 0.10     # of equity, after a buy
+  max_daily_loss_pct: 0.02      # new buys stop once the account is down this much today
+  max_drift_bps: 50             # refuse if the price moved this far since the suggestion
+  ticket_ttl: 15m
+  limit_buffer_bps: 10
+  # Turn every new signal into a ticket. Refused while market.provider is
+  # "sim": a signal about a simulated price series says nothing about the real
+  # instrument. Manual tickets (POST /api/v1/execution/tickets) work regardless.
+  auto_propose: false
+  allow_provisional_model: false
+  reconcile_interval: 30s

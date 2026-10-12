@@ -17,6 +17,7 @@ import (
 	"github.com/udaykishoreresu/quantos/internal/brief"
 	"github.com/udaykishoreresu/quantos/internal/domain"
 	"github.com/udaykishoreresu/quantos/internal/evaluation"
+	"github.com/udaykishoreresu/quantos/internal/execution"
 	"github.com/udaykishoreresu/quantos/internal/httpx"
 	"github.com/udaykishoreresu/quantos/internal/mlinfer"
 	"github.com/udaykishoreresu/quantos/internal/obs"
@@ -41,11 +42,15 @@ type Deps struct {
 	Hub        *httpx.Hub
 	Auth       *auth.Authenticator
 	Backtests  *BacktestRunner
-	Clock      obs.Clock
-	Metrics    *obs.Metrics
-	Logger     *slog.Logger
-	Version    string
-	Mode       string
+	// Desk is the order-approval desk; nil when execution is disabled.
+	Desk        *execution.Desk
+	Proposer    *execution.Proposer
+	AutoPropose bool
+	Clock       obs.Clock
+	Metrics     *obs.Metrics
+	Logger      *slog.Logger
+	Version     string
+	Mode        string
 	// Limiter and its budget are supplied rather than constructed here, because
 	// rate limiting must run *after* authentication to key on the principal.
 	// Mounted at the root router it would key on the client address instead.
@@ -154,6 +159,8 @@ func (a *API) Mount(r chi.Router) {
 				r.Use(httpx.RequireScope(auth.ScopeReadAudit))
 				r.Get("/audit", a.audit)
 			})
+
+			a.mountExecution(r)
 		})
 
 		// The stream accepts a query token because EventSource cannot set

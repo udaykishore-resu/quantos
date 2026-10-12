@@ -151,6 +151,7 @@ func TestTheLLMCannotReachADecision(t *testing.T) {
 		"internal/rules",
 		"internal/opportunity",
 		"internal/paper",
+		"internal/execution",
 	}
 	for _, from := range llmSide {
 		if _, ok := g[from]; !ok {
@@ -175,7 +176,7 @@ func TestNoDecisionPackageImportsTheLLM(t *testing.T) {
 		"internal/signal", "internal/risk", "internal/predict", "internal/scoring",
 		"internal/rules", "internal/features", "internal/regime", "internal/opportunity",
 		"internal/paper", "internal/backtest", "internal/evaluation", "internal/quant",
-		"internal/valuation", "internal/fundamentals",
+		"internal/valuation", "internal/fundamentals", "internal/execution",
 	}
 	for _, from := range decisionSide {
 		if _, ok := g[from]; !ok {
@@ -238,6 +239,42 @@ func TestOnlyTheCompositionRootWiresStorage(t *testing.T) {
 		if deps["internal/store"] {
 			t.Errorf("%s imports internal/store directly. Engines take the data they need "+
 				"as arguments; only the composition root knows where it came from.", pkg)
+		}
+	}
+}
+
+// TestOnlyTheEdgeReachesTheVenue keeps order routing out of the decision path.
+//
+// internal/execution is the only code that can send an order to a broker, and
+// it does so only on a person's approval. If an engine could import it, a
+// signal could place an order without one; this test makes that a build
+// failure rather than a code-review catch.
+func TestOnlyTheEdgeReachesTheVenue(t *testing.T) {
+	g := buildGraph(t, repoRoot(t))
+	if _, ok := g["internal/execution"]; !ok {
+		t.Fatal("internal/execution does not exist; this test is guarding nothing")
+	}
+	allowed := map[string]bool{"internal/app": true, "internal/api": true}
+	for pkg, deps := range g {
+		if deps["internal/execution"] && !allowed[pkg] {
+			t.Errorf("%s imports internal/execution. Only the composition root and the API may "+
+				"hold the desk; everything else hands it finished signals.", pkg)
+		}
+	}
+	for _, engine := range []string{
+		"internal/signal", "internal/risk", "internal/predict", "internal/rules",
+		"internal/pipeline", "internal/paper", "internal/backtest", "internal/opportunity",
+	} {
+		if path := g.reaches(engine, "internal/execution"); path != nil {
+			t.Errorf("%s can reach internal/execution (%s): a signal could place an order "+
+				"without a person approving it.", engine, strings.Join(path, " -> "))
+		}
+	}
+	// And the desk must not reach back into the engines that produce signals:
+	// it consumes them as values.
+	for _, engine := range []string{"internal/signal", "internal/pipeline", "internal/risk", "internal/paper"} {
+		if path := g.reaches("internal/execution", engine); path != nil {
+			t.Errorf("internal/execution reaches %s (%s)", engine, strings.Join(path, " -> "))
 		}
 	}
 }

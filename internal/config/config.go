@@ -55,6 +55,7 @@ type Config struct {
 	Universe   UniverseConfig   `yaml:"universe"`
 	Strategies StrategyConfig   `yaml:"strategies"`
 	Evaluation EvaluationConfig `yaml:"evaluation"`
+	Execution  ExecutionConfig  `yaml:"execution"`
 
 	// Hash is computed at load time over the effective configuration.
 	Hash string `yaml:"-"`
@@ -307,6 +308,38 @@ type EvaluationConfig struct {
 	MinSamples        int           `yaml:"min_samples"`
 }
 
+// ExecutionConfig parameterises the approval desk that routes approved order
+// tickets to a broker's paper account (internal/execution). It is off by
+// default, and the only venue this build supports is a paper one (rule G-8).
+type ExecutionConfig struct {
+	Enabled bool   `yaml:"enabled"`
+	Venue   string `yaml:"venue"` // alpaca-paper
+	// KeyIDEnv and SecretKeyEnv name the environment variables holding the
+	// venue's API keys. The keys themselves never appear in this file.
+	KeyIDEnv     string `yaml:"key_id_env"`
+	SecretKeyEnv string `yaml:"secret_key_env"`
+	DataFeed     string `yaml:"data_feed"` // iex | sip
+
+	// Allowlist is required when enabled: an empty list trades nothing.
+	Allowlist         []string      `yaml:"allowlist"`
+	MaxOrderNotional  float64       `yaml:"max_order_notional"`
+	MaxPositionWeight float64       `yaml:"max_position_weight"`
+	MaxDailyLossPct   float64       `yaml:"max_daily_loss_pct"`
+	MaxDriftBps       float64       `yaml:"max_drift_bps"`
+	TicketTTL         time.Duration `yaml:"ticket_ttl"`
+	LimitBufferBps    float64       `yaml:"limit_buffer_bps"`
+
+	// AutoPropose turns every new QuantOS signal into a ticket awaiting
+	// approval. It is refused while market.provider is "sim": a signal
+	// computed on a simulated price series says nothing about the real
+	// instrument the venue would trade.
+	AutoPropose bool `yaml:"auto_propose"`
+	// AllowProvisionalModel lets the model-health gate pass on a health record
+	// measured offline rather than on live outcomes.
+	AllowProvisionalModel bool          `yaml:"allow_provisional_model"`
+	ReconcileInterval     time.Duration `yaml:"reconcile_interval"`
+}
+
 // Default returns the built-in configuration. It is a complete, runnable
 // configuration: `make demo` uses it unmodified.
 func Default() Config {
@@ -488,6 +521,20 @@ func Default() Config {
 			AccuracyDropAlert: 0.10,
 			MinSamples:        100,
 		},
+		Execution: ExecutionConfig{
+			Enabled:           false,
+			Venue:             "alpaca-paper",
+			KeyIDEnv:          "QUANTOS_ALPACA_KEY_ID",
+			SecretKeyEnv:      "QUANTOS_ALPACA_SECRET_KEY",
+			DataFeed:          "iex",
+			MaxOrderNotional:  1_000,
+			MaxPositionWeight: 0.10,
+			MaxDailyLossPct:   0.02,
+			MaxDriftBps:       50,
+			TicketTTL:         15 * time.Minute,
+			LimitBufferBps:    10,
+			ReconcileInterval: 30 * time.Second,
+		},
 	}
 }
 
@@ -550,6 +597,8 @@ func applyEnv(c *Config) {
 	set("QUANTOS_AUTH_ENABLED", func(v string) { c.Auth.Enabled = truthy(v) })
 	set("QUANTOS_STRATEGY_DIR", func(v string) { c.Strategies.Dir = v })
 	set("QUANTOS_ARTIFACT_DIR", func(v string) { c.Predict.ArtifactDir = v })
+	set("QUANTOS_EXECUTION_ENABLED", func(v string) { c.Execution.Enabled = truthy(v) })
+	set("QUANTOS_EXECUTION_ALLOWLIST", func(v string) { c.Execution.Allowlist = splitList(v) })
 	set("QUANTOS_SEED", func(v string) {
 		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
 			c.Market.Seed = n
@@ -672,6 +721,33 @@ func (c Config) Validate() error {
 	}
 	if c.Mode == ModeCluster && !c.Auth.Enabled {
 		add("auth.enabled must be true in cluster mode")
+	}
+	if e := c.Execution; e.Enabled {
+		if e.Venue != "alpaca-paper" {
+			add("execution.venue %q is not supported; the only venue is alpaca-paper (rule G-8)", e.Venue)
+		}
+		if len(e.Allowlist) == 0 {
+			add("execution.allowlist must name the tickers the desk may trade")
+		}
+		if e.MaxOrderNotional <= 0 {
+			add("execution.max_order_notional must be positive")
+		}
+		if e.MaxPositionWeight <= 0 || e.MaxPositionWeight > 1 {
+			add("execution.max_position_weight must be in (0,1]")
+		}
+		if e.MaxDailyLossPct <= 0 || e.MaxDailyLossPct >= 1 {
+			add("execution.max_daily_loss_pct must be in (0,1)")
+		}
+		if e.MaxDriftBps <= 0 || e.TicketTTL <= 0 {
+			add("execution.max_drift_bps and execution.ticket_ttl must be positive")
+		}
+		if e.AutoPropose && c.Market.Provider == "sim" {
+			add("execution.auto_propose needs a real market feed: market.provider is \"sim\", " +
+				"so every signal describes a simulated price series, not the instrument the venue trades")
+		}
+		if !c.Auth.Enabled {
+			add("execution.enabled requires auth.enabled: approvals must be attributable to a principal")
+		}
 	}
 	if len(errs) > 0 {
 		return fmt.Errorf("config invalid:\n  - %s", strings.Join(errs, "\n  - "))

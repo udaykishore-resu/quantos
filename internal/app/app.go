@@ -28,6 +28,7 @@ import (
 	"github.com/udaykishoreresu/quantos/internal/config"
 	"github.com/udaykishoreresu/quantos/internal/domain"
 	"github.com/udaykishoreresu/quantos/internal/evaluation"
+	"github.com/udaykishoreresu/quantos/internal/execution"
 	"github.com/udaykishoreresu/quantos/internal/features"
 	"github.com/udaykishoreresu/quantos/internal/fundamentals"
 	"github.com/udaykishoreresu/quantos/internal/httpx"
@@ -83,6 +84,7 @@ type App struct {
 	Bus      bus.Bus
 	Store    store.Store
 	SQL      *store.SQL
+	Postgres *store.Postgres
 	Deduper  bus.Deduper
 	Pipeline *pipeline.Pipeline
 	State    *api.State
@@ -93,6 +95,11 @@ type App struct {
 	Runner   *api.BacktestRunner
 	Server   *httpx.Server
 	API      *api.API
+
+	// Desk routes approved order tickets to a paper venue; nil unless
+	// execution.enabled is set and the desk could be built.
+	Desk     *execution.Desk
+	Proposer *execution.Proposer
 
 	closers []func() error
 	mu      sync.Mutex
@@ -406,6 +413,11 @@ func New(ctx context.Context, cfg config.Config, opts Options) (*App, error) {
 		Clock: opts.Clock, Metrics: metrics,
 	})
 
+	// --- Execution desk ----------------------------------------------------
+	if opts.WithHTTP {
+		a.buildExecution(ctx, cfg, log)
+	}
+
 	if opts.WithHTTP {
 		a.buildHTTP(cfg, log, metrics)
 	}
@@ -455,6 +467,7 @@ func (a *App) buildStore(ctx context.Context, cfg config.Config, log *slog.Logge
 			a.markDegraded("postgres")
 		} else {
 			pg = p
+			a.Postgres = p
 			a.closers = append(a.closers, p.Close)
 		}
 	}
@@ -563,7 +576,9 @@ func (a *App) buildHTTP(cfg config.Config, log *slog.Logger, metrics *obs.Metric
 		State: a.State, Store: a.Store, Universe: a.Universe, Signals: a.Signals,
 		Broker: a.Broker, Strategies: a.Strategies, Models: a.Models,
 		Evaluator: a.Evaluator, Brief: a.Brief, Hub: a.Hub, Auth: a.Auth,
-		Backtests: a.Runner, Clock: a.Clock, Metrics: metrics, Logger: log,
+		Backtests: a.Runner, Desk: a.Desk, Proposer: a.Proposer,
+		AutoPropose: cfg.Execution.AutoPropose,
+		Clock:       a.Clock, Metrics: metrics, Logger: log,
 		Version: cfg.Version, Mode: string(cfg.Mode),
 		Limiter: limiter, RateLimitRPS: cfg.HTTP.RateLimitRPS, RateLimitBurst: cfg.HTTP.RateLimitBurst,
 		Degraded: a.Degraded,

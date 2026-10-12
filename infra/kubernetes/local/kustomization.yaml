@@ -36,6 +36,7 @@ configMapGenerator:
   - name: postgres-schema
     files:
       - 001_schema.sql=../../../deploy/sql/postgres/001_schema.sql
+      - 002_execution.sql=../../../deploy/sql/postgres/002_execution.sql
   - name: clickhouse-schema
     files:
       - 001_schema.sql=../../../deploy/sql/clickhouse/001_schema.sql

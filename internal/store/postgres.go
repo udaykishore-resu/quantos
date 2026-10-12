@@ -69,6 +69,11 @@ func OpenPostgres(ctx context.Context, cfg PostgresConfig) (*Postgres, error) {
 	return &Postgres{db: db, timeout: cfg.QueryTimeout}, nil
 }
 
+// DB exposes the connection pool to the composition root, for components that
+// own their own tables (internal/execution) and so must not depend on this
+// package.
+func (p *Postgres) DB() *sql.DB { return p.db }
+
 func (p *Postgres) ctx(ctx context.Context) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(ctx, p.timeout)
 }

@@ -58,6 +58,9 @@ func (a *App) Run(ctx context.Context, roles ...Role) error {
 		if err := a.registerStreamConsumers(); err != nil {
 			return err
 		}
+		if err := a.registerExecutionConsumers(); err != nil {
+			return err
+		}
 	}
 
 	wg.Add(1)
@@ -83,6 +86,10 @@ func (a *App) Run(ctx context.Context, roles ...Role) error {
 	if want[RoleSweeper] {
 		wg.Add(1)
 		go func() { defer wg.Done(); a.runSweeper(ctx) }()
+	}
+	if want[RoleAPI] && a.Desk != nil {
+		wg.Add(1)
+		go func() { defer wg.Done(); a.runReconcile(ctx) }()
 	}
 	if want[RoleAPI] && a.Server != nil {
 		if err := a.Server.Start(); err != nil {

@@ -81,6 +81,8 @@ migrate: ## apply the PostgreSQL and ClickHouse schemas
 	@echo "applying PostgreSQL schema..."
 	@$(COMPOSE) exec -T postgres psql -v ON_ERROR_STOP=1 -U quantos -d quantos \
 		< deploy/sql/postgres/001_schema.sql
+	@$(COMPOSE) exec -T postgres psql -v ON_ERROR_STOP=1 -U quantos -d quantos \
+		< deploy/sql/postgres/002_execution.sql
 	@echo "applying ClickHouse schema..."
 	@$(COMPOSE) exec -T clickhouse clickhouse-client --multiquery \
 		< deploy/sql/clickhouse/001_schema.sql

@@ -27,9 +27,29 @@ probabilistic forecasting, risk control and strategy evaluation, with a
 | G-5 | Stale market data suspends signal generation. | `features.Freshness` gate, checked in `signal.Engine.Evaluate` |
 | G-6 | Every signal carries invalidation conditions and is auto-invalidated when they trigger. | `signal.Invalidator`, exercised by DEMO 6 |
 | G-7 | Every prediction is evaluated against realised outcome and the result is published. | `evaluation.Scheduler` |
-| G-8 | Real-money execution requires a build tag that does not exist, an explicit config flag, and a signed operator attestation. None are shipped. | `paper.guardRealMoney()` panics at init if `QUANTOS_ALLOW_REAL_MONEY` is set |
+| G-8 | Real-money execution requires a build tag that does not exist, an explicit config flag, and a signed operator attestation. None are shipped. | `paper.guardRealMoney()` panics at init if `QUANTOS_ALLOW_REAL_MONEY` is set; `execution.NewAlpacaPaper` refuses Alpaca's live host and `execution.NewDesk` refuses any venue whose `Paper()` is false |
 | G-9 | Classifications (`STRONG_WATCH` … `AVOID`) are research labels, not advice, and every API response carrying one includes the disclaimer field. | `httpx.Disclaimer` middleware |
 | G-10 | Options and positioning claims must express uncertainty and may not assert institutional intent. | `options` package returns `Confidence` and `DataQuality` on every metric |
+
+## 3a. The approval desk and G-8
+
+`internal/execution` can send limit orders to a broker's **paper** account,
+and only on a person's approval. It does not weaken G-8; it is bounded by it:
+
+- The only venue is Alpaca's paper API. The constructor refuses the live host,
+  and the desk refuses any venue that reports itself as not paper.
+- Every order needs an approval by a principal with `orders:approve` who
+  re-enters their password. Nothing in the platform approves on anyone's behalf.
+- Guardrails run on the server at the moment of approval and fail closed:
+  allowlist, per-order cap, position cap, daily loss stop, price drift since the
+  suggestion, buying power, model health (signal proposals only), and the kill
+  switch, which is persisted so a restart cannot lift it.
+- `auto_propose` is refused while `market.provider` is `sim`: a signal computed
+  on a simulated series says nothing about the instrument the venue trades.
+- `tests/integration` fails the build if any package other than `internal/app`
+  and `internal/api` imports the desk, or if a decision engine can reach it.
+
+Changing any of the first two points is a change to G-8, and is made here first.
 
 ## 4. Disclaimer surface
 
