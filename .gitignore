@@ -61,3 +61,7 @@ crash.log
 
 # Walk-forward reports over real data; regenerate with `make report`.
 /reports/
+
+# Your real holdings and anything else personal. `quantos guide import-robinhood`
+# writes here by default; it must never reach a public repository.
+/private/

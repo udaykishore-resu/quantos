@@ -42,6 +42,8 @@ func runGuide() {
 		guideRank()
 	case "brief":
 		guideBrief()
+	case "import-robinhood":
+		guideImportRobinhood()
 	case "-h", "--help", "help":
 		guideUsage()
 	default:
@@ -62,6 +64,8 @@ commands:
   rank   the cross-sectional monthly ranking sleeve, every variant, net of costs, against the index
   brief  one page a day: market context, your book against the caps, forecast volatility per
          holding, what the sleeve would hold, and how every earlier brief's calls turned out
+  import-robinhood
+         rebuild a holdings file from a Robinhood account-activity CSV, for book and brief
 
 Every output is a measurement with a window and a method. None of it is advice.
 `)
@@ -88,6 +92,7 @@ func guideBook() {
 		configPath = flag.String("config", envOr("QUANTOS_CONFIG", "config/quantos.daily.yaml"), "configuration file (risk caps come from its risk block)")
 		data       = flag.String("data", "data/daily", "replay directory from `quantos ingest`")
 		holdings   = flag.String("holdings", "examples/holdings/model-100k.csv", "holdings CSV: ticker,quantity[,cost_basis][,note]; a CASH row carries cash")
+		capsName   = flag.String("caps", "personal", capsUsage)
 		bench      = flag.String("benchmark", "SPY", "benchmark ticker")
 		asOfS      = flag.String("as-of", "", "mark date (default: last bar)")
 		outJSON    = flag.String("out", "reports/book.json", "JSON output")
@@ -111,13 +116,7 @@ func guideBook() {
 		}
 	}
 	u := universe.Builtin()
-	caps := guide.Caps{
-		MaxPosition: cfg.Risk.MaxPositionWeight, SoftPosition: cfg.Risk.SoftPositionWeight,
-		MaxSector: cfg.Risk.MaxSectorWeight, SoftSector: cfg.Risk.SoftSectorWeight,
-		MaxCorrelated: cfg.Risk.MaxCorrelatedExposure, SoftCorrelated: cfg.Risk.SoftCorrelatedExposure,
-		MaxDrawdown: cfg.Risk.MaxDrawdown, DrawdownWarn: cfg.Risk.DrawdownWarn,
-		CorrelationThreshold: 0.60,
-	}
+	caps := guideCaps(*capsName, cfg)
 	book, err := guide.Assess(h, series, guide.BookConfig{
 		Caps: caps, Benchmark: domain.NormalizeTicker(*bench), AsOf: asOf,
 		Lookup: func(t domain.Ticker) (domain.Stock, bool) { return u.Get(t) },
@@ -130,6 +129,15 @@ func guideBook() {
 		book.Name, book.AsOf.Format("2006-01-02"), book.Equity, len(book.Positions), book.EffectiveN, book.CashWeight*100)
 	for _, f := range book.Flags {
 		fmt.Printf("  %-4s %-15s %s\n", f.Level, f.Check, f.Detail)
+	}
+	if len(book.Exposures) > 0 {
+		fmt.Printf("  largest company exposures, through funds (constituents %s):\n", guide.LookThroughAsOf)
+		for i, e := range book.Exposures {
+			if i == 5 {
+				break
+			}
+			fmt.Printf("    %-6s %5.1f%%  (direct %4.1f%%, via %s %4.1f%%)\n", e.Ticker, e.Total*100, e.Direct*100, orDash(e.Funds), e.ViaFunds*100)
+		}
 	}
 	for _, t := range book.Trailing {
 		fmt.Printf("  %-14s return %+6.1f%%  vol %5.1f%%  Sharpe %5.2f  maxDD %5.1f%%  beta %.2f   (%s %+6.1f%%, maxDD %5.1f%%)\n",
@@ -490,6 +498,7 @@ func guideBrief() {
 		configPath = flag.String("config", envOr("QUANTOS_CONFIG", "config/quantos.daily.yaml"), "configuration file")
 		data       = flag.String("data", "data/daily", "replay directory from `quantos ingest`")
 		holdings   = flag.String("holdings", "examples/holdings/model-100k.csv", "holdings CSV")
+		capsName   = flag.String("caps", "personal", capsUsage)
 		members    = flag.String("membership", "", "point-in-time membership CSV, for the sleeve")
 		bench      = flag.String("benchmark", "SPY", "benchmark ticker")
 		asOfS      = flag.String("as-of", "", "date of the brief (default: last bar)")
@@ -524,12 +533,7 @@ func guideBrief() {
 		}
 	}
 	u := universe.Builtin()
-	caps := guide.Caps{
-		MaxPosition: cfg.Risk.MaxPositionWeight, SoftPosition: cfg.Risk.SoftPositionWeight,
-		MaxSector: cfg.Risk.MaxSectorWeight, SoftSector: cfg.Risk.SoftSectorWeight,
-		MaxCorrelated: cfg.Risk.MaxCorrelatedExposure, SoftCorrelated: cfg.Risk.SoftCorrelatedExposure,
-		MaxDrawdown: cfg.Risk.MaxDrawdown, DrawdownWarn: cfg.Risk.DrawdownWarn, CorrelationThreshold: 0.60,
-	}
+	caps := guideCaps(*capsName, cfg)
 	ledger, err := guide.LoadLedger(*ledgerPath)
 	if err != nil {
 		fatal("%v", err)
@@ -642,4 +646,104 @@ func guideBrief() {
 	if err := os.WriteFile(filepath.Join(*outDir, "latest.md"), []byte(md), 0o644); err == nil {
 		fmt.Printf("wrote %s\n", filepath.Join(*outDir, "latest.md"))
 	}
+}
+
+// guideImportRobinhood turns a Robinhood account-activity report into the
+// holdings file the other guide commands read.
+func guideImportRobinhood() {
+	var (
+		in   = flag.String("in", "", "Robinhood account-activity CSV (Account → Reports and statements → Account activity)")
+		out  = flag.String("out", "private/holdings.csv", "holdings CSV to write (private/ is git-ignored)")
+		cash = flag.Float64("cash", 0, "uninvested cash, from the app; it is not derived from the report")
+		data = flag.String("data", "data/daily", "replay directory, checked for history of every holding")
+	)
+	flag.Parse()
+	if *in == "" {
+		fatal("-in is required: the CSV Robinhood emails when an account-activity report is ready")
+	}
+	f, err := os.Open(*in)
+	if err != nil {
+		fatal("%v", err)
+	}
+	defer f.Close()
+	imp, err := guide.ReadRobinhoodActivity(f, *cash)
+	if err != nil {
+		fatal("%v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(*out), 0o700); err != nil {
+		fatal("%v", err)
+	}
+	w, err := os.OpenFile(*out, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	if err != nil {
+		fatal("%v", err)
+	}
+	if err := guide.WriteHoldings(w, imp.Holdings); err != nil {
+		fatal("%v", err)
+	}
+	_ = w.Close()
+
+	fmt.Printf("replayed %d buys and sells from %s to %s → %s\n",
+		imp.Applied, imp.From.Format("2006-01-02"), imp.To.Format("2006-01-02"), *out)
+	fmt.Printf("%d open positions, %d closed within the report, cash $%.2f\n\n",
+		len(imp.Holdings.Lines), imp.Closed, imp.Holdings.Cash)
+	var missing []string
+	for _, l := range imp.Holdings.Lines {
+		note := ""
+		if _, err := os.Stat(filepath.Join(*data, string(l.Ticker)+".csv")); err != nil {
+			note = "  ← no history in " + *data
+			missing = append(missing, string(l.Ticker))
+		}
+		fmt.Printf("  %-6s %12g  avg $%9.2f%s\n", l.Ticker, l.Quantity, l.CostBasis, note)
+	}
+	if len(imp.Review) > 0 {
+		fmt.Printf("\nNOT APPLIED — rows that change a position but whose effect is not guessed at.\n" +
+			"Check each against the app and edit the holdings file by hand:\n")
+		for _, r := range imp.Review {
+			fmt.Printf("  %s  %-6s %-6s %10g  %s\n", r.Date.Format("2006-01-02"), r.Ticker, r.Code, r.Quantity, r.Description)
+		}
+	}
+	if len(imp.Negative) > 0 {
+		fmt.Printf("\nSOLD MORE THAN BOUGHT in this report — the report starts too late or a transfer is missing,\n"+
+			"so these are left out: %v. Generate the report from the account's opening date.\n", imp.Negative)
+	}
+	if len(missing) > 0 {
+		// Ingest into a scratch directory and copy the CSVs across: ingest
+		// rewrites MANIFEST.json for the tickers it fetched, and pointing it
+		// at the shared directory would drop every other series from it.
+		fmt.Printf("\nFetch history for the holdings above before running book or brief:\n"+
+			"  go run ./cmd/quantos ingest -tickers %s -no-macro -out /tmp/quantos-extra && cp /tmp/quantos-extra/*.csv %s/\n",
+			strings.Join(missing, ","), *data)
+	}
+	fmt.Printf("\nCompare every line with the Robinhood app before relying on it. Then:\n"+
+		"  go run ./cmd/quantos guide book -holdings %s\n", *out)
+}
+
+const capsUsage = "personal (a book of index funds and a few stocks: one company 25%, sector 40%) | strategy (the risk block of -config, sized for a twenty-name signal book)"
+
+// guideCaps picks the thresholds a book is held to.
+func guideCaps(name string, cfg config.Config) guide.Caps {
+	switch name {
+	case "personal":
+		return guide.PersonalCaps()
+	case "strategy":
+		return guide.Caps{
+			MaxPosition: cfg.Risk.MaxPositionWeight, SoftPosition: cfg.Risk.SoftPositionWeight,
+			MaxSector: cfg.Risk.MaxSectorWeight, SoftSector: cfg.Risk.SoftSectorWeight,
+			MaxCorrelated: cfg.Risk.MaxCorrelatedExposure, SoftCorrelated: cfg.Risk.SoftCorrelatedExposure,
+			MaxDrawdown: cfg.Risk.MaxDrawdown, DrawdownWarn: cfg.Risk.DrawdownWarn, CorrelationThreshold: 0.60,
+		}
+	}
+	fatal("-caps %q is not personal or strategy", name)
+	return guide.Caps{}
+}
+
+func orDash(ts []domain.Ticker) string {
+	if len(ts) == 0 {
+		return "-"
+	}
+	out := make([]string, len(ts))
+	for i, t := range ts {
+		out[i] = string(t)
+	}
+	return strings.Join(out, ",")
 }

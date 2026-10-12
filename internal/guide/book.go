@@ -129,17 +129,20 @@ type Book struct {
 	Positions      []Position         `json:"positions"`
 	SectorExposure map[string]float64 `json:"sector_exposure"`
 	ETFWeight      float64            `json:"etf_weight"`
-	SingleNames    float64            `json:"single_name_weight"`
-	HHI            float64            `json:"hhi"`
-	EffectiveN     float64            `json:"effective_positions"`
-	TopPairs       []Pair             `json:"top_pairs"`
-	Trailing       []WindowStats      `json:"trailing"`
-	Stress         []WindowStats      `json:"stress"`
-	Flags          []Flag             `json:"flags"`
-	Missing        []domain.Ticker    `json:"missing_data,omitempty"`
-	Benchmark      domain.Ticker      `json:"benchmark"`
-	Notes          []string           `json:"notes"`
-	Disclaimer     string             `json:"disclaimer"`
+	// Exposures is the look-through: per company, the weight held directly
+	// plus its share of every tracked index fund in the book, largest first.
+	Exposures   []Exposure      `json:"exposures,omitempty"`
+	SingleNames float64         `json:"single_name_weight"`
+	HHI         float64         `json:"hhi"`
+	EffectiveN  float64         `json:"effective_positions"`
+	TopPairs    []Pair          `json:"top_pairs"`
+	Trailing    []WindowStats   `json:"trailing"`
+	Stress      []WindowStats   `json:"stress"`
+	Flags       []Flag          `json:"flags"`
+	Missing     []domain.Ticker `json:"missing_data,omitempty"`
+	Benchmark   domain.Ticker   `json:"benchmark"`
+	Notes       []string        `json:"notes"`
+	Disclaimer  string          `json:"disclaimer"`
 }
 
 // Assess marks the holdings and measures the book at its current weights.
@@ -153,9 +156,17 @@ func Assess(h Holdings, bars Series, cfg BookConfig) (Book, error) {
 	if cfg.Stress == nil {
 		cfg.Stress = DefaultStressWindows()
 	}
-	lookup := cfg.Lookup
-	if lookup == nil {
-		lookup = func(t domain.Ticker) (domain.Stock, bool) { return domain.Stock{}, false }
+	base := cfg.Lookup
+	if base == nil {
+		base = func(t domain.Ticker) (domain.Stock, bool) { return domain.Stock{}, false }
+	}
+	// Common index funds are recognised even when the research universe does
+	// not list them, so a fund is never mistaken for a single stock.
+	lookup := func(t domain.Ticker) (domain.Stock, bool) {
+		if s, ok := base(t); ok {
+			return s, true
+		}
+		return KnownFund(t)
 	}
 
 	// Calendar: the benchmark's dates, which is what "a trading day" means
@@ -272,6 +283,7 @@ func Assess(h Holdings, bars Series, cfg BookConfig) (Book, error) {
 	if hhi > 0 {
 		book.EffectiveN = 1 / hhi
 	}
+	book.Exposures = lookThrough(book.Positions)
 
 	// Daily returns per instrument on the calendar.
 	rets := map[domain.Ticker][]float64{}
@@ -376,22 +388,31 @@ func Assess(h Holdings, bars Series, cfg BookConfig) (Book, error) {
 		"weights are today's; every trailing and stress figure holds them constant with daily rebalancing, so it measures the exposure you have now, not the path you took",
 		"a position's return before its first bar counts as zero, which flatters volatility for recently listed names; see data_from",
 		"correlated exposure counts the weight of other names whose one-year daily correlation with the position exceeds the threshold",
-		"ETF weights are reported but not held to the single-name cap; the book has no look-through into what an ETF owns",
+		"concentration counts each company through the index funds that hold it, using the funds' largest constituents as of "+LookThroughAsOf+"; funds without tracked constituents are held to no single-company cap",
 	)
 	return book, nil
 }
 
 func flags(b Book, caps Caps) []Flag {
 	var out []Flag
+	// Concentration is measured per company through the funds that hold it:
+	// what matters is how much of the money rides on one business, however
+	// it is held.
+	for _, e := range b.Exposures {
+		how := fmt.Sprintf("%.1f%% held directly", e.Direct*100)
+		if e.ViaFunds > 0 {
+			how += fmt.Sprintf(" + %.1f%% through %s", e.ViaFunds*100, joinTickers(e.Funds))
+		}
+		switch {
+		case e.Total > caps.MaxPosition:
+			out = append(out, Flag{"FAIL", "concentration", fmt.Sprintf("%s is %.1f%% of the book (%s); the single-company cap is %.0f%%", e.Ticker, e.Total*100, how, caps.MaxPosition*100)})
+		case e.Total > caps.SoftPosition:
+			out = append(out, Flag{"WARN", "concentration", fmt.Sprintf("%s is %.1f%% of the book (%s), above the %.0f%% soft limit", e.Ticker, e.Total*100, how, caps.SoftPosition*100)})
+		}
+	}
 	for _, p := range b.Positions {
 		if p.AssetClass == domain.AssetETF {
 			continue
-		}
-		switch {
-		case p.Weight > caps.MaxPosition:
-			out = append(out, Flag{"FAIL", "concentration", fmt.Sprintf("%s is %.1f%% of the book; the single-name cap is %.0f%%", p.Ticker, p.Weight*100, caps.MaxPosition*100)})
-		case p.Weight > caps.SoftPosition:
-			out = append(out, Flag{"WARN", "concentration", fmt.Sprintf("%s is %.1f%% of the book, above the %.0f%% soft limit", p.Ticker, p.Weight*100, caps.SoftPosition*100)})
 		}
 		x := p.Weight + p.CorrelatedExposure
 		switch {
@@ -402,6 +423,12 @@ func flags(b Book, caps Caps) []Flag {
 		}
 	}
 	for sector, w := range b.SectorExposure {
+		if sector == "Unknown" {
+			// A stock outside the research universe has no sector here. Holding
+			// it to a sector cap would compare unrelated companies as one.
+			out = append(out, Flag{"INFO", "sector", fmt.Sprintf("%.0f%% of the book is in single names with no sector on record; they are not held to the sector cap", w*100)})
+			continue
+		}
 		switch {
 		case w > caps.MaxSector:
 			out = append(out, Flag{"FAIL", "sector", fmt.Sprintf("single-name %s exposure is %.0f%%; the cap is %.0f%%", sector, w*100, caps.MaxSector*100)})
@@ -618,4 +645,43 @@ func indexAtOrBefore(dates []time.Time, t time.Time) int {
 		}
 	}
 	return -1
+}
+
+// lookThrough sums, per company, the weight held directly and the weight held
+// through tracked index funds. Companies under 0.5% of the book are dropped.
+func lookThrough(ps []Position) []Exposure {
+	by := map[domain.Ticker]*Exposure{}
+	get := func(t domain.Ticker) *Exposure {
+		e := by[t]
+		if e == nil {
+			e = &Exposure{Ticker: t}
+			by[t] = e
+		}
+		return e
+	}
+	for _, p := range ps {
+		if p.AssetClass != domain.AssetETF {
+			get(p.Ticker).Direct += p.Weight
+			continue
+		}
+		for _, fw := range FundHoldings(p.Ticker) {
+			e := get(fw.Ticker)
+			e.ViaFunds += p.Weight * fw.Weight
+			e.Funds = append(e.Funds, p.Ticker)
+		}
+	}
+	out := make([]Exposure, 0, len(by))
+	for _, e := range by {
+		e.Total = e.Direct + e.ViaFunds
+		if e.Total >= 0.005 {
+			out = append(out, *e)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Total != out[j].Total {
+			return out[i].Total > out[j].Total
+		}
+		return out[i].Ticker < out[j].Ticker
+	})
+	return out
 }

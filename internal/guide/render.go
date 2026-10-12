@@ -39,6 +39,17 @@ func RenderBook(b Book) string {
 	}
 	w("\nEffective number of positions %.1f (1/HHI). ETFs %s, single names %s.\n\n", b.EffectiveN, upct(b.ETFWeight), upct(b.SingleNames))
 
+	if len(b.Exposures) > 0 {
+		w("## Company exposure, looking through index funds\n\nConstituent weights %s.\n\n| company | total | held directly | through funds | funds |\n|---|---|---|---|---|\n", LookThroughAsOf)
+		for i, e := range b.Exposures {
+			if i == 10 {
+				break
+			}
+			w("| %s | %s | %s | %s | %s |\n", e.Ticker, upct(e.Total), upct(e.Direct), upct(e.ViaFunds), joinTickers(e.Funds))
+		}
+		w("\n")
+	}
+
 	if len(b.SectorExposure) > 0 {
 		w("## Single-name sector exposure\n\n| sector | weight |\n|---|---|\n")
 		names := make([]string, 0, len(b.SectorExposure))
