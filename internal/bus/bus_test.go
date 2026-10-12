@@ -3,6 +3,7 @@ package bus
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -418,6 +419,51 @@ func TestWALResumesFromCommittedOffset(t *testing.T) {
 	write(5)
 	if n := consume(5); n != 5 {
 		t.Fatalf("second pass consumed %d of 5 new events", n)
+	}
+}
+
+// A Run that starts after Close must do nothing: the directory lock is gone,
+// and opening a topic then could truncate a log another bus is writing.
+func TestWALRunAfterCloseTouchesNothing(t *testing.T) {
+	dir := t.TempDir()
+	builder := NewBuilder("test", obs.NewSimClock(base))
+	idle, err := NewWALBus(WALOptions{Dir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := idle.Subscribe(TopicBars, "group", func(context.Context, Envelope) error { return nil }); err != nil {
+		t.Fatal(err)
+	}
+	_ = idle.Close()
+
+	w, err := NewWALBus(WALOptions{Dir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	for i := 0; i < 3; i++ {
+		if err := w.Publish(context.Background(), TopicBars, env(t, builder, TopicBars, "AAPL", struct{ N int }{i})); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// The writer's records are still buffered, so the segment on disk ends
+	// mid-stream from a reader's point of view.
+	if err := idle.Run(context.Background()); !errors.Is(err, ErrClosed) {
+		t.Fatalf("Run after Close: want ErrClosed, got %v", err)
+	}
+	if _, err := idle.topic(TopicBars); !errors.Is(err, ErrClosed) {
+		t.Fatalf("a closed bus must not open topics, got %v", err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewWALBus(WALOptions{Dir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	if d := r.Depth(TopicBars); d != 3 {
+		t.Fatalf("depth %d after a closed bus's Run, want 3", d)
 	}
 }
 

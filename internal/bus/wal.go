@@ -166,6 +166,11 @@ func (b *WALBus) topic(name string) (*walTopic, error) {
 	if t, ok = b.topics[name]; ok {
 		return t, nil
 	}
+	// Opening a topic may truncate its tail, which is only safe while this bus
+	// holds the directory lock. After Close it does not.
+	if b.closed {
+		return nil, ErrClosed
+	}
 	dir := filepath.Join(b.dir, sanitizeTopic(name))
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("wal: topic dir %s: %w", name, err)
@@ -425,16 +430,30 @@ func (b *WALBus) SeekToBeginning(topic, group string) error {
 	return b.commitOffset(topic, group, 0)
 }
 
-// Run drives delivery until ctx is cancelled.
+// Run drives delivery until ctx is cancelled or the bus is closed.
+//
+// The closed check and wg.Add happen under the same lock Close takes to set
+// closed, so a Run that loses the race with Close starts nothing. Before this,
+// a Run scheduled after Close could still start consumers, and a consumer's
+// first read lazily opened the topic on a bus that had already released the
+// directory lock -- and opening a topic truncates a torn tail, which cut off
+// records another bus was appending to the same log.
 func (b *WALBus) Run(ctx context.Context) error {
-	b.mu.RLock()
+	b.mu.Lock()
+	if b.closed {
+		b.mu.Unlock()
+		return ErrClosed
+	}
 	subs := append([]*walSub(nil), b.subs...)
-	b.mu.RUnlock()
+	b.wg.Add(len(subs))
+	b.mu.Unlock()
 	for _, s := range subs {
-		b.wg.Add(1)
 		go b.consume(ctx, s)
 	}
-	<-ctx.Done()
+	select {
+	case <-ctx.Done():
+	case <-b.stopCh:
+	}
 	b.wg.Wait()
 	return nil
 }
@@ -444,6 +463,13 @@ func (b *WALBus) consume(ctx context.Context, s *walSub) {
 	ticker := time.NewTicker(b.opts.PollInterval)
 	defer ticker.Stop()
 	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-b.stopCh:
+			return
+		default:
+		}
 		n, err := b.drainFrom(ctx, s)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			if b.opts.Metrics != nil {

@@ -6,6 +6,12 @@
 # investigation. Updates are grouped per ecosystem so a week of churn is one PR
 # to review, not twenty. Security updates are not grouped or delayed: each one
 # arrives as soon as GitHub publishes the advisory.
+#
+# Major versions (and Go minor versions) are ignored on purpose. They are
+# migrations, not bumps -- Tailwind 3 to 4 moves its PostCSS plugin to another
+# package, Go 1.27.0 shipped with HIGH stdlib CVEs fixed only in 1.27.2 -- and
+# a pull request that can only go green after a hand-written migration is noise
+# in the queue. Those upgrades are made deliberately, in their own change.
 version: 2
 
 updates:
@@ -25,6 +31,11 @@ updates:
     directory: /deploy
     schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
     commit-message: { prefix: "deps(docker)" }
+    ignore:
+      # Patch releases only (1.26.9 -> 1.26.10). Moving to a new Go minor also
+      # moves go.mod's go and toolchain lines, so it is done by hand.
+      - dependency-name: golang
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: github-actions
     directory: /
@@ -39,6 +50,9 @@ updates:
     schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
     open-pull-requests-limit: 5
     commit-message: { prefix: "deps(frontend)" }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       frontend-minor-patch:
         update-types: [minor, patch]
@@ -46,6 +60,11 @@ updates:
   - package-ecosystem: pip
     directory: /ml
     schedule: { interval: monthly }
+    # requirements.txt holds minimum versions (numpy>=1.24), and CI installs the
+    # newest release that supports its Python. Raising a floor to the latest
+    # release only breaks that: numpy 2.5 needs Python 3.12 and CI runs 3.11.
+    # Floors move when an advisory demands it, which is what this does.
+    versioning-strategy: increase-if-necessary
     commit-message: { prefix: "deps(ml)" }
     groups:
       ml:
