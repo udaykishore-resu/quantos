@@ -38,6 +38,17 @@ interface Extent {
   max: number;
 }
 
+// Math.max(...xs) passes every element as a function argument, and engines cap
+// the argument count (V8 throws "Maximum call stack size exceeded" somewhere
+// past ~100k). A long backtest's equity or drawdown series crosses that, so
+// reduce with a loop instead. `floor` is the result for an empty input and
+// the lower bound otherwise.
+function maxOf(values: number[], floor: number): number {
+  let m = floor;
+  for (const v of values) if (v > m) m = v;
+  return m;
+}
+
 function extent(values: number[]): Extent {
   let min = Infinity;
   let max = -Infinity;
@@ -365,7 +376,7 @@ export function ReliabilityChart({
   const sx = (v: number) => pad.left + clamp01(v) * w;
   const sy = (v: number) => pad.top + h - clamp01(v) * h;
   const totalCount = usable.reduce((a, b) => a + b.count, 0);
-  const maxCount = Math.max(...usable.map((b) => b.count));
+  const maxCount = maxOf(usable.map((b) => b.count), -Infinity);
 
   const thin = usable.filter((b) => b.count < minCount);
 
@@ -481,7 +492,7 @@ export function BarChart({
   }
   const values = usable.map((d) => d.value);
   if (isFiniteNumber(reference)) values.push(reference);
-  const max = Math.max(...values.map(Math.abs), 1e-9);
+  const max = maxOf(values.map(Math.abs), 1e-9);
   const hasNegative = usable.some((d) => d.value < 0);
 
   return (
@@ -567,7 +578,7 @@ export function DrawdownChart({
   const w = width - pad.left - pad.right;
   const h = height - pad.top - pad.bottom;
   const xs = extent(usable.map((p) => p.x));
-  const worst = Math.min(0, ...usable.map((p) => -Math.abs(p.y)));
+  const worst = -maxOf(usable.map((p) => Math.abs(p.y)), 0);
   const span = Math.abs(worst) || 1;
 
   const sx = (v: number) => pad.left + ((v - xs.min) / (xs.max - xs.min)) * w;
