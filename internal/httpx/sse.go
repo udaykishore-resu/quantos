@@ -190,6 +190,16 @@ func (h *Hub) Handler(heartbeat time.Duration) http.HandlerFunc {
 			topics = strings.Split(t, ",")
 		}
 
+		// The server's WriteTimeout (30s by default) is an absolute deadline
+		// on the whole response, so without this every stream is cut about
+		// 30s in and the dashboard reconnects in a loop. Lift it for this
+		// connection only; the heartbeat and client-disconnect handling below
+		// are what bound a stream's lifetime.
+		if err := http.NewResponseController(w).SetWriteDeadline(time.Time{}); err != nil {
+			Fail(w, r, ErrInternal.WithDetail("streaming is not supported by this server"))
+			return
+		}
+
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache, no-transform")
 		w.Header().Set("Connection", "keep-alive")

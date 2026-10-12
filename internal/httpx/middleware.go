@@ -52,6 +52,11 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
+// Unwrap exposes the underlying writer to http.ResponseController, which the
+// SSE handler uses to lift the server's write deadline. Without it the
+// controller cannot reach the connection and returns ErrNotSupported.
+func (w *statusWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+
 // Flush forwards to the underlying writer, which the SSE handler needs.
 func (w *statusWriter) Flush() {
 	if f, ok := w.ResponseWriter.(http.Flusher); ok {

@@ -208,8 +208,12 @@ export class QuantosClient {
     return this.cfg.baseUrl;
   }
 
+  // Bound, because `this.fetchImpl(url, init)` calls it as a method of the
+  // client: browsers require fetch's receiver to be the window and throw
+  // "Illegal invocation" otherwise. Node does not check, so tests and server
+  // components never saw it.
   private get fetchImpl(): typeof fetch {
-    return this.cfg.fetchImpl ?? globalThis.fetch;
+    return this.cfg.fetchImpl ?? globalThis.fetch.bind(globalThis);
   }
 
   async request<T>(

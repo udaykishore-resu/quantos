@@ -149,7 +149,7 @@ func (s *Server) Start() error {
 		ReadTimeout:       s.cfg.ReadTimeout,
 		ReadHeaderTimeout: 5 * time.Second,
 		// WriteTimeout must not apply to the SSE stream, which is long-lived by
-		// design; the stream handler runs on a route group that resets it.
+		// design; Hub.Handler clears the deadline for its own connection.
 		WriteTimeout: s.cfg.WriteTimeout,
 		IdleTimeout:  s.cfg.IdleTimeout,
 	}
