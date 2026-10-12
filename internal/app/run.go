@@ -13,6 +13,7 @@ import (
 	"github.com/udaykishoreresu/quantos/internal/domain"
 	"github.com/udaykishoreresu/quantos/internal/evaluation"
 	"github.com/udaykishoreresu/quantos/internal/httpx"
+	"github.com/udaykishoreresu/quantos/internal/marketdata"
 	"github.com/udaykishoreresu/quantos/internal/news"
 	"github.com/udaykishoreresu/quantos/internal/pipeline"
 	"github.com/udaykishoreresu/quantos/internal/signal"
@@ -123,6 +124,10 @@ func (a *App) Run(ctx context.Context, roles ...Role) error {
 // stale publishes to market.stale so downstream consumers suspend rather than
 // act on old prices (governance rule G-5).
 func (a *App) runIngest(ctx context.Context) {
+	if live, ok := a.Provider.(*marketdata.Alpaca); ok {
+		a.runLiveIngest(ctx, live)
+		return
+	}
 	builder := bus.NewBuilder(a.Cfg.Service+"/ingest", a.Clock)
 	interval := a.Cfg.Market.TickInterval
 	if interval <= 0 {

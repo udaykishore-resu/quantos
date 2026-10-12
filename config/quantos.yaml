@@ -68,7 +68,13 @@ store:
   retention: 2160h
 
 market:
-  # sim | replay
+  # sim | replay | alpaca
+  #
+  # alpaca is the live feed. It needs QUANTOS_ALPACA_KEY_ID and
+  # QUANTOS_ALPACA_SECRET_KEY (a free paper account's keys work) and a
+  # tick_interval of at least 3s. On the free "iex" feed, prices track the
+  # whole market closely for liquid names, but volumes are one exchange's
+  # share, so volume-based features read low.
   provider: sim
   seed: 20260827
   tick_interval: 1s
@@ -80,6 +86,12 @@ market:
   max_gap_pct: 0.25
   max_spread_bps: 500
   replay_dir: ./testdata/replay
+  alpaca:
+    key_id_env: QUANTOS_ALPACA_KEY_ID
+    secret_key_env: QUANTOS_ALPACA_SECRET_KEY
+    feed: iex              # iex (free) | sip (paid, consolidated tape)
+    exclude: [VIX, DXY]    # indices: no Alpaca stock data
+    history_days: 5        # 1m history read at start-up to warm the indicators
   request_timeout: 5s
   cache_ttl: 2s
   rate_limit_per_sec: 50

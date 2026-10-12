@@ -196,6 +196,27 @@ func New(ctx context.Context, cfg config.Config, opts Options) (*App, error) {
 			return nil, fmt.Errorf("app: %w", err)
 		}
 		a.Provider = rp
+	case "alpaca":
+		ac := cfg.Market.Alpaca
+		exclude := make([]domain.Ticker, 0, len(ac.Exclude))
+		for _, t := range ac.Exclude {
+			exclude = append(exclude, domain.NormalizeTicker(t))
+		}
+		live, err := marketdata.NewAlpaca(marketdata.AlpacaConfig{
+			KeyID: config.Secret(ac.KeyIDEnv), SecretKey: config.Secret(ac.SecretKeyEnv),
+			Feed: ac.Feed, Exclude: exclude, Timeout: cfg.Market.RequestTimeout,
+			DataURL: ac.DataURL, TradingURL: ac.TradingURL,
+		})
+		if err != nil {
+			// Unlike the execution desk, there is nothing useful to degrade to:
+			// silently falling back to the simulator would put simulated
+			// numbers on a dashboard that says it is live.
+			return nil, fmt.Errorf("app: market.provider is alpaca, but %w (set %s and %s)",
+				err, ac.KeyIDEnv, ac.SecretKeyEnv)
+		}
+		a.Provider = live
+		log.Info("live market data", "provider", live.Name(),
+			"note", "the iex feed is one exchange: prices track the market, volumes do not")
 	default:
 		// The simulated tick interval must match the interval the ingest loop
 		// drives it at, or simulated and real time diverge; see Sim.AdvanceTo.

@@ -123,7 +123,7 @@ type StoreConfig struct {
 
 // MarketConfig parameterises data ingestion.
 type MarketConfig struct {
-	Provider         string          `yaml:"provider"` // sim|replay|composite
+	Provider         string          `yaml:"provider"` // sim|replay|alpaca
 	Providers        []string        `yaml:"providers"`
 	Seed             int64           `yaml:"seed"`
 	TickInterval     time.Duration   `yaml:"tick_interval"`
@@ -139,6 +139,28 @@ type MarketConfig struct {
 	RateLimitPerSec  float64         `yaml:"rate_limit_per_sec"`
 	CircuitThreshold int             `yaml:"circuit_threshold"`
 	CircuitCooldown  time.Duration   `yaml:"circuit_cooldown"`
+	// Alpaca configures the live feed used when Provider is "alpaca".
+	Alpaca AlpacaMarketConfig `yaml:"alpaca"`
+}
+
+// AlpacaMarketConfig parameterises the Alpaca market-data feed. The key
+// variables default to the ones the execution desk uses, since one Alpaca
+// paper account serves both.
+type AlpacaMarketConfig struct {
+	KeyIDEnv     string `yaml:"key_id_env"`
+	SecretKeyEnv string `yaml:"secret_key_env"`
+	// Feed is "iex" (free: the IEX exchange only) or "sip" (paid: the
+	// consolidated tape).
+	Feed string `yaml:"feed"`
+	// Exclude lists universe symbols with no Alpaca stock data (indices).
+	Exclude []string `yaml:"exclude"`
+	// HistoryDays is how far back the start-up warm-up reads 1m bars. A few
+	// days covers weekends and the sparse minutes of the IEX feed.
+	HistoryDays int `yaml:"history_days"`
+	// DataURL and TradingURL override Alpaca's hosts. They exist for local
+	// testing against a stub; only Alpaca's own hosts or loopback are accepted.
+	DataURL    string `yaml:"data_url"`
+	TradingURL string `yaml:"trading_url"`
 }
 
 // FeatureConfig parameterises the feature engine.
@@ -395,6 +417,10 @@ func Default() Config {
 			RateLimitPerSec:  50,
 			CircuitThreshold: 5,
 			CircuitCooldown:  30 * time.Second,
+			Alpaca: AlpacaMarketConfig{
+				KeyIDEnv: "QUANTOS_ALPACA_KEY_ID", SecretKeyEnv: "QUANTOS_ALPACA_SECRET_KEY",
+				Feed: "iex", Exclude: []string{"VIX", "DXY"}, HistoryDays: 5,
+			},
 		},
 		Features: FeatureConfig{
 			Interval: domain.Interval1m,
@@ -592,6 +618,11 @@ func applyEnv(c *Config) {
 	set("QUANTOS_CLICKHOUSE_PASSWORD", func(v string) { c.Store.ClickHousePassword = v })
 	set("QUANTOS_REDIS_ADDR", func(v string) { c.Store.RedisAddr = v })
 	set("QUANTOS_MARKET_PROVIDER", func(v string) { c.Market.Provider = v })
+	set("QUANTOS_MARKET_TICK_INTERVAL", func(v string) {
+		if d, err := time.ParseDuration(v); err == nil {
+			c.Market.TickInterval = d
+		}
+	})
 	set("QUANTOS_LLM_PROVIDER", func(v string) { c.LLM.Provider = v })
 	set("QUANTOS_LLM_MODEL", func(v string) { c.LLM.Model = v })
 	set("QUANTOS_AUTH_ENABLED", func(v string) { c.Auth.Enabled = truthy(v) })
@@ -719,6 +750,19 @@ func (c Config) Validate() error {
 	default:
 		add("llm.provider %q is not one of mock|anthropic", c.LLM.Provider)
 	}
+	switch c.Market.Provider {
+	case "sim", "replay":
+	case "alpaca":
+		if c.Market.TickInterval < 3*time.Second {
+			add("market.tick_interval is %s; with provider alpaca it must be at least 3s: each poll costs two "+
+				"requests per 100 symbols, against a free-plan limit of 200 a minute", c.Market.TickInterval)
+		}
+		if f := c.Market.Alpaca.Feed; f != "iex" && f != "sip" {
+			add("market.alpaca.feed %q is not iex or sip", f)
+		}
+	default:
+		add("market.provider %q is not one of sim|replay|alpaca", c.Market.Provider)
+	}
 	if c.Mode == ModeCluster && !c.Auth.Enabled {
 		add("auth.enabled must be true in cluster mode")
 	}
@@ -741,9 +785,10 @@ func (c Config) Validate() error {
 		if e.MaxDriftBps <= 0 || e.TicketTTL <= 0 {
 			add("execution.max_drift_bps and execution.ticket_ttl must be positive")
 		}
-		if e.AutoPropose && c.Market.Provider == "sim" {
-			add("execution.auto_propose needs a real market feed: market.provider is \"sim\", " +
-				"so every signal describes a simulated price series, not the instrument the venue trades")
+		if e.AutoPropose && c.Market.Provider != "alpaca" {
+			add("execution.auto_propose needs a live market feed (market.provider: alpaca); with %q every "+
+				"signal describes a simulated or historical series, not the instrument the venue trades now",
+				c.Market.Provider)
 		}
 		if !c.Auth.Enabled {
 			add("execution.enabled requires auth.enabled: approvals must be attributable to a principal")
