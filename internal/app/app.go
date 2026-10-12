@@ -214,6 +214,19 @@ func New(ctx context.Context, cfg config.Config, opts Options) (*App, error) {
 			return nil, fmt.Errorf("app: market.provider is alpaca, but %w (set %s and %s)",
 				err, ac.KeyIDEnv, ac.SecretKeyEnv)
 		}
+		// Bad keys do not fix themselves, so they stop start-up here rather
+		// than leaving a running service with an empty dashboard. A network
+		// error is different: it may clear, and the ingest loop retries it.
+		cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		_, err = live.GetMarketStatus(cctx)
+		cancel()
+		switch {
+		case errors.Is(err, marketdata.ErrUnauthorized):
+			return nil, fmt.Errorf("app: market.provider is alpaca, but Alpaca rejected the keys in %s/%s: %w",
+				ac.KeyIDEnv, ac.SecretKeyEnv, err)
+		case err != nil:
+			log.Warn("alpaca unreachable at start-up; the ingest loop will keep trying", "error", err)
+		}
 		a.Provider = live
 		log.Info("live market data", "provider", live.Name(),
 			"note", "the iex feed is one exchange: prices track the market, volumes do not")

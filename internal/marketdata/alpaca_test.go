@@ -66,6 +66,14 @@ func alpacaFake(t *testing.T) (*Alpaca, *atomic.Int32) {
 		}
 		_, _ = w.Write([]byte(`{"timestamp":"2026-10-12T10:30:00-04:00","is_open":true,"next_open":"2026-10-13T09:30:00-04:00","next_close":"2026-10-12T16:00:00-04:00"}`))
 	})
+	mux.HandleFunc("GET /v2/calendar", func(w http.ResponseWriter, r *http.Request) {
+		if !auth(w, r) {
+			return
+		}
+		// A normal day and the day after Thanksgiving, which closes at 13:00.
+		_, _ = w.Write([]byte(`[{"date":"2026-11-25","open":"09:30","close":"16:00"},
+		                        {"date":"2026-11-27","open":"09:30","close":"13:00"}]`))
+	})
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
 	a, err := NewAlpaca(AlpacaConfig{KeyID: "k", SecretKey: "s", DataURL: srv.URL, TradingURL: srv.URL})
@@ -155,13 +163,51 @@ func TestAlpacaClockAndErrors(t *testing.T) {
 	}
 	bad, _ := NewAlpaca(AlpacaConfig{KeyID: "wrong", SecretKey: "s", DataURL: a.dataURL, TradingURL: a.tradingURL})
 	_, err = bad.GetQuotes(context.Background(), []domain.Ticker{"AAPL"})
-	if !errors.Is(err, ErrUnavailable) {
-		t.Fatalf("a 401 is ErrUnavailable, got %v", err)
+	if !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("a 401 is ErrUnauthorized, got %v", err)
 	}
 	for i := 0; i < 3; i++ {
 		_, _ = bad.GetMarketStatus(context.Background())
 	}
 	if bad.Healthy(context.Background()) {
 		t.Fatal("three failures in a row should mark the provider unhealthy")
+	}
+}
+
+func TestAlpacaSessions(t *testing.T) {
+	a, _ := alpacaFake(t)
+	ss, err := a.Sessions(context.Background(),
+		time.Date(2026, 11, 25, 0, 0, 0, 0, time.UTC), time.Date(2026, 11, 28, 0, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(ss) != 2 {
+		t.Fatalf("want 2 sessions, got %+v", ss)
+	}
+	// 09:30 and 16:00 ET in late November are 14:30 and 21:00 UTC (EST).
+	if !ss[0].Open.Equal(time.Date(2026, 11, 25, 14, 30, 0, 0, time.UTC)) ||
+		!ss[0].Close.Equal(time.Date(2026, 11, 25, 21, 0, 0, 0, time.UTC)) {
+		t.Fatalf("normal day: %+v", ss[0])
+	}
+	if !ss[1].Close.Equal(time.Date(2026, 11, 27, 18, 0, 0, 0, time.UTC)) {
+		t.Fatalf("half day must close at 13:00 ET: %+v", ss[1])
+	}
+	bar := func(h, m int) domain.Candle {
+		st := time.Date(2026, 11, 25, h, m, 0, 0, time.UTC)
+		return domain.Candle{Start: st, End: st.Add(time.Minute)}
+	}
+	for _, tc := range []struct {
+		c    domain.Candle
+		want bool
+		name string
+	}{
+		{bar(14, 29), false, "pre-market 09:29 ET"},
+		{bar(14, 30), true, "first regular bar 09:30 ET"},
+		{bar(20, 59), true, "last regular bar 15:59 ET"},
+		{bar(21, 0), false, "after-hours 16:00 ET"},
+	} {
+		if got := ss[0].Contains(tc.c); got != tc.want {
+			t.Errorf("%s: got %v", tc.name, got)
+		}
 	}
 }

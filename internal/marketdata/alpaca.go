@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	_ "time/tzdata" // session times are US/Eastern; do not depend on the host's zoneinfo
 
 	"github.com/udaykishoreresu/quantos/internal/domain"
 )
@@ -198,6 +199,9 @@ func (a *Alpaca) get(ctx context.Context, base, path string, q url.Values, out a
 			msg = body.Message
 		}
 		switch {
+		case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden:
+			return fmt.Errorf("%w: alpaca HTTP %d: check the key id and secret, and that they are paper-account keys",
+				ErrUnauthorized, resp.StatusCode)
 		case resp.StatusCode == http.StatusTooManyRequests:
 			return fmt.Errorf("%w: alpaca: %s", ErrRateLimited, msg)
 		case resp.StatusCode == http.StatusNotFound || strings.Contains(strings.ToLower(msg), "invalid symbol"):
@@ -407,4 +411,54 @@ func (a *Alpaca) GetMarketStatus(ctx context.Context) (domain.MarketStatus, erro
 		Session: s, Timestamp: c.Timestamp.UTC(), NextOpen: c.NextOpen.UTC(),
 		NextClose: c.NextClose.UTC(), Venue: "US equities (" + a.Name() + ")",
 	}, nil
+}
+
+// Session is one regular trading session: 09:30 to 16:00 ET on a normal day,
+// earlier on a half day.
+type Session struct {
+	Open  time.Time `json:"open"`
+	Close time.Time `json:"close"`
+}
+
+// Contains reports whether a bar lies wholly inside the session.
+func (s Session) Contains(c domain.Candle) bool {
+	return !c.Start.Before(s.Open) && !c.End.After(s.Close)
+}
+
+var eastern = func() *time.Location {
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		panic("marketdata: no America/New_York zone: " + err.Error())
+	}
+	return loc
+}()
+
+// Sessions returns the regular sessions between two dates from Alpaca's
+// trading calendar, which knows holidays and early closes. Extended hours are
+// deliberately not included: the indicators and the model assume one regular
+// session a day, and pre- and after-hours prints on one exchange are thin
+// enough to look like moves that did not happen.
+func (a *Alpaca) Sessions(ctx context.Context, from, to time.Time) ([]Session, error) {
+	q := url.Values{
+		"start": {from.In(eastern).Format("2006-01-02")},
+		"end":   {to.In(eastern).Format("2006-01-02")},
+	}
+	var days []struct {
+		Date  string `json:"date"`
+		Open  string `json:"open"`
+		Close string `json:"close"`
+	}
+	if err := a.get(ctx, a.tradingURL, "/v2/calendar", q, &days); err != nil {
+		return nil, err
+	}
+	out := make([]Session, 0, len(days))
+	for _, d := range days {
+		open, err1 := time.ParseInLocation("2006-01-02 15:04", d.Date+" "+d.Open, eastern)
+		cl, err2 := time.ParseInLocation("2006-01-02 15:04", d.Date+" "+d.Close, eastern)
+		if err1 != nil || err2 != nil {
+			return nil, fmt.Errorf("%w: alpaca calendar day %+v", ErrInvalidData, d)
+		}
+		out = append(out, Session{Open: open.UTC(), Close: cl.UTC()})
+	}
+	return out, nil
 }

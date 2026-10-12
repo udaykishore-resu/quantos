@@ -21,6 +21,9 @@ var (
 	ErrUnavailable = errors.New("marketdata: provider unavailable")
 	ErrStale       = errors.New("marketdata: data is stale")
 	ErrInvalidData = errors.New("marketdata: data failed validation")
+	// ErrUnauthorized means the provider rejected the credentials. Unlike an
+	// outage it will not fix itself, so callers fail fast on it.
+	ErrUnauthorized = errors.New("marketdata: credentials rejected")
 )
 
 // Capabilities declares what a provider can actually do. Callers negotiate

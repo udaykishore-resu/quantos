@@ -38,6 +38,18 @@ func (a *App) buildExecution(ctx context.Context, cfg config.Config, log *slog.L
 		return
 	}
 
+	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	_, err = venue.Account(cctx)
+	cancel()
+	var apiErr *execution.APIError
+	if errors.As(err, &apiErr) && (apiErr.Status == 401 || apiErr.Status == 403) {
+		fail(fmt.Errorf("Alpaca rejected the keys in %s/%s (HTTP %d); use paper-account keys", e.KeyIDEnv, e.SecretKeyEnv, apiErr.Status))
+		return
+	}
+	if err != nil {
+		log.Warn("execution venue unreachable at start-up; approvals will fail their account check until it returns", "error", err)
+	}
+
 	var st execution.Store
 	if a.Postgres != nil {
 		pg := execution.NewPostgresStore(a.Postgres.DB())

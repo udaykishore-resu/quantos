@@ -15,6 +15,7 @@ type liveFeed interface {
 	GetQuotes(ctx context.Context, tickers []domain.Ticker) ([]domain.Quote, error)
 	GetHistoricalBars(ctx context.Context, req marketdata.BarRequest) ([]domain.Candle, error)
 	GetMarketStatus(ctx context.Context) (domain.MarketStatus, error)
+	Sessions(ctx context.Context, from, to time.Time) ([]marketdata.Session, error)
 	Excluded(t domain.Ticker) bool
 }
 
@@ -37,6 +38,10 @@ type liveIngest struct {
 	lastQuote  map[domain.Ticker]time.Time
 	lastBar    map[domain.Ticker]time.Time
 	lastWarned map[string]time.Time
+	// sessions are the regular sessions known so far; sessionsTo is the
+	// latest instant they are known to cover.
+	sessions   []marketdata.Session
+	sessionsTo time.Time
 }
 
 func (a *App) newLiveIngest(feed liveFeed) *liveIngest {
@@ -87,6 +92,9 @@ func (li *liveIngest) warn(key, msg string, args ...any) {
 // warm reads recent 1m history and feeds it straight to the pipeline, which is
 // the warm-up any live process performs at start-up: the first live bar is
 // then judged against real history rather than against nothing.
+//
+// Only regular-session bars are used. If the trading calendar cannot be read
+// the warm-up is skipped rather than run on unfiltered bars.
 func (li *liveIngest) warm(ctx context.Context) {
 	cfg := li.a.Cfg
 	days := cfg.Market.Alpaca.HistoryDays
@@ -94,39 +102,93 @@ func (li *liveIngest) warm(ctx context.Context) {
 		days = 5
 	}
 	now := li.a.Clock.Now()
-	limit := cfg.Features.MaxHistory
-	if limit < cfg.Features.Warmup {
-		limit = cfg.Features.Warmup
+	from := now.Add(-time.Duration(days) * 24 * time.Hour)
+	if err := li.loadSessions(ctx, from, now); err != nil {
+		li.a.Log.Error("live warm-up skipped: trading calendar unavailable", "error", err)
+		return
 	}
-	bars, err := li.feed.GetHistoricalBars(ctx, marketdata.BarRequest{
-		Tickers: li.tickers, Interval: domain.Interval1m,
-		Start: now.Add(-time.Duration(days) * 24 * time.Hour), End: now, Limit: limit,
+	all, err := li.feed.GetHistoricalBars(ctx, marketdata.BarRequest{
+		Tickers: li.tickers, Interval: domain.Interval1m, Start: from, End: now,
 	})
 	if err != nil {
 		li.a.Log.Error("live warm-up failed; indicators will warm from live bars instead", "error", err)
 		return
 	}
-	for _, c := range bars {
+	keep := cfg.Features.MaxHistory
+	if keep < cfg.Features.Warmup {
+		keep = cfg.Features.Warmup
+	}
+	// Filter to the regular session, then keep the most recent `keep` bars per
+	// symbol. Bars arrive in time order, so counting from the end is enough.
+	inSession := make([]domain.Candle, 0, len(all))
+	extended := 0
+	for _, c := range all {
 		if c.End.After(now) {
 			continue // the minute in progress
 		}
-		li.a.Pipeline.OnBar(ctx, c)
+		if !li.inSession(c) {
+			extended++
+			continue
+		}
+		inSession = append(inSession, c)
+	}
+	counts := map[domain.Ticker]int{}
+	for i := len(inSession) - 1; i >= 0; i-- {
+		counts[inSession[i].Ticker]++
+	}
+	seen := map[domain.Ticker]int{}
+	historical, used := 0, 0
+	for _, c := range inSession {
+		seen[c.Ticker]++
+		if counts[c.Ticker]-seen[c.Ticker] >= keep {
+			continue
+		}
+		used++
+		res := li.a.Pipeline.OnBar(ctx, c)
+		// The read model is updated so the dashboard shows the last real
+		// state — over a weekend there is no live bar to do it until Monday —
+		// but nothing decided on history is published: a signal or alert about
+		// a bar from days ago is not news.
+		if res.Signal != nil {
+			historical++
+		}
+		res.Signal, res.Alerts, res.Invalidated = nil, nil, nil
+		li.a.State.Observe(res)
 		if c.End.After(li.lastBar[c.Ticker]) {
 			li.lastBar[c.Ticker] = c.End
 		}
 	}
-	short := 0
-	counts := map[domain.Ticker]int{}
-	for _, c := range bars {
-		counts[c.Ticker]++
+	if historical > 0 {
+		li.a.Log.Info("warm-up produced signals on historical bars; they were not published", "count", historical)
 	}
+	short := 0
 	for _, t := range li.tickers {
 		if counts[t] < cfg.Features.Warmup {
 			short++
 		}
 	}
-	li.a.Log.Info("live feed warmed", "bars", len(bars), "symbols", len(li.tickers),
-		"symbols_short_of_warmup", short, "days", days)
+	li.a.Log.Info("live feed warmed", "bars", used, "extended_hours_dropped", extended,
+		"symbols", len(li.tickers), "symbols_short_of_warmup", short, "sessions", len(li.sessions), "days", days)
+}
+
+// loadSessions reads the trading calendar for [from, to].
+func (li *liveIngest) loadSessions(ctx context.Context, from, to time.Time) error {
+	ss, err := li.feed.Sessions(ctx, from, to)
+	if err != nil {
+		return err
+	}
+	li.sessions, li.sessionsTo = ss, to
+	return nil
+}
+
+// inSession reports whether a bar lies inside a regular session.
+func (li *liveIngest) inSession(c domain.Candle) bool {
+	for i := len(li.sessions) - 1; i >= 0; i-- {
+		if li.sessions[i].Contains(c) {
+			return true
+		}
+	}
+	return false
 }
 
 // step is one poll.
@@ -181,6 +243,14 @@ func (li *liveIngest) step(ctx context.Context) {
 }
 
 func (li *liveIngest) pollBars(ctx context.Context, now time.Time) {
+	// The calendar is re-read once a day, so today's session — including an
+	// early close — is known before its bars are filtered against it.
+	if now.Sub(li.sessionsTo) > 12*time.Hour || !li.sessionsCover(now) {
+		if err := li.loadSessions(ctx, now.Add(-7*24*time.Hour), now.Add(24*time.Hour)); err != nil {
+			li.warn("calendar", "trading calendar unavailable; no bars published until it returns", "error", err)
+			return
+		}
+	}
 	from := now.Add(-10 * time.Minute)
 	for _, t := range li.tickers {
 		if last := li.lastBar[t]; !last.IsZero() && last.Before(from) && now.Sub(last) < time.Hour {
@@ -199,6 +269,9 @@ func (li *liveIngest) pollBars(ctx context.Context, now time.Time) {
 			continue
 		}
 		li.lastBar[c.Ticker] = c.End
+		if !li.inSession(c) {
+			continue // pre-market or after-hours
+		}
 		if err := li.a.Validator.ValidateCandle(c); err != nil {
 			li.a.publishRejected(ctx, li.builder, c.Ticker, err)
 			continue
@@ -211,4 +284,14 @@ func (li *liveIngest) pollBars(ctx context.Context, now time.Time) {
 			li.a.Metrics.BusErrors.Inc(bus.TopicBars, "publish")
 		}
 	}
+}
+
+// sessionsCover reports whether a known session contains t.
+func (li *liveIngest) sessionsCover(t time.Time) bool {
+	for _, ss := range li.sessions {
+		if !t.Before(ss.Open) && !t.After(ss.Close) {
+			return true
+		}
+	}
+	return false
 }
