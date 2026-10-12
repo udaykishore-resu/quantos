@@ -1,0 +1,339 @@
+{
+  "data": [
+    {
+      "id": "tk-01a7d1f2-aapl",
+      "ticker": "AAPL",
+      "side": "BUY",
+      "quantity": 3,
+      "limit_price": 336.2,
+      "reference_price": 335.86,
+      "source": "signal",
+      "rationale": "Breakout over the 20-day high on 1.8x average volume; regime is risk-on and the model's up-probability (0.58) clears its calibrated threshold. Sized at 1% of equity.",
+      "status": "PROPOSED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T14:27:00Z",
+      "expires_at": "2026-10-12T14:42:00Z",
+      "decided_at": "0001-01-01T00:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-12T14:27:00Z",
+          "status": "PROPOSED",
+          "by": "quantos"
+        }
+      ],
+      "confidence": 0.58,
+      "signal_id": "sig-01a7d1f0"
+    },
+    {
+      "id": "tk-01a7d1f9-msft",
+      "ticker": "MSFT",
+      "side": "SELL",
+      "quantity": 2,
+      "limit_price": 409.6,
+      "reference_price": 410.01,
+      "source": "manual",
+      "rationale": "Trim: MSFT is 12% of the paper account after the run-up; bring it back under the 10% cap.",
+      "status": "PROPOSED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T14:29:00Z",
+      "expires_at": "2026-10-12T14:44:00Z",
+      "decided_at": "0001-01-01T00:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-12T14:29:00Z",
+          "status": "PROPOSED",
+          "by": "operator"
+        }
+      ]
+    },
+    {
+      "id": "tk-01a7d0c4-nvda",
+      "ticker": "NVDA",
+      "side": "BUY",
+      "quantity": 4,
+      "limit_price": 121.3,
+      "reference_price": 121.18,
+      "source": "signal",
+      "rationale": "Momentum continuation after earnings gap held its first-hour low.",
+      "status": "PARTIALLY_FILLED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T14:05:00Z",
+      "expires_at": "2026-10-12T14:20:00Z",
+      "decided_at": "2026-10-12T14:06:10Z",
+      "history": [
+        {
+          "at": "2026-10-12T14:05:00Z",
+          "status": "PROPOSED",
+          "by": "quantos"
+        },
+        {
+          "at": "2026-10-12T14:06:10Z",
+          "status": "APPROVED",
+          "by": "operator"
+        },
+        {
+          "at": "2026-10-12T14:06:11Z",
+          "status": "SUBMITTED",
+          "by": "desk"
+        },
+        {
+          "at": "2026-10-12T14:09:40Z",
+          "status": "PARTIALLY_FILLED",
+          "by": "reconcile"
+        }
+      ],
+      "decided_by": "operator",
+      "checks": [
+        {
+          "name": "allowlist",
+          "passed": true,
+          "detail": "NVDA is on the allowlist"
+        },
+        {
+          "name": "order_notional",
+          "passed": true,
+          "detail": "$485.20 \u2264 $1,000.00"
+        },
+        {
+          "name": "price_drift",
+          "passed": true,
+          "detail": "4.1 bps \u2264 50 bps"
+        },
+        {
+          "name": "position_weight",
+          "passed": true,
+          "detail": "2.4% \u2264 10.0% after the buy"
+        },
+        {
+          "name": "daily_loss",
+          "passed": true,
+          "detail": "day \u22120.3% > \u22122.0%"
+        }
+      ],
+      "order": {
+        "id": "8f1c2a90-alp",
+        "client_order_id": "tk-01a7d0c4-nvda",
+        "ticker": "NVDA",
+        "side": "BUY",
+        "quantity": 4,
+        "limit_price": 121.3,
+        "status": "PARTIALLY_FILLED",
+        "venue_status": "partially_filled",
+        "filled_qty": 2,
+        "avg_fill_price": 121.27,
+        "submitted_at": "2026-10-12T14:06:11Z"
+      },
+      "confidence": 0.56
+    },
+    {
+      "id": "tk-01a7cf10-voo",
+      "ticker": "VOO",
+      "side": "BUY",
+      "quantity": 1,
+      "limit_price": 552.4,
+      "reference_price": 552.1,
+      "source": "manual",
+      "rationale": "Monthly index contribution.",
+      "status": "FILLED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T13:40:00Z",
+      "expires_at": "2026-10-12T13:55:00Z",
+      "decided_at": "2026-10-12T13:41:02Z",
+      "history": [
+        {
+          "at": "2026-10-12T13:40:00Z",
+          "status": "PROPOSED",
+          "by": "operator"
+        },
+        {
+          "at": "2026-10-12T13:41:02Z",
+          "status": "APPROVED",
+          "by": "operator"
+        },
+        {
+          "at": "2026-10-12T13:41:03Z",
+          "status": "SUBMITTED",
+          "by": "desk"
+        },
+        {
+          "at": "2026-10-12T13:41:09Z",
+          "status": "FILLED",
+          "by": "reconcile"
+        }
+      ],
+      "decided_by": "operator",
+      "checks": [
+        {
+          "name": "allowlist",
+          "passed": true,
+          "detail": "VOO is on the allowlist"
+        },
+        {
+          "name": "order_notional",
+          "passed": true,
+          "detail": "$552.40 \u2264 $1,000.00"
+        },
+        {
+          "name": "price_drift",
+          "passed": true,
+          "detail": "1.8 bps \u2264 50 bps"
+        },
+        {
+          "name": "position_weight",
+          "passed": true,
+          "detail": "5.6% \u2264 10.0% after the buy"
+        },
+        {
+          "name": "daily_loss",
+          "passed": true,
+          "detail": "day \u22120.1% > \u22122.0%"
+        }
+      ],
+      "order": {
+        "id": "77ab31d2-alp",
+        "client_order_id": "tk-01a7cf10-voo",
+        "ticker": "VOO",
+        "side": "BUY",
+        "quantity": 1,
+        "limit_price": 552.4,
+        "status": "FILLED",
+        "venue_status": "filled",
+        "filled_qty": 1,
+        "avg_fill_price": 552.18,
+        "submitted_at": "2026-10-12T13:41:03Z"
+      }
+    },
+    {
+      "id": "tk-01a7cd55-tsla",
+      "ticker": "TSLA",
+      "side": "BUY",
+      "quantity": 3,
+      "limit_price": 262.1,
+      "reference_price": 258.4,
+      "source": "signal",
+      "rationale": "Reversal setup at the 50-day average.",
+      "status": "BLOCKED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T13:20:00Z",
+      "expires_at": "2026-10-12T13:35:00Z",
+      "decided_at": "2026-10-12T13:31:44Z",
+      "history": [
+        {
+          "at": "2026-10-12T13:20:00Z",
+          "status": "PROPOSED",
+          "by": "quantos"
+        },
+        {
+          "at": "2026-10-12T13:31:44Z",
+          "status": "BLOCKED",
+          "by": "operator",
+          "reason": "price_drift: the market moved 143.2 bps since the proposal (limit 50 bps)"
+        }
+      ],
+      "status_reason": "price_drift: the market moved 143.2 bps since the proposal (limit 50 bps)",
+      "decided_by": "operator",
+      "checks": [
+        {
+          "name": "allowlist",
+          "passed": true,
+          "detail": "TSLA is on the allowlist"
+        },
+        {
+          "name": "order_notional",
+          "passed": true,
+          "detail": "$786.30 \u2264 $1,000.00"
+        },
+        {
+          "name": "price_drift",
+          "passed": false,
+          "detail": "143.2 bps > 50 bps \u2014 the price moved since the proposal"
+        },
+        {
+          "name": "position_weight",
+          "passed": true,
+          "detail": "3.9% \u2264 10.0% after the buy"
+        },
+        {
+          "name": "daily_loss",
+          "passed": true,
+          "detail": "day \u22120.1% > \u22122.0%"
+        }
+      ],
+      "confidence": 0.54
+    },
+    {
+      "id": "tk-01a7cb02-amzn",
+      "ticker": "AMZN",
+      "side": "BUY",
+      "quantity": 2,
+      "limit_price": 219.8,
+      "reference_price": 219.55,
+      "source": "signal",
+      "rationale": "Relative strength vs. XLY over 10 sessions.",
+      "status": "REJECTED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T13:02:00Z",
+      "expires_at": "2026-10-12T13:17:00Z",
+      "decided_at": "2026-10-12T13:04:30Z",
+      "history": [
+        {
+          "at": "2026-10-12T13:02:00Z",
+          "status": "PROPOSED",
+          "by": "quantos"
+        },
+        {
+          "at": "2026-10-12T13:04:30Z",
+          "status": "REJECTED",
+          "by": "operator",
+          "reason": "already overweight consumer discretionary"
+        }
+      ],
+      "status_reason": "already overweight consumer discretionary",
+      "decided_by": "operator",
+      "confidence": 0.55
+    },
+    {
+      "id": "tk-01a7c9e0-jpm",
+      "ticker": "JPM",
+      "side": "SELL",
+      "quantity": 3,
+      "limit_price": 243.1,
+      "reference_price": 243.35,
+      "source": "signal",
+      "rationale": "Bearish divergence on the daily RSI.",
+      "status": "EXPIRED",
+      "venue": "alpaca-paper",
+      "paper": true,
+      "created_at": "2026-10-12T12:30:00Z",
+      "expires_at": "2026-10-12T12:45:00Z",
+      "decided_at": "0001-01-01T00:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-12T12:30:00Z",
+          "status": "PROPOSED",
+          "by": "quantos"
+        },
+        {
+          "at": "2026-10-12T12:45:00Z",
+          "status": "EXPIRED",
+          "by": "desk",
+          "reason": "no decision within 15m"
+        }
+      ],
+      "status_reason": "no decision within 15m",
+      "confidence": 0.53
+    }
+  ],
+  "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+  "request_id": "mock",
+  "served_at": "2026-10-12T14:30:00Z",
+  "meta": {
+    "count": 7
+  }
+}

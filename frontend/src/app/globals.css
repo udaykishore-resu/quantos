@@ -61,8 +61,11 @@
     @apply font-mono tabular-nums;
   }
 
+  /* relative: screen-reader-only text inside a table is absolutely
+     positioned, and without a positioned ancestor it escapes this scroll
+     box and widens the whole page on a phone. */
   .table-wrap {
-    @apply w-full overflow-x-auto;
+    @apply relative w-full overflow-x-auto;
   }
 
   .data-table {

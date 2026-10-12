@@ -95,11 +95,14 @@ function findById(items: unknown, id: string, key = 'id'): unknown | null {
 export async function resolveMock(
   pathname: string,
   method = 'GET',
+  body?: string,
 ): Promise<{ status: number; body: unknown }> {
   // Strip both the origin-level and versioned prefixes.
   const clean = pathname.replace(/^\/+/, '').replace(/^api\/v1\/?/, '');
   const segs = clean.split('/').filter(Boolean);
   const [a, b, c] = segs;
+
+  if (a === 'execution') return mockExecution(method, segs.slice(1), body);
 
   if (method === 'POST' && a === 'backtests') {
     const run = envelopeData(await readFixture('backtest-queued'));
@@ -238,9 +241,203 @@ export const mockFetch: typeof fetch = async (input, init) => {
         : input.url;
   const { pathname } = new URL(url, 'http://mocks.local');
   const method = (init?.method ?? 'GET').toUpperCase();
-  const { status, body } = await resolveMock(pathname, method);
+  const sent = typeof init?.body === 'string' ? init.body : undefined;
+  const { status, body } = await resolveMock(pathname, method, sent);
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
   });
 };
+
+// --- Execution desk -------------------------------------------------------------
+//
+// A tiny in-memory desk over the execution-*.json fixtures, so the approval
+// page can be exercised end to end with no backend: approve, reject, halt and
+// resume change what the next poll returns, for the life of the dev server.
+// The step-up password is `operator`, matching the shipped dev principal.
+// Open proposals are re-anchored to when the server started, so their
+// countdowns are live rather than long expired.
+
+const MOCK_PASSWORD = 'operator';
+const mockEpoch = Date.now();
+const execPatches = new Map<string, Record<string, unknown>>();
+let execHalt: Record<string, unknown> = { halted: false, at: '0001-01-01T00:00:00Z' };
+
+function errorBody(status: number, code: string, message: string, detail?: string) {
+  return {
+    status,
+    body: {
+      error: { code, message, detail, request_id: 'mock' },
+      disclaimer:
+        'QuantOS is an educational research and paper-trading platform. ' +
+        'Output is probabilistic, may be wrong, and is not financial advice. ' +
+        'No real-money orders are placed.',
+    },
+  };
+}
+
+async function mockTickets(): Promise<Record<string, unknown>[]> {
+  const raw = envelopeData(await readFixture('execution-tickets'));
+  const base = Array.isArray(raw) ? (raw as Record<string, unknown>[]) : [];
+  let open = 0;
+  return base.map((t) => {
+    const patched = execPatches.get(String(t.id));
+    if (t.status !== 'PROPOSED') return patched ?? t;
+    // Count every fixture proposal, decided or not, so deciding one does not
+    // shift the others' expiry.
+    const slot = open++;
+    if (patched) return patched;
+    const created = mockEpoch - (3 + slot * 2) * 60_000;
+    const expires = mockEpoch + (11 - slot * 7) * 60_000;
+    return {
+      ...t,
+      created_at: new Date(created).toISOString(),
+      expires_at: new Date(expires).toISOString(),
+      history: [{ at: new Date(created).toISOString(), status: 'PROPOSED', by: t.source === 'signal' ? 'quantos' : 'operator' }],
+    };
+  });
+}
+
+function parseBody(body: string | undefined): Record<string, unknown> {
+  try {
+    const v: unknown = body ? JSON.parse(body) : {};
+    return v && typeof v === 'object' ? (v as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function mockExecution(
+  method: string,
+  rest: string[],
+  rawBody: string | undefined,
+): Promise<{ status: number; body: unknown }> {
+  const [b, c, d] = rest;
+  const now = new Date().toISOString();
+
+  if (method === 'GET') {
+    if (b === 'status') {
+      const st = envelopeData(await readFixture('execution-status'));
+      if (!st || typeof st !== 'object') return notFound('mocks/execution-status.json is missing');
+      const tickets = await mockTickets();
+      return {
+        status: 200,
+        body: envelope({
+          ...(st as Record<string, unknown>),
+          halt: execHalt,
+          pending: tickets.filter((t) => t.status === 'PROPOSED').length,
+          working: tickets.filter((t) => ['APPROVED', 'SUBMITTED', 'PARTIALLY_FILLED'].includes(String(t.status))).length,
+        }),
+      };
+    }
+    if (b === 'positions') {
+      const fx = await readFixture('execution-positions');
+      return fx ? { status: 200, body: fx } : notFound('mocks/execution-positions.json is missing');
+    }
+    if (b === 'tickets' && !c) {
+      const tickets = await mockTickets();
+      return { status: 200, body: envelope(tickets, { count: tickets.length }) };
+    }
+    if (b === 'tickets' && c) {
+      const t = findById(await mockTickets(), c);
+      return t ? { status: 200, body: envelope(t) } : notFound(`unknown ticket ${c}`);
+    }
+    return notFound(`no mock fixture for /execution/${rest.join('/')}`);
+  }
+
+  const body = parseBody(rawBody);
+
+  if (b === 'halt') {
+    execHalt = { halted: true, by: 'operator', at: now, reason: String(body.reason ?? '') };
+    return { status: 200, body: envelope({ halt: execHalt }) };
+  }
+  if (b === 'resume') {
+    if (body.password !== MOCK_PASSWORD) {
+      return errorBody(401, 'unauthorized', 'authentication required', 're-enter your password to confirm (mock: operator)');
+    }
+    execHalt = { halted: false, at: '0001-01-01T00:00:00Z' };
+    return { status: 200, body: envelope({ halt: execHalt }) };
+  }
+
+  if (b === 'tickets' && c && (d === 'approve' || d === 'reject')) {
+    const t = findById(await mockTickets(), c) as Record<string, unknown> | null;
+    if (!t) return notFound(`unknown ticket ${c}`);
+    if (t.status !== 'PROPOSED') return errorBody(409, 'conflict', 'the ticket has already been decided');
+    const history = [...((t.history as unknown[]) ?? [])];
+
+    if (d === 'reject') {
+      const reason = String(body.reason ?? '');
+      history.push({ at: now, status: 'REJECTED', by: 'operator', ...(reason ? { reason } : {}) });
+      const out = { ...t, status: 'REJECTED', status_reason: reason, decided_by: 'operator', decided_at: now, history };
+      execPatches.set(c, out);
+      return { status: 200, body: envelope(out) };
+    }
+
+    if (body.password !== MOCK_PASSWORD) {
+      return errorBody(401, 'unauthorized', 'authentication required', 're-enter your password to confirm (mock: operator)');
+    }
+    if (execHalt.halted) return errorBody(409, 'conflict', 'execution: the desk is halted');
+    if (Date.parse(String(t.expires_at)) < Date.now()) {
+      history.push({ at: now, status: 'EXPIRED', by: 'operator', reason: 'approved after expiry' });
+      const out = { ...t, status: 'EXPIRED', status_reason: 'approved after expiry', decided_by: 'operator', decided_at: now, history };
+      execPatches.set(c, out);
+      return { status: 409, body: envelope(out) };
+    }
+    const qty = Number(t.quantity);
+    const limit = Number(t.limit_price);
+    const notional = qty * limit;
+    // The one guardrail the fixtures can trip without live data, enforced
+    // here the way the desk does so the blocked path can be seen in mocks.
+    if (notional > 1000) {
+      const reason = `order_notional: $${notional.toFixed(2)} is over the $1,000.00 per-order cap`;
+      history.push({ at: now, status: 'BLOCKED', by: 'operator', reason });
+      const out = {
+        ...t,
+        status: 'BLOCKED',
+        status_reason: reason,
+        decided_by: 'operator',
+        decided_at: now,
+        checks: [
+          { name: 'allowlist', passed: true, detail: `${String(t.ticker)} is on the allowlist` },
+          { name: 'order_notional', passed: false, detail: `$${notional.toFixed(2)} > $1,000.00` },
+        ],
+        history,
+      };
+      execPatches.set(c, out);
+      return { status: 409, body: envelope(out) };
+    }
+    const checks = [
+      { name: 'allowlist', passed: true, detail: `${String(t.ticker)} is on the allowlist` },
+      { name: 'order_notional', passed: true, detail: `$${(qty * limit).toFixed(2)} ≤ $1,000.00` },
+      { name: 'price_drift', passed: true, detail: '3.2 bps ≤ 50 bps' },
+      { name: 'position_weight', passed: true, detail: 'within 10.0% after the order' },
+      { name: 'daily_loss', passed: true, detail: 'day −0.3% > −2.0%' },
+    ];
+    history.push({ at: now, status: 'APPROVED', by: 'operator' }, { at: now, status: 'SUBMITTED', by: 'desk' });
+    const out = {
+      ...t,
+      status: 'SUBMITTED',
+      decided_by: 'operator',
+      decided_at: now,
+      checks,
+      order: {
+        id: `mock-${c}`,
+        client_order_id: c,
+        ticker: t.ticker,
+        side: t.side,
+        quantity: qty,
+        limit_price: limit,
+        status: 'PENDING',
+        venue_status: 'accepted',
+        filled_qty: 0,
+        avg_fill_price: 0,
+        submitted_at: now,
+      },
+      history,
+    };
+    execPatches.set(c, out);
+    return { status: 200, body: envelope(out) };
+  }
+
+  return notFound(`no mock route for ${method} /execution/${rest.join('/')}`);
+}

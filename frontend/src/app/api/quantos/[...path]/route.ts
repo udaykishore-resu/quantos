@@ -54,6 +54,12 @@ const ALLOWED: readonly RegExp[] = [
   /^backtests$/,
   /^backtests\/[A-Za-z0-9\-_]{1,64}$/,
   /^audit$/,
+  // Execution desk reads. The actions (approve, reject, halt, resume) have
+  // their own route handlers under /api/execution with an origin check.
+  /^execution\/status$/,
+  /^execution\/positions$/,
+  /^execution\/tickets$/,
+  /^execution\/tickets\/[A-Za-z0-9\-_]{1,64}$/,
 ];
 
 /** Query parameters the upstream understands. Anything else is dropped. */

@@ -1,0 +1,43 @@
+{
+  "data": {
+    "venue": "alpaca-paper",
+    "paper": true,
+    "halt": {
+      "halted": false,
+      "at": "0001-01-01T00:00:00Z"
+    },
+    "account": {
+      "equity": 100412.55,
+      "last_equity": 100690.1,
+      "cash": 91233.4,
+      "buying_power": 182466.8,
+      "currency": "USD",
+      "blocked": false,
+      "status": "ACTIVE",
+      "paper": true
+    },
+    "limits": {
+      "Allowlist": [
+        "AAPL",
+        "AMZN",
+        "JPM",
+        "MSFT",
+        "NVDA",
+        "TSLA",
+        "VOO"
+      ],
+      "MaxOrderNotional": 1000,
+      "MaxPositionWeight": 0.1,
+      "MaxDailyLossPct": 0.02,
+      "MaxDriftBps": 50,
+      "TicketTTL": 900000000000,
+      "AllowShort": false
+    },
+    "pending": 2,
+    "working": 1,
+    "auto_propose": true
+  },
+  "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+  "request_id": "mock",
+  "served_at": "2026-10-12T14:30:00Z"
+}

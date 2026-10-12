@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "ticker": "MSFT",
+      "quantity": 28,
+      "avg_price": 372.4,
+      "market_price": 410.01,
+      "market_value": 11480.28,
+      "unrealized_pnl": 1053.08
+    },
+    {
+      "ticker": "VOO",
+      "quantity": 10,
+      "avg_price": 541.02,
+      "market_price": 552.1,
+      "market_value": 5521.0,
+      "unrealized_pnl": 110.8
+    },
+    {
+      "ticker": "NVDA",
+      "quantity": 2,
+      "avg_price": 121.27,
+      "market_price": 121.18,
+      "market_value": 242.36,
+      "unrealized_pnl": -0.18
+    }
+  ],
+  "disclaimer": "QuantOS is an educational research and paper-trading platform. Output is probabilistic, may be wrong, and is not financial advice. No real-money orders are placed.",
+  "request_id": "mock",
+  "served_at": "2026-10-12T14:30:00Z",
+  "meta": {
+    "count": 3
+  }
+}

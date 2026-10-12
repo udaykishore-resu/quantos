@@ -1287,3 +1287,127 @@ export const DISCLAIMER =
   'QuantOS is an educational research and paper-trading platform. ' +
   'Output is probabilistic, may be wrong, and is not financial advice. ' +
   'No real-money orders are placed.';
+
+// --- Execution desk (internal/execution) ------------------------------------
+//
+// The approval-gated desk that routes the owner's approved orders to a PAPER
+// brokerage account. Shapes mirror the Go structs field for field; `Limits` has
+// no JSON tags on the Go side, so its keys are the Go field names.
+
+export type TicketStatus =
+  | 'PROPOSED'
+  | 'APPROVED'
+  | 'SUBMITTED'
+  | 'PARTIALLY_FILLED'
+  | 'FILLED'
+  | 'REJECTED'
+  | 'BLOCKED'
+  | 'EXPIRED'
+  | 'CANCELLED'
+  | 'VENUE_REJECTED'
+  | 'FAILED';
+
+export interface TicketCheck {
+  name: string;
+  passed: boolean;
+  detail: string;
+}
+
+export interface TicketEvent {
+  at: string;
+  status: TicketStatus;
+  by: string;
+  reason?: string;
+}
+
+export interface VenueOrder {
+  id: string;
+  client_order_id: string;
+  ticker: Ticker;
+  side: OrderSide;
+  quantity: number;
+  limit_price: number;
+  status: OrderStatus;
+  venue_status: string;
+  filled_qty: number;
+  avg_fill_price: number;
+  submitted_at: string;
+}
+
+export interface Ticket {
+  id: string;
+  ticker: Ticker;
+  side: OrderSide;
+  quantity: number;
+  /** The worst price the owner is agreeing to. */
+  limit_price: number;
+  /** The market price the suggestion was made at. */
+  reference_price: number;
+  /** "signal" or "manual". */
+  source: string;
+  rationale: string;
+  signal_id?: string;
+  confidence?: number;
+  status: TicketStatus;
+  status_reason?: string;
+  venue: string;
+  paper: boolean;
+  created_at: string;
+  expires_at: string;
+  decided_by?: string;
+  /** Go zero time when undecided. */
+  decided_at?: string;
+  checks?: TicketCheck[] | null;
+  order?: VenueOrder | null;
+  history: TicketEvent[] | null;
+}
+
+export interface VenueAccount {
+  equity: number;
+  last_equity: number;
+  cash: number;
+  buying_power: number;
+  currency: string;
+  blocked: boolean;
+  status: string;
+  paper: boolean;
+}
+
+export interface VenuePosition {
+  ticker: Ticker;
+  quantity: number;
+  avg_price: number;
+  market_price: number;
+  market_value: number;
+  unrealized_pnl: number;
+}
+
+export interface HaltState {
+  halted: boolean;
+  reason?: string;
+  by?: string;
+  at?: string;
+}
+
+export interface ExecutionLimits {
+  Allowlist: Ticker[] | null;
+  MaxOrderNotional: number;
+  MaxPositionWeight: number;
+  MaxDailyLossPct: number;
+  MaxDriftBps: number;
+  /** Go time.Duration, nanoseconds. */
+  TicketTTL: number;
+  AllowShort: boolean;
+}
+
+export interface ExecutionStatus {
+  venue: string;
+  paper: boolean;
+  halt: HaltState;
+  account?: VenueAccount;
+  account_error?: string;
+  limits: ExecutionLimits;
+  pending: number;
+  working: number;
+  auto_propose: boolean;
+}

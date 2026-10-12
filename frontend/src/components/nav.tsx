@@ -32,6 +32,7 @@ const SECTIONS: { heading: string; items: { href: string; label: string }[] }[] 
   {
     heading: 'Simulation',
     items: [
+      { href: '/execution', label: 'Approvals' },
       { href: '/paper-trading', label: 'Paper trading' },
       { href: '/settings', label: 'Settings' },
     ],

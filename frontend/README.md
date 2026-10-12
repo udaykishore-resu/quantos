@@ -96,6 +96,38 @@ browser ──/api/stream ─────▶ Next.js server ──Authorization:
 The token is held in memory in the Next.js process, refreshed a minute before
 expiry, and never serialised into a page, a prop, or a script-readable cookie.
 
+## Approvals — the one page that changes something
+
+`/execution` is where you decide on the orders the execution desk proposes for
+the **paper** brokerage account. It is the only page that sends a write the
+platform acts on, so its actions do not go through the read proxy. They have
+their own handlers under `src/app/api/execution/`:
+
+| Route | Body | Password |
+| --- | --- | --- |
+| `POST /api/execution/tickets/{id}/approve` | `{password}` | yes |
+| `POST /api/execution/tickets/{id}/reject` | `{reason?}` | no |
+| `POST /api/execution/halt` | `{reason?}` | no: stopping must be one click |
+| `POST /api/execution/resume` | `{password}` | yes |
+
+- **Same-origin only.** Because the server attaches the token, a request
+  another site makes from your browser would otherwise run as you.
+  `src/lib/server/mutation-guard.ts` refuses anything that is not JSON, whose
+  `Sec-Fetch-Site` is not `same-origin`, or whose `Origin` is not this host.
+- **Whose password.** The API checks the step-up password against the principal
+  the dashboard's token belongs to, and records that principal as the approver.
+  Run the dashboard as *you*: either `QUANTOS_API_TOKEN` minted for your
+  principal (preferred: then the dashboard holds no password at all, and the
+  one you type is the only copy), or `QUANTOS_DEV_SUBJECT` /
+  `QUANTOS_DEV_PASSWORD` set to your own `auth.dev_users` entry. With the dev
+  login, the password also sits in the dashboard's environment, so step-up
+  proves someone is at the keyboard. It does not keep out anyone who can read
+  that environment.
+- **Responses are passed through.** A blocked approval comes back as HTTP 409
+  *with the ticket*, so the page can show which guardrail stopped it.
+- In mock mode the desk is simulated in memory (`mock-transport.ts`) and the
+  step-up password is `operator`.
+
 ## Live updates
 
 `/api/v1/stream` is Server-Sent Events (`internal/httpx/sse.go`). The contract

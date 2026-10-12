@@ -54,6 +54,7 @@ against the corresponding struct in `internal/domain` and its JSON tags.
 | `candles.json`, `candles-<TICKER>.json` | Candles are read from the persistent store, which is not configured locally. |
 | `models.json` | The shipped artifact `ml/artifacts/direction-3class-v1.000339040.d95f1a79.json` **fails validation at load time** — its `metadata` block omits `test_samples`, `test_accuracy` and `test_base_rate`, and `mlinfer` refuses to serve a model whose accuracy is not recorded next to its base-rate benchmark. This fixture is what the registry would return once that artifact loads; its feature list and digest are taken from the artifact itself. |
 | `paper-positions.json`, `paper-orders.json` | The broker had received no orders. The portfolio fixture's `positions` and `sector_exposure` were updated to agree with these. |
+| `execution-status.json`, `execution-tickets.json`, `execution-positions.json` | The execution desk needs Alpaca paper keys and is off by default. Written against `internal/execution` (`Ticket`, `Account`, `Limits` — no JSON tags, so Go field names). The tickets cover every state the page renders, and the AAPL proposal is deliberately over the $1,000 per-order cap so the blocked path can be seen. The mock transport keeps decisions in memory and re-anchors open proposals' expiry to server start. |
 | `readyz-degraded.json` | Not served by default. Copy over `readyz.json` to exercise the "platform is not ready, signal emission is suspended" banner. |
 
 ### Fixtures chosen to be awkward on purpose
