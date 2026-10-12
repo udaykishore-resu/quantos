@@ -4,13 +4,13 @@
 # configuration it reads. No shell, no package manager, no source: the smallest
 # surface that can still do the job.
 
-# The exact patch release, kept equal to the toolchain line in go.mod. A bare
-# minor tag (1.26) is whatever Docker Hub last rebuilt, which can trail a Go
-# security release by days -- long enough for Trivy to fail on a fixed CVE.
-ARG GO_VERSION=1.26.9
-
 # --------------------------------------------------------------- build -----
-FROM golang:${GO_VERSION}-bookworm AS build
+# The exact patch release, never a bare minor tag: golang:1.26 is whatever
+# Docker Hub last rebuilt, which can trail a Go security release by days --
+# long enough for Trivy to fail on a fixed CVE. The tag is written out rather
+# than taken from an ARG so Dependabot can read and bump it, and the policy job
+# in security.yml fails if it falls below the toolchain line in go.mod.
+FROM golang:1.26.9-bookworm AS build
 
 WORKDIR /src
 

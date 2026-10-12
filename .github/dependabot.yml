@@ -1,0 +1,62 @@
+# Dependency updates.
+#
+# The security workflow tells us when the world changed under a commit that was
+# fine yesterday; this file is what opens the pull request that fixes it, so a
+# red scheduled run is followed by a ready-made bump rather than an
+# investigation. Updates are grouped per ecosystem so a week of churn is one PR
+# to review, not twenty. Security updates are not grouped or delayed: each one
+# arrives as soon as GitHub publishes the advisory.
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "deps(go)" }
+    groups:
+      go-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: docker
+    # The golang build image. Its tag carries the Go patch release, which is
+    # also what the standard library inside every binary is; see the policy
+    # check in security.yml that keeps it at or above go.mod's toolchain line.
+    directory: /deploy
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
+    commit-message: { prefix: "deps(docker)" }
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
+    commit-message: { prefix: "deps(actions)" }
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly, day: monday, time: "06:00", timezone: America/New_York }
+    open-pull-requests-limit: 5
+    commit-message: { prefix: "deps(frontend)" }
+    groups:
+      frontend-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: pip
+    directory: /ml
+    schedule: { interval: monthly }
+    commit-message: { prefix: "deps(ml)" }
+    groups:
+      ml:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directories:
+      - /infra/terraform/environments/*
+      - /infra/terraform/modules/*
+    schedule: { interval: monthly }
+    commit-message: { prefix: "deps(terraform)" }
+    groups:
+      terraform:
+        patterns: ["*"]
