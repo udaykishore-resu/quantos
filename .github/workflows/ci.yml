@@ -29,8 +29,8 @@ env:
   # `go` line states the minimum language version the module needs and the
   # `toolchain` line names the patched release CI actually builds with -- keep
   # that one current, since a bare `go 1.26.0` would pin CI to the unpatched
-  # .0 release. deploy/Dockerfile carries the same minor in its ARG and lets
-  # the image supply the patch.
+  # .0 release. deploy/Dockerfile pins the same patch in its ARG; bump both
+  # together when Go ships a security release.
   #
   # The tests are deterministic and seeded; a flake here is a bug, not weather.
   CGO_ENABLED: "0"

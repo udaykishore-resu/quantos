@@ -4,7 +4,10 @@
 # configuration it reads. No shell, no package manager, no source: the smallest
 # surface that can still do the job.
 
-ARG GO_VERSION=1.26
+# The exact patch release, kept equal to the toolchain line in go.mod. A bare
+# minor tag (1.26) is whatever Docker Hub last rebuilt, which can trail a Go
+# security release by days -- long enough for Trivy to fail on a fixed CVE.
+ARG GO_VERSION=1.26.9
 
 # --------------------------------------------------------------- build -----
 FROM golang:${GO_VERSION}-bookworm AS build

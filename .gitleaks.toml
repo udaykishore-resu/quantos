@@ -25,3 +25,10 @@ paths = [
   # api:signal-<id>, which are order identifiers, not credentials.
   '''^frontend/mocks/.*\.json$''',
 ]
+regexes = [
+  # The sequential test HMAC secret in internal/api/execution_test.go as first
+  # committed (5d26e9d). It signs tokens for an in-process test server and
+  # nothing else; the test now builds its secret at runtime, and this entry
+  # only keeps the history scan from failing on that commit.
+  '''0123456789abcdef0123456789abcdef''',
+]
