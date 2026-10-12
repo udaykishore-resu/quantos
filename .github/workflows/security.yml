@@ -126,18 +126,34 @@ jobs:
             --build-arg COMMIT="${GITHUB_SHA::7}" \
             -t quantos/api-gateway:ci .
 
-      - name: trivy
+      - name: trivy (sarif for the Security tab)
+        # Writes the report the Security tab reads, and never fails: a SARIF
+        # file is unreadable in the log, so the gate is the step below.
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: quantos/api-gateway:ci
           format: sarif
           output: trivy.sarif
           severity: CRITICAL,HIGH
-          # The base is distroless/static, so a finding here is almost always in
-          # a Go dependency compiled into the binary rather than in an OS
-          # package. That makes it actionable, which is why this fails the job.
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: trivy (gate)
+        # The same scan as a table, so a failing run names the package, the
+        # installed version and the fixed version in the log itself. The base
+        # is distroless/static, so a finding here is almost always in a Go
+        # dependency or the Go standard library compiled into the binary, which
+        # makes it actionable -- hence the failure.
+        uses: aquasecurity/trivy-action@v0.36.0
+        env:
+          TRIVY_SKIP_DB_UPDATE: "true"
+        with:
+          image-ref: quantos/api-gateway:ci
+          format: table
+          severity: CRITICAL,HIGH
           exit-code: "1"
           ignore-unfixed: true
+          scanners: vuln
 
       - name: upload trivy results
         # Only when the scan produced a file: an earlier failure leaves nothing
