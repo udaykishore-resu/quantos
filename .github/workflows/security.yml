@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: a key committed and then removed in a follow-up is
           # still a key that was published, and a shallow clone cannot see it.
@@ -102,10 +102,10 @@ jobs:
       # reads after the run is green.
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: hadolint
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: deploy/Dockerfile
           # DL3008 (pin apt versions) does not apply: the runtime stage is
@@ -163,7 +163,7 @@ jobs:
         # to upload, and a missing file is a second, misleading failure. Fork
         # pull requests do not hold security-events: write, so they skip it.
         if: always() && hashFiles('trivy.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy.sarif
           category: trivy-image
@@ -189,9 +189,9 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.9.5
           terraform_wrapper: false
@@ -216,7 +216,7 @@ jobs:
       # branch. That file no longer exists there, so the pipe to bash fetched a
       # 404 page, ran it, and the job died at `tflint: command not found`. A
       # release URL on a mutable branch is not a pin; the maintained action is.
-      - uses: terraform-linters/setup-tflint@v6.3.1
+      - uses: terraform-linters/setup-tflint@v6.3.2
         with:
           tflint_version: v0.64.0
 
@@ -241,7 +241,7 @@ jobs:
         # Same guards as the trivy upload: a file must exist, and a fork PR
         # cannot write to code scanning.
         if: always() && hashFiles('tfsec.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: tfsec.sarif
           category: tfsec
@@ -252,7 +252,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: no real-money order routing
         # internal/paper panics at start-up if QUANTOS_ALLOW_REAL_MONEY is set,

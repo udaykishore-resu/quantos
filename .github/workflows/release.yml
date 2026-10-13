@@ -37,12 +37,12 @@ jobs:
     outputs:
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
@@ -89,21 +89,21 @@ jobs:
           - alert-service
           - backtest-service
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: deploy/Dockerfile
@@ -123,7 +123,7 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
-      - uses: sigstore/cosign-installer@v3.5.0
+      - uses: sigstore/cosign-installer@v4.1.2
 
       - name: sign the digest
         # The digest, not the tag. Signing a tag signs a name that can be
@@ -133,7 +133,7 @@ jobs:
           IMAGE: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
         run: cosign sign --yes "${IMAGE}@${DIGEST}"
 
-      - uses: anchore/sbom-action@v0.17.1
+      - uses: anchore/sbom-action@v0.24.3
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}@${{ steps.build.outputs.digest }}
           format: spdx-json
@@ -147,7 +147,7 @@ jobs:
           cosign attest --yes --predicate "sbom-${{ matrix.service }}.spdx.json" \
             --type spdxjson "${IMAGE}@${DIGEST}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ matrix.service }}
           path: sbom-${{ matrix.service }}.spdx.json
@@ -164,11 +164,11 @@ jobs:
       packages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
         with:
           version: v3.15.2
 
@@ -184,7 +184,7 @@ jobs:
       - name: lint what is about to be published
         run: helm lint infra/helm/quantos
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -206,7 +206,7 @@ jobs:
           test -n "$digest" || { echo "helm push printed no digest"; exit 1; }
           echo "digest=${digest}" >> "$GITHUB_OUTPUT"
 
-      - uses: sigstore/cosign-installer@v3.5.0
+      - uses: sigstore/cosign-installer@v4.1.2
 
       - name: sign the chart
         env:
@@ -215,7 +215,7 @@ jobs:
           cosign sign --yes \
             "${REGISTRY}/${{ github.repository_owner }}/charts/quantos@${DIGEST}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: helm-chart
           path: dist/*.tgz
@@ -230,12 +230,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
 
@@ -261,7 +261,7 @@ jobs:
             echo "It routes no real-money orders."
           } > notes.md
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.preflight.outputs.version }}
           body_path: notes.md

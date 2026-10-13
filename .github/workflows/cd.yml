@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: kustomize
         # The release tarball rather than hack/install_kustomize.sh: that script
@@ -116,9 +116,9 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           # OIDC. The trust policy on this role names this repository and the
           # `dev` environment, so a workflow in a fork cannot assume it.
@@ -172,7 +172,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: the tag must exist and be a release
         # Prod deploys a tag, never a branch: what runs in production should be
@@ -188,7 +188,7 @@ jobs:
           }
           echo "deploying ${VERSION}"
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_PROD }}
           aws-region: ${{ env.AWS_REGION }}
