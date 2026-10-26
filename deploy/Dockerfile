@@ -10,7 +10,7 @@
 # long enough for Trivy to fail on a fixed CVE. The tag is written out rather
 # than taken from an ARG so Dependabot can read and bump it, and the policy job
 # in security.yml fails if it falls below the toolchain line in go.mod.
-FROM golang:1.26.9-bookworm AS build
+FROM golang:1.26.10-bookworm AS build
 
 WORKDIR /src
 
